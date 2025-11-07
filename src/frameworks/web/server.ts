@@ -3,9 +3,10 @@ import cors from "cors";
 import http from "http";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
-
+import dotenv from "dotenv";
+dotenv.config();
 import { Server as SocketIOServer } from "socket.io";
-import { AuthController } from "../../interface-adapters/controllers/auth/AuthController";
+import AuthRoutes from "../../interface-adapters/routes/auth";
 import { SocketController } from "../../interface-adapters/controllers/websocket/SocketController";
 import { connectDB } from "../../config/database";
 
@@ -37,9 +38,11 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // Routes
-const authController = new AuthController();
-app.post("/api/auth/register", authController.register);
 
+app.use("/api/auth/", AuthRoutes);
+app.get("/", (req, res) => {
+  res.end("this is working");
+});
 // WebSocket
 new SocketController(io);
 

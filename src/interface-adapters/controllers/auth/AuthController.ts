@@ -1,20 +1,90 @@
+// import { Request, Response } from "express";
+// import { RegisterUserUseCase } from "../../../application/use-cases/auth/RegisterUserUseCase";
+// import { UserRepositoryImpl } from "../../../frameworks/db/repositories/UserRepositoryImpl";
+
+// export class AuthController {
+//   private registerUseCase: RegisterUserUseCase;
+
+//   constructor() {
+//     this.registerUseCase = new RegisterUserUseCase(new UserRepositoryImpl());
+//   }
+
+//   register = async (req: Request, res: Response) => {
+//     try {
+//       const user = await this.registerUseCase.execute(req.body);
+//       res.status(201).json({ userId: user.id, email: user.email });
+//     } catch (err: any) {
+//       res.status(400).json({ error: err.message });
+//     }
+//   };
+// }
 import { Request, Response } from "express";
-import { RegisterUserUseCase } from "../../../application/use-cases/auth/RegisterUserUseCase";
-import { UserRepositoryImpl } from "../../../frameworks/db/repositories/UserRepositoryImpl";
+import User from "../../../frameworks/db/schema/User";
+import bcrypt from "bcryptjs";
+import crypto from "crypto";
+import { sendVerificationEmail } from "../../../utils/sendEmail";
 
-export class AuthController {
-  private registerUseCase: RegisterUserUseCase;
+export const register = async (req: Request, res: Response) => {
+  const { name, email, password, confirmPassword } = req.body;
 
-  constructor() {
-    this.registerUseCase = new RegisterUserUseCase(new UserRepositoryImpl());
+  if (!name || !email || !password || !confirmPassword) {
+    return res.status(400).json({ message: "All fields are required" });
   }
 
-  register = async (req: Request, res: Response) => {
-    try {
-      const user = await this.registerUseCase.execute(req.body);
-      res.status(201).json({ userId: user.id, email: user.email });
-    } catch (err: any) {
-      res.status(400).json({ error: err.message });
+  if (password !== confirmPassword) {
+    return res.status(400).json({ message: "Passwords do not match" });
+  }
+
+  try {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "User already exists" });
     }
-  };
-}
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const verificationTokenExpires = Date.now() + 3600000; // 1 hour
+
+    const user = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      verificationToken: verificationToken,
+      verificationTokenExpires: verificationTokenExpires,
+    });
+
+    await sendVerificationEmail(email, verificationToken);
+
+    res.status(201).json({
+      message:
+        "User registered. Please check your email to verify your account.",
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const verifyEmail = async (req: Request, res: Response) => {
+  const { token } = req.query;
+  try {
+    const user = await User.findOne({
+      verificationToken: token,
+      verificationTokenExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid or expired tosdfsdken" });
+    }
+
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpires = undefined;
+    await user.save();
+
+    res
+      .status(200)
+      .json({ message: "Email verified successfully. You can now log in." });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
