@@ -4,6 +4,7 @@ import http from "http";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
 dotenv.config();
 import { Server as SocketIOServer } from "socket.io";
 import AuthRoutes from "../../interface-adapters/routes/auth";
@@ -17,7 +18,7 @@ const io = new SocketIOServer(server, { cors: { origin: "*" } });
 connectDB();
 
 app.use(express.json());
-
+app.use(cookieParser());
 app.use(
   cors({
     origin: ["http://localhost:5173"],
@@ -40,9 +41,6 @@ app.use(limiter);
 // Routes
 
 app.use("/api/auth/", AuthRoutes);
-app.get("/", (req, res) => {
-  res.end("this is working");
-});
 // WebSocket
 new SocketController(io);
 
