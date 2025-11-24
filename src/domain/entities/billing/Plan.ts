@@ -148,4 +148,7 @@ export class Plan {
   setId(id: string) {
     this._props.id = id;
   }
+  public toJSON() {
+    return this._props;
+  }
 }

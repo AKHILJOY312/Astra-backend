@@ -15,7 +15,6 @@ export class PlanController {
 
   create = async (req: Request, res: Response) => {
     try {
-      console.log(req.body);
       const plan = await this.createPlan.execute(req.body);
       res.status(201).json(plan);
     } catch (err: any) {
@@ -40,6 +39,7 @@ export class PlanController {
   };
 
   delete = async (req: Request, res: Response) => {
+    console.log("delete:" + req.params.id);
     await this.deletePlan.execute({ id: req.params.id });
     res.json({ message: "Plan deleted" });
   };
