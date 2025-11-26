@@ -126,6 +126,7 @@ export class AuthController {
 
     try {
       const data = await this.meUC.execute(userId);
+
       res.json(data);
     } catch (e: any) {
       res.status(404).json({ message: e.message });

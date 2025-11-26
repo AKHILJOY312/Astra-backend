@@ -9,6 +9,6 @@ export interface UpdatePlanDto {
   billingCycle?: "monthly" | "yearly";
   features?: string[];
   maxProjects?: number;
-  maxStorage?: number;
+  maxMembersPerProject?: number;
   isActive?: boolean; // optional toggle
 }

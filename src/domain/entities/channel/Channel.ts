@@ -6,6 +6,8 @@ export interface ChannelProps {
   description?: string;
   createdBy: string;
   isPrivate: boolean;
+  lastMessage?: string;
+  unreadCount?: number;
   createdAt?: Date;
   updatedAt?: Date;
 }

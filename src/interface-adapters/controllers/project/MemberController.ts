@@ -4,12 +4,14 @@ import { AddMemberToProjectUseCase } from "../../../application/use-cases/projec
 import { RemoveMemberFromProjectUseCase } from "../../../application/use-cases/project/RemoveMemberFromProjectUseCase";
 import { ChangeMemberRoleUseCase } from "../../../application/use-cases/project/ChangeMemberRoleUseCase";
 import { z } from "zod";
+import { UserService } from "../../../application/services/UserService";
 
 export class MemberController {
   constructor(
     private addMemberUseCase: AddMemberToProjectUseCase,
     private removeMemberUseCase: RemoveMemberFromProjectUseCase,
-    private changeRoleUseCase: ChangeMemberRoleUseCase
+    private changeRoleUseCase: ChangeMemberRoleUseCase,
+    private userService: UserService
   ) {}
 
   // POST /projects/:projectId/members
@@ -28,10 +30,10 @@ export class MemberController {
     const projectId = req.params.projectId;
     const requestedBy = req.user!.id;
 
-    // Resolve userId from email (you probably have a UserService)
-    const userId = await this.findUserIdByEmail(userEmail);
-    if (!userId) return res.status(404).json({ error: "User not found" });
-
+    const userId = await this.userService.findUserIdByEmail(userEmail);
+    if (!userId) {
+      return res.status(404).json({ error: "User not found" });
+    }
     try {
       const { membership } = await this.addMemberUseCase.execute({
         projectId,
@@ -105,12 +107,5 @@ export class MemberController {
     } catch (err: any) {
       return res.status(403).json({ error: err.message });
     }
-  }
-
-  // Helper – replace with real UserService later
-  private async findUserIdByEmail(email: string): Promise<string | null> {
-    // Example: const user = await UserModel.findOne({ email });
-    // return user?._id.toString() || null;
-    return "671d8f1a9c2b3e4f12345678"; // mock
   }
 }

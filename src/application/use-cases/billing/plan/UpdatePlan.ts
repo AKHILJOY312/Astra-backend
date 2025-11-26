@@ -19,7 +19,8 @@ export class UpdatePlan {
     if (dto.billingCycle !== undefined) plan.setBillingCycle(dto.billingCycle);
     if (dto.features !== undefined) plan.setFeatures(dto.features);
     if (dto.maxProjects !== undefined) plan.setMaxProjects(dto.maxProjects);
-    if (dto.maxStorage !== undefined) plan.setMaxStorage(dto.maxStorage);
+    if (dto.maxMembersPerProject !== undefined)
+      plan.setMaxMembersPerProject(dto.maxMembersPerProject);
     if (dto.isActive !== undefined) plan.setActive(dto.isActive);
 
     plan.setUpdatedAt(new Date());

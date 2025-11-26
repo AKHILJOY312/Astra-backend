@@ -74,7 +74,6 @@ interface PlanDoc extends Document {
   features: string[];
   maxProjects: number;
   maxMembersPerProject: number;
-  maxStorage: number;
   isActive: boolean;
   isDeleted: boolean;
   createdAt?: Date;
@@ -92,10 +91,6 @@ const planSchema = new Schema<PlanDoc>(
     billingCycle: { type: String, enum: ["monthly", "yearly"], required: true },
     features: { type: [String], default: [] },
     maxProjects: { type: Number, required: true, min: 0 },
-    maxStorage: {
-      type: Number,
-      default: 0,
-    },
     maxMembersPerProject: { type: Number, required: true, min: 0, default: 5 },
     isActive: { type: Boolean, default: true },
     isDeleted: { type: Boolean, default: false },
@@ -118,7 +113,6 @@ export const toPlanEntity = (doc: PlanDoc): Plan => {
     features: doc.features,
     maxProjects: doc.maxProjects,
     maxMembersPerProject: doc.maxMembersPerProject,
-    maxStorage: doc.maxStorage,
     isActive: doc.isActive,
     isDeleted: doc.isDeleted,
     createdAt: doc.createdAt,

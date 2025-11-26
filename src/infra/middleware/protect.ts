@@ -1,4 +1,3 @@
-// src/interfaces/middleware/protect.ts
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { IUserRepository } from "../../application/repositories/IUserRepository";
@@ -20,38 +19,31 @@ declare global {
   }
 }
 
-/**
- * Factory function to create protect middleware
- * Injects repository at startup (via container)
- */
 export const createProtectMiddleware = (userRepo: IUserRepository) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     let token: string | undefined;
 
-    // 1. Get token from header
     if (req.headers.authorization?.startsWith("Bearer")) {
       token = req.headers.authorization.split(" ")[1];
     }
-
     if (!token) {
       return res.status(401).json({ message: "Not authorized, no token" });
     }
-
+    console.log(
+      "---------------------------------------------------------------------------------"
+    );
     try {
-      // 2. Verify token
       const decoded = jwt.verify(
         token,
         process.env.ACCESS_TOKEN_SECRET!
       ) as JwtPayload;
-      console.log("3");
-      // 3. Use repository
+
       const user = await userRepo.findById(decoded.id);
 
       if (!user) {
         return res.status(401).json({ message: "User no longer exists" });
       }
 
-      // 4. Attach minimal user data (no password, no tokens)
       req.user = {
         id: user.id!,
         name: user.name,

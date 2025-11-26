@@ -3,6 +3,8 @@ import { Project } from "../../../domain/entities/project/Project";
 import { IProjectRepository } from "../../repositories/IProjectRepository";
 import { IPlanRepository } from "../../repositories/IPlanRepository";
 import { IUserSubscriptionRepository } from "../../repositories/IUserSubscriptionRepository";
+import { ProjectMembership } from "../../../domain/entities/project/ProjectMembership";
+import { IProjectMembershipRepository } from "../../repositories/IProjectMembershipRepository";
 
 export interface CreateProjectDTO {
   projectName: string;
@@ -19,12 +21,12 @@ export class CreateProjectUseCase {
   constructor(
     private projectRepo: IProjectRepository,
     private subscriptionRepo: IUserSubscriptionRepository,
-    private planRepo: IPlanRepository
+    private planRepo: IPlanRepository,
+    private membershipRepo: IProjectMembershipRepository
   ) {}
 
   async execute(input: CreateProjectDTO): Promise<CreateProjectResultDTO> {
     const { ownerId, projectName, description, imageUrl } = input;
-
     // 1. Count current projects
     const currentCount = await this.projectRepo.countByOwnerId(ownerId);
 
@@ -53,7 +55,14 @@ export class CreateProjectUseCase {
     });
 
     const savedProject = await this.projectRepo.create(project);
+    const membership = new ProjectMembership({
+      projectId: savedProject.id!,
+      userId: ownerId,
+      role: "manager",
+      joinedAt: new Date(),
+    });
 
+    await this.membershipRepo.create(membership);
     return { project: savedProject };
   }
 }

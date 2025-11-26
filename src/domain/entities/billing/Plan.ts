@@ -9,7 +9,6 @@ export interface PlanProps {
   features: string[];
   maxProjects: number;
   maxMembersPerProject: number;
-  maxStorage: number;
   isActive: boolean;
   isDeleted: boolean;
   createdAt?: Date;
@@ -60,9 +59,6 @@ export class Plan {
   }
   get maxMembersPerProject() {
     return this._props.maxMembersPerProject;
-  }
-  get maxStorage() {
-    return this._props.maxStorage;
   }
 
   get isActive() {
@@ -135,9 +131,8 @@ export class Plan {
   setMaxProjects(max: number) {
     this._props.maxProjects = max;
   }
-
-  setMaxStorage(max: number) {
-    this._props.maxStorage = max;
+  setMaxMembersPerProject(max: number) {
+    this._props.maxProjects = max;
   }
 
   setActive(isActive: boolean) {

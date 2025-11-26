@@ -28,7 +28,29 @@ import { SoftDeletePlan } from "../application/use-cases/billing/plan/SoftDelete
 import { GetPlansPaginated } from "../application/use-cases/billing/plan/GetPlansPaginated";
 import { PlanController } from "../interface-adapters/controllers/plan/PlanController";
 
+import { ProjectRepository } from "../infra/db/mongoose/repositories/ProjectRepository";
+import { ProjectMembershipRepository } from "../infra/db/mongoose/repositories/ProjectMembershipRepository";
+import { ChannelRepository } from "../infra/db/mongoose/repositories/ChannelRepository";
+import { UserSubscriptionRepository } from "../infra/db/mongoose/repositories/UserSubscriptionRepository";
+
+import { CreateProjectUseCase } from "../application/use-cases/project/CreateProjectUseCase";
+import { AddMemberToProjectUseCase } from "../application/use-cases/project/AddMemberToProjectUseCase";
+import { RemoveMemberFromProjectUseCase } from "../application/use-cases/project/RemoveMemberFromProjectUseCase";
+import { ChangeMemberRoleUseCase } from "../application/use-cases/project/ChangeMemberRoleUseCase";
+import { CreateChannelUseCase } from "../application/use-cases/channel/CreateChannelUseCase";
+import { GetUserLimitsUseCase } from "../application/use-cases/upgradetopremium/GetUserLimitsUseCase";
+import { UpgradeSubscriptionUseCase } from "../application/use-cases/upgradetopremium/UpgradeSubscriptionUseCase";
+
+import { ProjectController } from "../interface-adapters/controllers/project/ProjectController";
+import { MemberController } from "../interface-adapters/controllers/project/MemberController";
+import { ChannelController } from "../interface-adapters/controllers/channel/ChannelController";
+import { SubscriptionController } from "../interface-adapters/controllers/plan/SubscriptionController";
+import { UserService } from "../application/services/UserService";
+import { GetUserProjectsUseCase } from "../application/use-cases/project/GetUserProjectsUseCase";
+
 const userRepo = new UserRepository();
+const userService = new UserService(userRepo);
+
 const authSvc = new JwtAuthService();
 const emailSvc = new NodemailerEmailService();
 
@@ -86,24 +108,6 @@ export const planController = new PlanController(
 
 // ==================== PROJECT & CHANNEL & SUBSCRIPTION ====================
 
-import { ProjectRepository } from "../infra/db/mongoose/repositories/ProjectRepository";
-import { ProjectMembershipRepository } from "../infra/db/mongoose/repositories/ProjectMembershipRepository";
-import { ChannelRepository } from "../infra/db/mongoose/repositories/ChannelRepository";
-import { UserSubscriptionRepository } from "../infra/db/mongoose/repositories/UserSubscriptionRepository";
-
-import { CreateProjectUseCase } from "../application/use-cases/project/CreateProjectUseCase";
-import { AddMemberToProjectUseCase } from "../application/use-cases/project/AddMemberToProjectUseCase";
-import { RemoveMemberFromProjectUseCase } from "../application/use-cases/project/RemoveMemberFromProjectUseCase";
-import { ChangeMemberRoleUseCase } from "../application/use-cases/project/ChangeMemberRoleUseCase";
-import { CreateChannelUseCase } from "../application/use-cases/channel/CreateChannelUseCase";
-import { GetUserLimitsUseCase } from "../application/use-cases/upgradetopremium/GetUserLimitsUseCase";
-import { UpgradeSubscriptionUseCase } from "../application/use-cases/upgradetopremium/UpgradeSubscriptionUseCase";
-
-import { ProjectController } from "../interface-adapters/controllers/project/ProjectController";
-import { MemberController } from "../interface-adapters/controllers/project/MemberController";
-import { ChannelController } from "../interface-adapters/controllers/channel/ChannelController";
-import { SubscriptionController } from "../interface-adapters/controllers/plan/SubscriptionController";
-
 // Repositories
 const projectRepo = new ProjectRepository();
 const membershipRepo = new ProjectMembershipRepository();
@@ -114,8 +118,10 @@ const userSubRepo = new UserSubscriptionRepository();
 const createProjectUC = new CreateProjectUseCase(
   projectRepo,
   userSubRepo,
-  planRepo
+  planRepo,
+  membershipRepo
 );
+const getUserProjectsUC = new GetUserProjectsUseCase(projectRepo);
 const addMemberUC = new AddMemberToProjectUseCase(
   membershipRepo,
   projectRepo,
@@ -134,11 +140,15 @@ const getLimitsUC = new GetUserLimitsUseCase(
 const upgradeSubUC = new UpgradeSubscriptionUseCase(userSubRepo, planRepo);
 
 // Controllers
-export const projectController = new ProjectController(createProjectUC);
+export const projectController = new ProjectController(
+  createProjectUC,
+  getUserProjectsUC
+);
 export const memberController = new MemberController(
   addMemberUC,
   removeMemberUC,
-  changeRoleUC
+  changeRoleUC,
+  userService
 );
 export const channelController = new ChannelController(createChannelUC);
 export const subscriptionController = new SubscriptionController(

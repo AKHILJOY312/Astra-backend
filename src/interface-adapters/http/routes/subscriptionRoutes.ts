@@ -12,7 +12,7 @@ router.get(
   subscriptionController.getLimits.bind(subscriptionController)
 );
 router.post(
-  "/upgrade",
+  "/razorpay/order",
   subscriptionController.upgrade.bind(subscriptionController)
 );
 

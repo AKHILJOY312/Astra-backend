@@ -6,10 +6,18 @@ import { protect } from "../../../config/container";
 const router = Router();
 
 router.use(protect);
-
+router.use((req, res, next) => {
+  console.log(req.body);
+  next();
+});
 // Project routes
-router.post("/", projectController.createProject.bind(projectController));
 
+router.post("/", projectController.createProject.bind(projectController));
+router.get(
+  "/me",
+  protect,
+  projectController.getUserProjects.bind(projectController)
+);
 // Member routes (nested under project)
 router.post(
   "/:projectId/members",

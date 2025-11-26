@@ -75,9 +75,11 @@ export class PlanRepository implements IPlanRepository {
 
   async findById(id: string): Promise<Plan | null> {
     const doc = await PlanModel.findOne({
-      $or: [{ id }, { _id: id }],
+      id: id,
+      isActive: true,
       isDeleted: false,
     });
+    console.log("doc" + doc);
     return doc ? this.toDomain(doc) : null;
   }
 

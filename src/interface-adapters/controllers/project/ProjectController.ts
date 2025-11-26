@@ -1,11 +1,14 @@
 // src/interfaces/http/controllers/project/ProjectController.ts
 import { Request, Response } from "express";
 import { CreateProjectUseCase } from "../../../application/use-cases/project/CreateProjectUseCase";
-import { AddMemberToProjectUseCase } from "../../../application/use-cases/project/AddMemberToProjectUseCase";
 import { z } from "zod";
+import { GetUserProjectsUseCase } from "../../../application/use-cases/project/GetUserProjectsUseCase";
 
 export class ProjectController {
-  constructor(private createProjectUseCase: CreateProjectUseCase) {}
+  constructor(
+    private createProjectUseCase: CreateProjectUseCase,
+    private getUserProjectsUseCase: GetUserProjectsUseCase
+  ) {}
 
   async createProject(req: Request, res: Response) {
     const schema = z.object({
@@ -15,13 +18,14 @@ export class ProjectController {
     });
 
     const result = schema.safeParse(req.body);
+
     if (!result.success) {
       return res.status(400).json({ error: result.error.format() });
     }
 
     const { projectName, description, imageUrl } = result.data;
     const ownerId = req.user!.id; // from auth middleware
-
+    console.log("======================================================");
     try {
       const { project } = await this.createProjectUseCase.execute({
         projectName,
@@ -45,10 +49,21 @@ export class ProjectController {
     }
   }
 
-  // Helper — you can inject UserRepository or make a service
-  private async resolveUserIdByEmail(email: string): Promise<string | null> {
-    // Implement via UserModel.findOne({ email })
-    // Return user._id.toString() or null
-    return "671d8f1a9c2b3e4f12345678"; // mock
+  async getUserProjects(req: Request, res: Response) {
+    try {
+      const userId = req.user!.id;
+
+      const { projects } = await this.getUserProjectsUseCase.execute({
+        userId,
+      });
+
+      return res.status(200).json({
+        success: true,
+        data: projects.map((p) => p.toJSON()),
+      });
+    } catch (err: any) {
+      console.error(err);
+      return res.status(500).json({ error: "Failed to fetch projects" });
+    }
   }
 }

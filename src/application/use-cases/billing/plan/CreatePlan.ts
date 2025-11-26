@@ -17,7 +17,6 @@ export class CreatePlan {
       billingCycle: dto.billingCycle,
       features: dto.features,
       maxProjects: dto.maxProjects,
-      maxStorage: dto.maxStorage,
       maxMembersPerProject: dto.maxMembersPerProject,
       isActive: true,
       isDeleted: false,
