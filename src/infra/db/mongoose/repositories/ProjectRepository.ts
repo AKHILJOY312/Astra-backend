@@ -1,6 +1,7 @@
 // src/infrastructure/persistence/mongoose/repositories/ProjectRepository.ts
 import { IProjectRepository } from "../../../../application/repositories/IProjectRepository";
 import { Project } from "../../../../domain/entities/project/Project";
+import { ProjectMembershipModel } from "../modals/ProjectMembershipModal";
 import { ProjectModel, toProjectEntity } from "../modals/ProjectModal";
 
 export class ProjectRepository implements IProjectRepository {
@@ -45,26 +46,19 @@ export class ProjectRepository implements IProjectRepository {
   async findAllByUserId(userId: string): Promise<Project[]> {
     // Projects where user is owner OR member
     const owned = await ProjectModel.find({ ownerId: userId });
-    const memberProjects = await ProjectModel.find({
-      _id: {
-        $in: (
-          await ProjectModel.aggregate([
-            {
-              $lookup: {
-                from: "projectmemberships",
-                localField: "_id",
-                foreignField: "projectId",
-                as: "members",
-              },
-            },
-            { $unwind: "$members" },
-            { $match: { "members.userId": userId } },
-            { $project: { _id: 1 } },
-          ])
-        ).map((r: any) => r._id),
-      },
-    });
+    // Step 1: Get all project IDs the user belongs to
+    const membershipDocs = await ProjectMembershipModel.find(
+      { userId: userId },
+      { _id: 0, projectId: 1 } // only fetch projectId
+    );
 
+    const projectIds = membershipDocs.map((doc) => doc.projectId);
+
+    // Step 2: Fetch projects
+    const memberProjects = await ProjectModel.find({
+      _id: { $in: projectIds },
+    });
+    console.log("memberProjects:", memberProjects);
     const all = [...owned, ...memberProjects];
     const unique = all.filter(
       (p, i, a) =>

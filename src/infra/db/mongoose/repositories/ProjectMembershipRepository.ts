@@ -47,7 +47,9 @@ export class ProjectMembershipRepository
     projectId: string,
     userId: string
   ): Promise<ProjectMembership | null> {
+    console.log(projectId, userId);
     const doc = await ProjectMembershipModel.findOne({ projectId, userId });
+    console.log(doc);
     return doc ? toProjectMembershipEntity(doc) : null;
   }
 

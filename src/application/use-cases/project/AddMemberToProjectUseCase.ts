@@ -35,6 +35,7 @@ export class AddMemberToProjectUseCase {
       projectId,
       userId
     );
+
     if (existing) {
       throw new Error("User is already a member of this project");
     }
