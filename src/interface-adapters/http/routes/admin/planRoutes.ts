@@ -12,9 +12,8 @@ router.use((req, res, next) => {
 
 router.use(protect, adminOnly);
 
-router.post("/", planController.create);
-router.get("/", planController.getAll);
-router.put("/:id", planController.update);
-router.delete("/:id", planController.delete);
+router.route("/").post(planController.create).get(planController.getAll);
+
+router.route("/:id").put(planController.update).delete(planController.delete);
 
 export default router;

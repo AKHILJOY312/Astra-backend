@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import { AdminLogin } from "../../../application/use-cases/auth/admin/AdminLogin";
 import { AdminForgotPassword } from "../../../application/use-cases/auth/admin/AdminForgotPassword";
 import { AdminResetPassword } from "../../../application/use-cases/auth/admin/AdminResetPassword";
+import { HTTP_STATUS } from "../../http/constants/httpStatus";
 
 export class AdminAuthController {
   constructor(
@@ -17,7 +18,7 @@ export class AdminAuthController {
       const result = await this.adminLogin.execute(email, password);
       res.json(result);
     } catch (err: any) {
-      res.status(401).json({ message: err.message });
+      res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: err.message });
     }
   };
 
@@ -27,7 +28,7 @@ export class AdminAuthController {
       const result = await this.adminForgotPassword.execute(email);
       res.json(result);
     } catch (err: any) {
-      res.status(400).json({ message: err.message });
+      res.status(HTTP_STATUS.BAD_REQUEST).json({ message: err.message });
     }
   };
 
@@ -37,7 +38,7 @@ export class AdminAuthController {
       await this.adminResetPassword.execute(token, password, confirmPassword);
       res.json({ message: "Password reset successful" });
     } catch (err: any) {
-      res.status(400).json({ message: err.message });
+      res.status(HTTP_STATUS.BAD_REQUEST).json({ message: err.message });
     }
   };
 }

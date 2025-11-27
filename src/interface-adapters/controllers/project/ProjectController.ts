@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import { CreateProjectUseCase } from "../../../application/use-cases/project/CreateProjectUseCase";
 import { z } from "zod";
 import { GetUserProjectsUseCase } from "../../../application/use-cases/project/GetUserProjectsUseCase";
+import { HTTP_STATUS } from "../../http/constants/httpStatus";
 
 export class ProjectController {
   constructor(
@@ -20,7 +21,9 @@ export class ProjectController {
     const result = schema.safeParse(req.body);
 
     if (!result.success) {
-      return res.status(400).json({ error: result.error.format() });
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ error: result.error.format() });
     }
 
     const { projectName, description, imageUrl } = result.data;
@@ -34,18 +37,18 @@ export class ProjectController {
         ownerId,
       });
 
-      return res.status(201).json({
+      return res.status(HTTP_STATUS.CREATED).json({
         success: true,
         data: project.toJSON(),
       });
     } catch (err: any) {
       if (err.message.includes("limit")) {
-        return res.status(403).json({
+        return res.status(HTTP_STATUS.FORBIDDEN).json({
           error: err.message,
           upgradeRequired: true,
         });
       }
-      return res.status(400).json({ error: err.message });
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: err.message });
     }
   }
 
@@ -57,13 +60,15 @@ export class ProjectController {
         userId,
       });
 
-      return res.status(200).json({
+      return res.status(HTTP_STATUS.OK).json({
         success: true,
         data: projects.map((p) => p.toJSON()),
       });
     } catch (err: any) {
       console.error(err);
-      return res.status(500).json({ error: "Failed to fetch projects" });
+      return res
+        .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+        .json({ error: "Failed to fetch projects" });
     }
   }
 }

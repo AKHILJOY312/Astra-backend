@@ -5,6 +5,7 @@ import { RemoveMemberFromProjectUseCase } from "../../../application/use-cases/p
 import { ChangeMemberRoleUseCase } from "../../../application/use-cases/project/ChangeMemberRoleUseCase";
 import { z } from "zod";
 import { UserService } from "../../../application/services/UserService";
+import { HTTP_STATUS } from "../../http/constants/httpStatus";
 
 export class MemberController {
   constructor(
@@ -23,7 +24,9 @@ export class MemberController {
 
     const parseResult = schema.safeParse(req.body);
     if (!parseResult.success) {
-      return res.status(400).json({ error: parseResult.error.format() });
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ error: parseResult.error.format() });
     }
 
     const { userEmail, role } = parseResult.data;
@@ -42,21 +45,21 @@ export class MemberController {
         requestedBy,
       });
 
-      return res.status(201).json({
+      return res.status(HTTP_STATUS.CREATED).json({
         success: true,
         data: membership.toJSON(),
       });
     } catch (err: any) {
       if (err.message.includes("limit")) {
-        return res.status(403).json({
+        return res.status(HTTP_STATUS.FORBIDDEN).json({
           error: err.message,
           upgradeRequired: true,
         });
       }
       if (err.message.includes("Only project managers")) {
-        return res.status(403).json({ error: err.message });
+        return res.status(HTTP_STATUS.FORBIDDEN).json({ error: err.message });
       }
-      return res.status(400).json({ error: err.message });
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: err.message });
     }
   }
 
@@ -73,7 +76,7 @@ export class MemberController {
       });
       return res.json({ success: true, message: "Member removed" });
     } catch (err: any) {
-      return res.status(403).json({ error: err.message });
+      return res.status(HTTP_STATUS.FORBIDDEN).json({ error: err.message });
     }
   }
 
@@ -85,7 +88,9 @@ export class MemberController {
 
     const parseResult = schema.safeParse(req.body);
     if (!parseResult.success) {
-      return res.status(400).json({ error: parseResult.error.format() });
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ error: parseResult.error.format() });
     }
 
     const { role } = parseResult.data;
@@ -105,7 +110,7 @@ export class MemberController {
         data: membership.toJSON(),
       });
     } catch (err: any) {
-      return res.status(403).json({ error: err.message });
+      return res.status(HTTP_STATUS.FORBIDDEN).json({ error: err.message });
     }
   }
 }

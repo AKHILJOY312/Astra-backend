@@ -2,6 +2,7 @@
 import { Request, Response } from "express";
 import { UpgradeSubscriptionUseCase } from "../../../application/use-cases/upgradetopremium/UpgradeSubscriptionUseCase";
 import { GetUserLimitsUseCase } from "../../../application/use-cases/upgradetopremium/GetUserLimitsUseCase";
+import { HTTP_STATUS } from "../../http/constants/httpStatus";
 
 export class SubscriptionController {
   constructor(
@@ -43,7 +44,7 @@ export class SubscriptionController {
         data: subscription.toJSON(),
       });
     } catch (err: any) {
-      return res.status(400).json({ error: err.message });
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: err.message });
     }
   }
 }

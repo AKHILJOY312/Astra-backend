@@ -4,6 +4,7 @@ import { CreatePlan } from "../../../application/use-cases/billing/plan/CreatePl
 import { UpdatePlan } from "../../../application/use-cases/billing/plan/UpdatePlan";
 import { SoftDeletePlan } from "../../../application/use-cases/billing/plan/SoftDeletePlan";
 import { GetPlansPaginated } from "../../../application/use-cases/billing/plan/GetPlansPaginated";
+import { HTTP_STATUS } from "../../http/constants/httpStatus";
 
 export class PlanController {
   constructor(
@@ -16,9 +17,9 @@ export class PlanController {
   create = async (req: Request, res: Response) => {
     try {
       const plan = await this.createPlan.execute(req.body);
-      res.status(201).json(plan);
+      res.status(HTTP_STATUS.CREATED).json(plan);
     } catch (err: any) {
-      res.status(400).json({ message: err.message });
+      res.status(HTTP_STATUS.BAD_REQUEST).json({ message: err.message });
     }
   };
 

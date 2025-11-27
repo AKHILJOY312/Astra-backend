@@ -2,6 +2,7 @@
 import { Request, Response } from "express";
 import { CreateChannelUseCase } from "../../../application/use-cases/channel/CreateChannelUseCase";
 import { z } from "zod";
+import { HTTP_STATUS } from "../../http/constants/httpStatus";
 
 export class ChannelController {
   constructor(private createChannelUseCase: CreateChannelUseCase) {}
@@ -16,7 +17,9 @@ export class ChannelController {
 
     const result = schema.safeParse(req.body);
     if (!result.success)
-      return res.status(400).json({ error: result.error.format() });
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ error: result.error.format() });
 
     const { projectId, channelName, description, isPrivate } = result.data;
     const createdBy = req.user!.id;
@@ -30,12 +33,12 @@ export class ChannelController {
         createdBy,
       });
 
-      return res.status(201).json({
+      return res.status(HTTP_STATUS.CREATED).json({
         success: true,
         data: channel.toJSON(),
       });
     } catch (err: any) {
-      return res.status(400).json({ error: err.message });
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: err.message });
     }
   }
 }

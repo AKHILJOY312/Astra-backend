@@ -10,6 +10,7 @@ import { ForgotPassword } from "../../../application/use-cases/auth/ForgotPasswo
 import { ResetPassword } from "../../../application/use-cases/auth/ResetPassword";
 import { VerifyResetToken } from "../../../application/use-cases/auth/VerifyResetToken";
 import { GoogleLogin } from "../../../application/use-cases/auth/GoogleLogin";
+import { HTTP_STATUS } from "../../http/constants/httpStatus";
 
 // Dependency container (simple DI – you can replace with Inversify, tsyringe, etc.)
 export class AuthController {
@@ -60,9 +61,9 @@ export class AuthController {
   register = async (req: Request, res: Response) => {
     try {
       const result = await this.registerUC.execute(req.body);
-      res.status(201).json(result);
+      res.status(HTTP_STATUS.CREATED).json(result);
     } catch (e: any) {
-      res.status(400).json({ message: e.message });
+      res.status(HTTP_STATUS.BAD_REQUEST).json({ message: e.message });
     }
   };
 
@@ -74,7 +75,7 @@ export class AuthController {
       const msg = await this.verifyEmailUC.execute(token);
       res.json(msg);
     } catch (e: any) {
-      res.status(400).json({ message: e.message });
+      res.status(HTTP_STATUS.BAD_REQUEST).json({ message: e.message });
     }
   };
 
@@ -95,19 +96,22 @@ export class AuthController {
 
       res.json({ message: "Login successful", accessToken, user });
     } catch (e: any) {
-      res.status(401).json({ message: e.message });
+      res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: e.message });
     }
   };
 
   refreshToken = async (req: Request, res: Response) => {
     const token = req.cookies.refreshToken;
-    if (!token) return res.status(401).json({ message: "No refresh token" });
+    if (!token)
+      return res
+        .status(HTTP_STATUS.UNAUTHORIZED)
+        .json({ message: "No refresh token" });
 
     try {
       const { accessToken } = await this.refreshUC.execute(token);
       res.json({ accessToken });
     } catch (e: any) {
-      res.status(401).json({ message: e.message });
+      res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: e.message });
     }
   };
 
@@ -129,19 +133,24 @@ export class AuthController {
 
       res.json(data);
     } catch (e: any) {
-      res.status(404).json({ message: e.message });
+      res.status(HTTP_STATUS.NOT_FOUND).json({ message: e.message });
     }
   };
 
   forgotPassword = async (req: Request, res: Response) => {
     const { email } = req.body;
-    if (!email) return res.status(400).json({ message: "Email is required" });
+    if (!email)
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ message: "Email is required" });
 
     try {
       const msg = await this.forgotUC.execute(email);
       res.json(msg);
     } catch (e: any) {
-      res.status(500).json({ message: e.message });
+      res
+        .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+        .json({ message: e.message });
     }
   };
 
@@ -153,7 +162,7 @@ export class AuthController {
       const msg = await this.resetUC.execute(token, password, confirmPassword);
       res.json(msg);
     } catch (e: any) {
-      res.status(400).json({ message: e.message });
+      res.status(HTTP_STATUS.BAD_REQUEST).json({ message: e.message });
     }
   };
 
@@ -164,7 +173,7 @@ export class AuthController {
       const { valid } = await this.verifyResetUC.execute(token);
       res.json({ message: "Reset token verified", valid });
     } catch (e: any) {
-      res.status(400).json({ message: e.message });
+      res.status(HTTP_STATUS.BAD_REQUEST).json({ message: e.message });
     }
   };
 }
