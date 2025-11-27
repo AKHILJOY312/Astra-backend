@@ -93,9 +93,16 @@ export class PlanRepository implements IPlanRepository {
     return PlanModel.countDocuments({ isDeleted: false });
   }
 
-  // Bonus: useful for use cases
   async findAllActive(): Promise<Plan[]> {
     const docs = await PlanModel.find({ isActive: true, isDeleted: false });
     return docs.map((doc) => this.toDomain(doc));
+  }
+  async findByName(name: string): Promise<Plan | null> {
+    const doc = await PlanModel.findOne({
+      name: { $regex: `^${name}$`, $options: "i" }, // case insensitive
+      isDeleted: false,
+    });
+
+    return doc ? this.toDomain(doc) : null;
   }
 }

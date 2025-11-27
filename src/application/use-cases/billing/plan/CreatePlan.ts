@@ -7,6 +7,11 @@ export class CreatePlan {
   constructor(private planRepo: IPlanRepository) {}
 
   async execute(dto: CreatePlanDto): Promise<Plan> {
+    const existing = await this.planRepo.findByName(dto.name);
+    if (existing) {
+      throw new Error("A plan with this name already exists.");
+    }
+
     const plan = new Plan({
       id: uuidv4(),
       name: dto.name,
