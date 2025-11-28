@@ -28,7 +28,7 @@ export class ProjectController {
 
     const { projectName, description, imageUrl } = result.data;
     const ownerId = req.user!.id;
-    console.log("======================================================");
+
     try {
       const { project } = await this.createProjectUseCase.execute({
         projectName,

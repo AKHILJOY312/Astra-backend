@@ -1,4 +1,3 @@
-// src/application/use-cases/GetMe.ts
 import { IUserRepository } from "../../repositories/IUserRepository";
 
 export class GetMe {

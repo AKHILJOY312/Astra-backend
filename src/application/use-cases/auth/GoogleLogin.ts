@@ -1,4 +1,3 @@
-// src/application/use-cases/auth/GoogleLogin.ts
 import { User } from "../../../domain/entities/user/User";
 import { IUserRepository } from "../../repositories/IUserRepository";
 import { IAuthService } from "../../services/IAuthService";

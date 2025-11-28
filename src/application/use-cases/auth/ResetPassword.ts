@@ -19,9 +19,6 @@ export class ResetPassword {
     if (!user) throw new Error("Invalid or expired token");
     const hashed = await this.auth.hashPassword(password);
 
-    // Update password via the entity (keeps encapsulation)
-    // Here we bypass the entity setter for brevity – you can add one if you want.
-
     user.setPassword(hashed);
     user.clearResetToken();
     await this.userRepo.save(user);

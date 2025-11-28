@@ -1,4 +1,3 @@
-// src/application/use-cases/VerifyEmail.ts
 import { IUserRepository } from "../../repositories/IUserRepository";
 
 export class VerifyEmail {
