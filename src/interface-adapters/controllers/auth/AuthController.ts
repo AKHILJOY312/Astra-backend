@@ -168,7 +168,7 @@ export class AuthController {
 
   verifyResetToken = async (req: Request, res: Response) => {
     const { token } = req.query as { token: string };
-    console.log(token);
+
     try {
       const { valid } = await this.verifyResetUC.execute(token);
       res.json({ message: "Reset token verified", valid });

@@ -1,4 +1,3 @@
-// src/application/use-cases/ForgotPassword.ts
 import { IUserRepository } from "../../repositories/IUserRepository";
 import { IEmailService } from "../../services/IEmailService";
 import crypto from "crypto";

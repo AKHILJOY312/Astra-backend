@@ -1,4 +1,3 @@
-// src/application/use-cases/RefreshToken.ts
 import { IUserRepository } from "../../repositories/IUserRepository";
 import { IAuthService } from "../../services/IAuthService";
 

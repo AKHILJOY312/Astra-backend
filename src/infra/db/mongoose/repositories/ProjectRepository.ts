@@ -58,7 +58,7 @@ export class ProjectRepository implements IProjectRepository {
     const memberProjects = await ProjectModel.find({
       _id: { $in: projectIds },
     });
-    console.log("memberProjects:", memberProjects);
+
     const all = [...owned, ...memberProjects];
     const unique = all.filter(
       (p, i, a) =>

@@ -1,4 +1,3 @@
-// src/application/use-cases/RegisterUser.ts
 import { User } from "../../../domain/entities/user/User";
 import { IUserRepository } from "../../../application/repositories/IUserRepository";
 import { IAuthService } from "../../../application/services/IAuthService";

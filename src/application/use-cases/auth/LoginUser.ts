@@ -1,5 +1,3 @@
-// src/application/use-cases/LoginUser.ts
-
 import { IUserRepository } from "../../repositories/IUserRepository";
 import { IAuthService } from "../../services/IAuthService";
 
