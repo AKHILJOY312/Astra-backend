@@ -4,6 +4,7 @@ import { CreateProjectUseCase } from "../../../application/use-cases/project/Cre
 import { z } from "zod";
 import { GetUserProjectsUseCase } from "../../../application/use-cases/project/GetUserProjectsUseCase";
 import { HTTP_STATUS } from "../../http/constants/httpStatus";
+import { ERROR_MESSAGES } from "@/interface-adapters/http/constants/messages";
 
 export class ProjectController {
   constructor(
@@ -68,7 +69,7 @@ export class ProjectController {
       console.error(err);
       return res
         .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-        .json({ error: "Failed to fetch projects" });
+        .json({ error: ERROR_MESSAGES.FAILED_FETCH });
     }
   }
 }

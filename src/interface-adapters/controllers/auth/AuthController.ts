@@ -11,6 +11,7 @@ import { ResetPassword } from "../../../application/use-cases/auth/ResetPassword
 import { VerifyResetToken } from "../../../application/use-cases/auth/VerifyResetToken";
 import { GoogleLogin } from "../../../application/use-cases/auth/GoogleLogin";
 import { HTTP_STATUS } from "../../http/constants/httpStatus";
+import { AUTH_MESSAGES } from "@/interface-adapters/http/constants/messages";
 
 // Dependency container (simple DI – you can replace with Inversify, tsyringe, etc.)
 export class AuthController {
@@ -94,7 +95,7 @@ export class AuthController {
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
-      res.json({ message: "Login successful", accessToken, user });
+      res.json({ message: AUTH_MESSAGES.LOGIN_SUCCESS, accessToken, user });
     } catch (e: any) {
       res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: e.message });
     }
@@ -105,7 +106,7 @@ export class AuthController {
     if (!token)
       return res
         .status(HTTP_STATUS.UNAUTHORIZED)
-        .json({ message: "No refresh token" });
+        .json({ message: AUTH_MESSAGES.NO_REFRESH_TOKEN });
 
     try {
       const { accessToken } = await this.refreshUC.execute(token);
@@ -121,7 +122,7 @@ export class AuthController {
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
     });
-    res.json({ message: "Logged out" });
+    res.json({ message: AUTH_MESSAGES.LOGOUT_SUCCESS });
   };
 
   me = async (req: Request, res: Response) => {
@@ -142,7 +143,7 @@ export class AuthController {
     if (!email)
       return res
         .status(HTTP_STATUS.BAD_REQUEST)
-        .json({ message: "Email is required" });
+        .json({ message: AUTH_MESSAGES.EMAIL_REQUIRED });
 
     try {
       const msg = await this.forgotUC.execute(email);
@@ -171,7 +172,7 @@ export class AuthController {
 
     try {
       const { valid } = await this.verifyResetUC.execute(token);
-      res.json({ message: "Reset token verified", valid });
+      res.json({ message: AUTH_MESSAGES.RESET_TOKEN_VALID, valid });
     } catch (e: any) {
       res.status(HTTP_STATUS.BAD_REQUEST).json({ message: e.message });
     }
