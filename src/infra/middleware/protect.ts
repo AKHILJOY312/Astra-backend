@@ -1,6 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { IUserRepository } from "../../application/repositories/IUserRepository";
+import {
+  AUTH_MESSAGES,
+  ERROR_MESSAGES,
+} from "@/interface-adapters/http/constants/messages";
+import { HTTP_STATUS } from "@/interface-adapters/http/constants/httpStatus";
 
 interface JwtPayload {
   id: string;
@@ -27,7 +32,9 @@ export const createProtectMiddleware = (userRepo: IUserRepository) => {
       token = req.headers.authorization.split(" ")[1];
     }
     if (!token) {
-      return res.status(401).json({ message: "Not authorized, no token" });
+      return res
+        .status(HTTP_STATUS.UNAUTHORIZED)
+        .json({ message: AUTH_MESSAGES.ACCESS_DENIED_NO_AUTH });
     }
     console.log(
       "---------------------------------------------------------------------------------"
@@ -41,7 +48,9 @@ export const createProtectMiddleware = (userRepo: IUserRepository) => {
       const user = await userRepo.findById(decoded.id);
 
       if (!user) {
-        return res.status(401).json({ message: "User no longer exists" });
+        return res
+          .status(HTTP_STATUS.UNAUTHORIZED)
+          .json({ message: ERROR_MESSAGES.USER_NOT_FOUND });
       }
 
       req.user = {
@@ -54,7 +63,9 @@ export const createProtectMiddleware = (userRepo: IUserRepository) => {
       next();
     } catch (error) {
       console.error("Token verification failed:", error);
-      return res.status(401).json({ message: "Not authorized, token failed" });
+      return res
+        .status(HTTP_STATUS.UNAUTHORIZED)
+        .json({ message: ERROR_MESSAGES.TOKEN_INVALID_OR_EXPIRED });
     }
   };
 };

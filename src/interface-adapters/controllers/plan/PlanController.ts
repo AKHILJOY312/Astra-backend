@@ -5,6 +5,7 @@ import { UpdatePlan } from "../../../application/use-cases/plan/admin/UpdatePlan
 import { SoftDeletePlan } from "../../../application/use-cases/plan/admin/SoftDeletePlan";
 import { GetPlansPaginated } from "../../../application/use-cases/plan/admin/GetPlansPaginated";
 import { HTTP_STATUS } from "../../http/constants/httpStatus";
+import { PLAN_MESSAGES } from "@/interface-adapters/http/constants/messages";
 
 export class PlanController {
   constructor(
@@ -41,7 +42,7 @@ export class PlanController {
 
       return res.json({
         success: true,
-        message: "Plan updated successfully",
+        message: PLAN_MESSAGES.PLAN_CREATED,
         data: result,
       });
     } catch (error: any) {
@@ -49,13 +50,13 @@ export class PlanController {
 
       return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: error.message || "Failed to update plan",
+        message: error.message || PLAN_MESSAGES.PLAN_UPDATE_FAILED,
       });
     }
   };
 
   delete = async (req: Request, res: Response) => {
     await this.deletePlan.execute({ id: req.params.id });
-    res.json({ message: "Plan deleted" });
+    res.json({ message: PLAN_MESSAGES.PLAN_DELETED });
   };
 }

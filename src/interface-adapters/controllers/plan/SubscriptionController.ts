@@ -4,6 +4,8 @@ import { UpgradeToPlanUseCase } from "@/application/use-cases/upgradetopremium/U
 import { GetUserLimitsUseCase } from "@/application/use-cases/upgradetopremium/GetUserLimitsUseCase";
 import { GetAvailablePlansUseCase } from "@/application/use-cases/plan/user/GetAvailablePlansUseCase";
 import { CapturePaymentUseCase } from "@/application/use-cases/upgradetopremium/CapturePaymentUseCase";
+import { HTTP_STATUS } from "@/interface-adapters/http/constants/httpStatus";
+import { SUB_MESSAGE } from "@/interface-adapters/http/constants/messages";
 
 export class SubscriptionController {
   constructor(
@@ -19,7 +21,9 @@ export class SubscriptionController {
       const plans = await this.getAvailablePlans.execute();
       return res.json({ success: true, plans });
     } catch (err: any) {
-      return res.status(500).json({ success: false, message: err.message });
+      return res
+        .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: err.message });
     }
   }
 
@@ -38,8 +42,8 @@ export class SubscriptionController {
 
     if (!planId) {
       return res
-        .status(400)
-        .json({ success: false, message: "planId is required" });
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ success: false, message: SUB_MESSAGE.PLAN_ID_REQUIRED });
     }
 
     try {
@@ -47,7 +51,7 @@ export class SubscriptionController {
 
       return res.json({
         success: true,
-        message: "Order created successfully",
+        message: SUB_MESSAGE.ORDER_CREATED,
         data: {
           subscription: result.subscription.toJSON(),
           razorpayOrderId: result.razorpayOrderId,
@@ -58,9 +62,9 @@ export class SubscriptionController {
       });
     } catch (err: any) {
       console.log("error: ", err);
-      return res.status(400).json({
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
-        message: err.message || "Upgrade failed",
+        message: err.message || SUB_MESSAGE.UPGRADE_FAILED,
       });
     }
   }
@@ -69,11 +73,13 @@ export class SubscriptionController {
     try {
       const result = await this.captureUseCase.execute(req.body);
       if (!result.success) {
-        return res.status(400).json(result);
+        return res.status(HTTP_STATUS.BAD_REQUEST).json(result);
       }
       return res.json(result);
     } catch (err: any) {
-      return res.status(500).json({ success: false, message: err.message });
+      return res
+        .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: err.message });
     }
   }
 }

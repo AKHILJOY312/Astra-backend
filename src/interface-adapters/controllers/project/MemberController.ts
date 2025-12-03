@@ -6,6 +6,7 @@ import { ChangeMemberRoleUseCase } from "../../../application/use-cases/project/
 import { z } from "zod";
 import { UserService } from "../../../application/services/UserService";
 import { HTTP_STATUS } from "../../http/constants/httpStatus";
+import { ERROR_MESSAGES } from "@/interface-adapters/http/constants/messages";
 
 export class MemberController {
   constructor(
@@ -35,7 +36,9 @@ export class MemberController {
 
     const userId = await this.userService.findUserIdByEmail(userEmail);
     if (!userId) {
-      return res.status(404).json({ error: "User not found" });
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .json({ error: ERROR_MESSAGES.USER_NOT_FOUND });
     }
     try {
       const { membership } = await this.addMemberUseCase.execute({

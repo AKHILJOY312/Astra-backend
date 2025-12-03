@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import http from "http";
+import http, { STATUS_CODES } from "http";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import dotenv from "dotenv";
@@ -12,6 +12,7 @@ import routes from "../../interface-adapters/http/routes/index";
 import { connectDB } from "../../config/database";
 import { setupGoogleStrategy } from "../passport/googleStrategy";
 import passport from "passport";
+import { HTTP_STATUS } from "@/interface-adapters/http/constants/httpStatus";
 
 const app = express();
 const server = http.createServer(app);
@@ -57,7 +58,7 @@ app.use("/api", routes);
 
 //  Catch-all route for undefined endpoints
 app.all("*", (req, res) => {
-  res.status(404).json({
+  res.status(HTTP_STATUS.BAD_REQUEST).json({
     success: false,
     message: `Route not found: ${req.originalUrl}`,
   });
@@ -72,7 +73,7 @@ app.use(
     next: express.NextFunction
   ) => {
     console.error("Error:", err.message);
-    res.status(500).json({
+    res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: "Internal Server Error",
       error: err.message,
