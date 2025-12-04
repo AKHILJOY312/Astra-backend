@@ -4,7 +4,7 @@ import { UserSubscription } from "../../../../domain/entities/billing/UserSubscr
 import {
   UserSubscriptionModel,
   toUserSubscriptionEntity,
-} from "../modals/UserSubscriptionModel";
+} from "../models/UserSubscriptionModel";
 
 export class UserSubscriptionRepository implements IUserSubscriptionRepository {
   async create(subscription: UserSubscription): Promise<UserSubscription> {

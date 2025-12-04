@@ -5,7 +5,8 @@ export interface ChannelProps {
   channelName: string;
   description?: string;
   createdBy: string;
-  isPrivate: boolean;
+  visibleToRoles: string[];
+  permissionsByRole: Record<string, "view" | "message" | "manager">;
   lastMessage?: string;
   unreadCount?: number;
   createdAt?: Date;
@@ -19,7 +20,8 @@ export class Channel {
     this._props = {
       ...props,
       description: props.description || "",
-      isPrivate: props.isPrivate ?? false,
+      visibleToRoles: props.visibleToRoles || [],
+      permissionsByRole: props.permissionsByRole || {},
     };
   }
 
@@ -39,16 +41,20 @@ export class Channel {
   get createdBy() {
     return this._props.createdBy;
   }
-  get isPrivate() {
-    return this._props.isPrivate;
-  }
+
   get createdAt() {
     return this._props.createdAt;
   }
   get updatedAt() {
     return this._props.updatedAt;
   }
+  get visibleToRoles() {
+    return this._props.visibleToRoles;
+  }
 
+  get permissionsByRole() {
+    return this._props.permissionsByRole;
+  }
   // ======= ACTIONS =======
   rename(name: string) {
     if (!name.trim()) throw new Error("Channel name cannot be empty");
@@ -58,15 +64,15 @@ export class Channel {
   updateDescription(description?: string) {
     this._props.description = description?.trim() || "";
   }
-
-  makePrivate() {
-    this._props.isPrivate = true;
+  updateVisibility(roles: string[]) {
+    if (!roles.length)
+      throw new Error("Channel must be visible to at least one role");
+    this._props.visibleToRoles = roles;
   }
 
-  makePublic() {
-    this._props.isPrivate = false;
+  updatePermissions(map: Record<string, "view" | "message" | "manager">) {
+    this._props.permissionsByRole = map;
   }
-
   // ======= SETTERS =======
   setId(id: string) {
     this._props.id = id;

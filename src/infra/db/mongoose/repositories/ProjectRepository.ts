@@ -1,8 +1,8 @@
 // src/infrastructure/persistence/mongoose/repositories/ProjectRepository.ts
 import { IProjectRepository } from "../../../../application/repositories/IProjectRepository";
 import { Project } from "../../../../domain/entities/project/Project";
-import { ProjectMembershipModel } from "../modals/ProjectMembershipModal";
-import { ProjectModel, toProjectEntity } from "../modals/ProjectModal";
+import { ProjectMembershipModel } from "../models/ProjectMembershipModal";
+import { ProjectModel, toProjectEntity } from "../models/ProjectModal";
 
 export class ProjectRepository implements IProjectRepository {
   async create(project: Project): Promise<Project> {

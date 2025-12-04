@@ -10,7 +10,10 @@ interface ChannelDoc extends Document {
   channelName: string;
   description?: string;
   createdBy: mongoose.Types.ObjectId;
-  isPrivate: boolean;
+
+  visibleToRoles: string[];
+  permissionsByRole: Record<string, "message" | "view" | "manager">;
+
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -21,7 +24,12 @@ const channelSchema = new Schema<ChannelDoc>(
     channelName: { type: String, required: true, trim: true },
     description: { type: String, default: "" },
     createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    isPrivate: { type: Boolean, default: false },
+
+    visibleToRoles: [{ type: String, required: true }],
+    permissionsByRole: {
+      type: Object,
+      default: {},
+    },
   },
   { timestamps: true }
 );
@@ -41,7 +49,10 @@ export const toChannelEntity = (doc: ChannelDoc): Channel => {
     channelName: doc.channelName,
     description: doc.description,
     createdBy: doc.createdBy.toString(),
-    isPrivate: doc.isPrivate,
+
+    visibleToRoles: doc.visibleToRoles,
+    permissionsByRole: doc.permissionsByRole,
+
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
   };

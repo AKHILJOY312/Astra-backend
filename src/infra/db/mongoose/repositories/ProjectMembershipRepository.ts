@@ -4,7 +4,7 @@ import { ProjectMembership } from "../../../../domain/entities/project/ProjectMe
 import {
   ProjectMembershipModel,
   toProjectMembershipEntity,
-} from "../modals/ProjectMembershipModal";
+} from "../models/ProjectMembershipModal";
 
 export class ProjectMembershipRepository
   implements IProjectMembershipRepository
