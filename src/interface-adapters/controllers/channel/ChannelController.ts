@@ -1,35 +1,51 @@
 // src/interfaces/http/controllers/channel/ChannelController.ts
 import { Request, Response } from "express";
-import { CreateChannelUseCase } from "../../../application/use-cases/channel/CreateChannelUseCase";
 import { z } from "zod";
 import { HTTP_STATUS } from "../../http/constants/httpStatus";
 
-export class ChannelController {
-  constructor(private createChannelUseCase: CreateChannelUseCase) {}
+import { CreateChannelUseCase } from "@/application/use-cases/channel/CreateChannelUseCase";
+import { EditChannelUseCase } from "@/application/use-cases/channel/EditChannelUseCase";
+import { DeleteChannelUseCase } from "@/application/use-cases/channel/DeleteChannelUseCase";
+import { ListChannelsForUserUseCase } from "@/application/use-cases/channel/ListChannelsForUserUseCase";
 
+export class ChannelController {
+  constructor(
+    private createChannelUC: CreateChannelUseCase,
+    private editChannelUC: EditChannelUseCase,
+    private deleteChannelUC: DeleteChannelUseCase,
+    private listChannelsForUserUC: ListChannelsForUserUseCase
+  ) {}
+
+  // ---------------------------------------------------
+  // CREATE CHANNEL
+  // ---------------------------------------------------
   async createChannel(req: Request, res: Response) {
     const schema = z.object({
-      projectId: z.string(),
-      channelName: z.string().min(1).max(50),
+      channelName: z.string().min(1),
       description: z.string().optional(),
-      isPrivate: z.boolean().optional(),
+
+      visibleToRoles: z.array(z.string()),
+
+      permissionsByRole: z.record(
+        z.string(),
+        z.enum(["view", "message", "manager"])
+      ),
     });
 
-    const result = schema.safeParse(req.body);
+    const result = schema.safeParse({
+      ...req.body,
+    });
     if (!result.success)
       return res
         .status(HTTP_STATUS.BAD_REQUEST)
         .json({ error: result.error.format() });
 
-    const { projectId, channelName, description, isPrivate } = result.data;
     const createdBy = req.user!.id;
 
     try {
-      const { channel } = await this.createChannelUseCase.execute({
-        projectId,
-        channelName,
-        description,
-        isPrivate,
+      const { channel } = await this.createChannelUC.execute({
+        projectId: req.params.projectId,
+        ...result.data,
         createdBy,
       });
 
@@ -39,6 +55,85 @@ export class ChannelController {
       });
     } catch (err: any) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: err.message });
+    }
+  }
+
+  // ---------------------------------------------------
+  // EDIT CHANNEL
+  // ---------------------------------------------------
+  async editChannel(req: Request, res: Response) {
+    const schema = z.object({
+      channelId: z.string(),
+      userId: z.string(),
+      channelName: z.string().optional(),
+      description: z.string().optional(),
+
+      visibleToRoles: z.array(z.string()).optional(),
+
+      permissionsByRole: z
+        .record(z.string(), z.enum(["view", "message", "manager"]))
+        .optional(),
+    });
+
+    const result = schema.safeParse({
+      ...req.body,
+      channelId: req.params.channelId,
+      userId: req.user?.id,
+    });
+    if (!result.success)
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ error: result.error.format() });
+
+    console.log("result: ", result);
+
+    try {
+      await this.editChannelUC.execute({
+        ...result.data,
+      });
+
+      return res.json({ success: true });
+    } catch (err: any) {
+      return res.status(400).json({ error: err.message });
+    }
+  }
+
+  // ---------------------------------------------------
+  // DELETE CHANNEL
+  // ---------------------------------------------------
+  async deleteChannel(req: Request, res: Response) {
+    try {
+      const { channelId } = req.params;
+
+      const deleted = await this.deleteChannelUC.execute(
+        channelId,
+        req.user!.id
+      );
+
+      return res.json({ success: true, data: deleted });
+    } catch (err: any) {
+      return res.status(400).json({ error: err.message });
+    }
+  }
+
+  // ---------------------------------------------------
+  // LIST CHANNELS VISIBLE TO USER
+  // ---------------------------------------------------
+  async listProjectChannelsBasedOnRole(req: Request, res: Response) {
+    try {
+      const { projectId } = req.params;
+
+      const channels = await this.listChannelsForUserUC.execute(
+        projectId,
+        req.user!.id
+      );
+
+      return res.json({
+        success: true,
+        data: channels.map((c) => c.toJSON()),
+      });
+    } catch (err: any) {
+      return res.status(400).json({ error: err.message });
     }
   }
 }

@@ -1,7 +1,7 @@
 // src/infrastructure/persistence/mongoose/repositories/ChannelRepository.ts
-import { IChannelRepository } from "../../../../application/repositories/IChannelRepository";
+import { IChannelRepository } from "@/application/repositories/IChannelRepository";
 import { Channel } from "../../../../domain/entities/channel/Channel";
-import { ChannelModel, toChannelEntity } from "../modals/ChannelsModal";
+import { ChannelModel, toChannelEntity } from "../models/ChannelModal";
 
 export class ChannelRepository implements IChannelRepository {
   async create(channel: Channel): Promise<Channel> {
@@ -10,8 +10,11 @@ export class ChannelRepository implements IChannelRepository {
       channelName: channel.channelName,
       description: channel.description,
       createdBy: channel.createdBy,
-      isPrivate: channel.isPrivate,
+
+      visibleToRoles: channel.visibleToRoles,
+      permissionsByRole: channel.permissionsByRole,
     });
+
     const saved = await doc.save();
     return toChannelEntity(saved);
   }
@@ -20,7 +23,9 @@ export class ChannelRepository implements IChannelRepository {
     await ChannelModel.findByIdAndUpdate(channel.id, {
       channelName: channel.channelName,
       description: channel.description,
-      isPrivate: channel.isPrivate,
+
+      visibleToRoles: channel.visibleToRoles,
+      permissionsByRole: channel.permissionsByRole,
     });
   }
 

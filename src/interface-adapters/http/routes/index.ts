@@ -23,7 +23,7 @@ router.use("/admin/plans", adminPlanRoutes);
 
 // Protected user routes
 router.use("/projects", projectRoutes);
-router.use("/channels", channelRoutes);
+router.use("/projects/:projectId/channels", channelRoutes);
 router.use("/subscription", subscriptionRoutes);
 // router.use("/plans", planRoutes);
 export default router;

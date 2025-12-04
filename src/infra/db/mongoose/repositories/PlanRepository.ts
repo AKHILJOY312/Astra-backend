@@ -1,5 +1,5 @@
 // infrastructure/repositories/PlanRepository.ts
-import { PlanModel } from "../modals/PlanModal";
+import { PlanModel } from "../models/PlanModal";
 import { Plan } from "../../../../domain/entities/billing/Plan";
 import { IPlanRepository } from "../../../../application/repositories/IPlanRepository";
 

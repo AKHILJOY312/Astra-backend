@@ -50,6 +50,9 @@ import { GetUserProjectsUseCase } from "../application/use-cases/project/GetUser
 import { GetAvailablePlansUseCase } from "../application/use-cases/plan/user/GetAvailablePlansUseCase";
 import { RazorpayService } from "@/infra/payment/RazorpayService";
 import { CapturePaymentUseCase } from "@/application/use-cases/upgradetopremium/CapturePaymentUseCase";
+import { EditChannelUseCase } from "@/application/use-cases/channel/EditChannelUseCase";
+import { ListChannelsForUserUseCase } from "@/application/use-cases/channel/ListChannelsForUserUseCase";
+import { DeleteChannelUseCase } from "@/application/use-cases/channel/DeleteChannelUseCase";
 
 const userRepo = new UserRepository();
 const userService = new UserService(userRepo);
@@ -134,7 +137,7 @@ const addMemberUC = new AddMemberToProjectUseCase(
 );
 const removeMemberUC = new RemoveMemberFromProjectUseCase(membershipRepo);
 const changeRoleUC = new ChangeMemberRoleUseCase(membershipRepo);
-const createChannelUC = new CreateChannelUseCase(channelRepo, membershipRepo);
+
 const getLimitsUC = new GetUserLimitsUseCase(
   projectRepo,
   membershipRepo,
@@ -149,6 +152,15 @@ const upgradeSubUC = new UpgradeToPlanUseCase(
 );
 const capturePaymentUC = new CapturePaymentUseCase(userSubRepo);
 
+//Channels
+const createChannelUC = new CreateChannelUseCase(channelRepo, membershipRepo);
+const editChannelUC = new EditChannelUseCase(channelRepo, membershipRepo);
+const listChannelUC = new ListChannelsForUserUseCase(
+  channelRepo,
+  membershipRepo
+);
+const deleteChannelUC = new DeleteChannelUseCase(channelRepo, membershipRepo);
+
 // Controllers
 export const projectController = new ProjectController(
   createProjectUC,
@@ -160,7 +172,12 @@ export const memberController = new MemberController(
   changeRoleUC,
   userService
 );
-export const channelController = new ChannelController(createChannelUC);
+export const channelController = new ChannelController(
+  createChannelUC,
+  editChannelUC,
+  deleteChannelUC,
+  listChannelUC
+);
 export const subscriptionController = new SubscriptionController(
   upgradeSubUC,
   getLimitsUC,

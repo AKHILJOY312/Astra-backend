@@ -1,4 +1,5 @@
 // src/core/use-cases/channel/CreateChannelUseCase.ts
+
 import { Channel } from "../../../domain/entities/channel/Channel";
 import { IChannelRepository } from "../../repositories/IChannelRepository";
 import { IProjectMembershipRepository } from "../../repositories/IProjectMembershipRepository";
@@ -7,8 +8,10 @@ export interface CreateChannelDTO {
   projectId: string;
   channelName: string;
   description?: string;
-  isPrivate?: boolean;
   createdBy: string;
+
+  visibleToRoles: string[];
+  permissionsByRole: Record<string, "view" | "message" | "manager">;
 }
 
 export interface CreateChannelResultDTO {
@@ -26,34 +29,38 @@ export class CreateChannelUseCase {
       projectId,
       channelName,
       description,
-      isPrivate = false,
       createdBy,
+      visibleToRoles,
+      permissionsByRole,
     } = input;
 
-    // 1. Check permission: must be member or manager
+    // 1. Check user role → must be ADMIN
     const membership = await this.membershipRepo.findByProjectAndUser(
       projectId,
       createdBy
     );
-    if (!membership) {
-      throw new Error("You must be a project member to create a channel");
+    console.log("membership: ", membership);
+    if (!membership || membership.role !== "manager") {
+      throw new Error("Only project manager can create channels");
     }
 
-    // 2. Check channel name uniqueness
+    // 2. Unique name
     const exists = await this.channelRepo.findByProjectAndName(
       projectId,
       channelName
     );
     if (exists) {
-      throw new Error("A channel with this name already exists");
+      throw new Error("Channel name already exists");
     }
 
+    // 3. Create entity
     const channel = new Channel({
       projectId,
       channelName: channelName.trim(),
       description,
       createdBy,
-      isPrivate,
+      visibleToRoles,
+      permissionsByRole,
     });
 
     const saved = await this.channelRepo.create(channel);

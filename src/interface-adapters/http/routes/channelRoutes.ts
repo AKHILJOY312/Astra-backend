@@ -3,11 +3,27 @@ import { Router } from "express";
 import { channelController } from "../../../config/container";
 import { protect } from "../../../config/container";
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
 router.use(protect);
 
-router.post("/", channelController.createChannel.bind(channelController));
-// Add more: GET /:projectId/channels, etc.
+// Channel routes (nested under project)
 
+router
+  .route("/")
+  .post(channelController.createChannel.bind(channelController))
+  .get(
+    channelController.listProjectChannelsBasedOnRole.bind(channelController)
+  );
+router
+  .route("/:channelId")
+  .patch(channelController.editChannel.bind(channelController))
+  .delete(channelController.deleteChannel.bind(channelController));
+
+//getting the message for channels
+// GET /:projectId/channels/:channelId/message?cursor=...&limit=20 — get messages (cursor-based)
+// router.get(
+//   "/:channelId/messages",
+//   messageContoller.listMessage.bind(messageContoller)
+// );
 export default router;

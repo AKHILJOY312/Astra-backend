@@ -1,5 +1,5 @@
 // src/infrastructure/db/mongoose/repositories/UserRepository.ts
-import UserModel from "../modals/UserModal";
+import UserModel from "../models/UserModal";
 import { User, UserProps } from "../../../../domain/entities/user/User";
 import { IUserRepository } from "../../../../application/repositories/IUserRepository";
 
