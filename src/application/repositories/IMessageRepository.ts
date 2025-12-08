@@ -1,0 +1,6 @@
+import { Message } from "@/domain/entities/message/Message";
+
+export interface IMessageRepository {
+  create(msg: Message): Promise<Message>;
+  listByChannel(channelId: string): Promise<Message[]>;
+}
