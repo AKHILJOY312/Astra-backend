@@ -14,9 +14,21 @@ export class MessageRepository implements IMessageRepository {
     console.log("Created Message Document:", doc);
     return toMessageEntity(doc);
   }
+  async listByChannel(
+    channelId: string,
+    cursor?: string,
+    limit: number = 20
+  ): Promise<Message[]> {
+    const query: any = { channelId };
 
-  async listByChannel(channelId: string): Promise<Message[]> {
-    const docs = await MessageModel.find({ channelId }).sort({ createdAt: 1 });
-    return docs.map(toMessageEntity);
+    if (cursor) {
+      query.createdAt = { $lt: new Date(cursor) };
+    }
+
+    const docs = await MessageModel.find(query)
+      .sort({ createdAt: -1 })
+      .limit(limit);
+
+    return docs.map(toMessageEntity).reverse();
   }
 }
