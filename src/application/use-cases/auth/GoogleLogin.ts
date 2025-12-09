@@ -23,6 +23,7 @@ export class GoogleLogin {
 
     if (!user) {
       // Create new Google user
+      const stamp = crypto.randomBytes(32).toString("hex");
       const newUser = new User({
         name: name!,
         email,
@@ -30,6 +31,7 @@ export class GoogleLogin {
         isBlocked: false,
         isAdmin: false,
         isVerified: true,
+        securityStamp: stamp,
       });
 
       // Set random password hash (so login works)
@@ -43,7 +45,8 @@ export class GoogleLogin {
 
     const accessToken = this.authService.generateAccessToken(
       user.id!,
-      user.email
+      user.email,
+      user.securityStamp!
     );
     const refreshToken = this.authService.generateRefreshToken(user.id!);
 

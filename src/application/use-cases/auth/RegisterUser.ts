@@ -35,6 +35,7 @@ export class RegisterUser {
       isBlocked: false,
       verificationToken: token,
       verificationTokenExpires: expires,
+      securityStamp: token,
     });
 
     await this.userRepo.create(user);

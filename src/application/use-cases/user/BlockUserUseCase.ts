@@ -8,22 +8,20 @@ export class BlockUserUseCase {
     private authService: IAuthService // For invalidating JWT/session
   ) {}
 
-  async execute(userId: string, newStatus: "active" | "blocked") {
+  async execute(userId: string) {
     const user = await this.userRepo.findById(userId);
-
+    console.log("working4");
     if (!user) throw new Error("User not found");
-
-    const isBlocked = newStatus === "blocked";
-
+    console.log("User befor: ", user);
+    const isBlocked = user.isBlocked;
     // 1. Flip status on the User entity
-    user.setBlockStatus(isBlocked);
-
+    user.setBlockStatus(!isBlocked);
     // 2. Persist the change
-    await this.userRepo.save(user); // Use existing save/updateStatus (if created)
-
+    await this.userRepo.updateStatus(user.id!); // Use existing save/updateStatus (if created)
+    console.log("user after: ", user);
     // 3. Invalidate JWT/session immediately
-    if (isBlocked) {
-      // Logic to forcibly log out the user across all sessions
+    if (user.isBlocked) {
+      console.log("working inside the is Blocked is true");
       await this.authService.invalidateUserSessions(userId);
     }
 

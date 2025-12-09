@@ -11,7 +11,11 @@ export class RefreshToken {
     const user = await this.userRepo.findById(payload.id);
     if (!user) throw new Error("Invalid refresh token");
 
-    const accessToken = this.auth.generateAccessToken(user.id!, user.email);
+    const accessToken = this.auth.generateAccessToken(
+      user.id!,
+      user.email,
+      user.securityStamp!
+    );
     return { accessToken };
   }
 }

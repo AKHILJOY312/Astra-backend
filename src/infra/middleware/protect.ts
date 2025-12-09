@@ -9,6 +9,8 @@ import { HTTP_STATUS } from "@/interface-adapters/http/constants/httpStatus";
 
 interface JwtPayload {
   id: string;
+  email: string;
+  stamp: string;
 }
 
 declare global {
@@ -52,7 +54,14 @@ export const createProtectMiddleware = (userRepo: IUserRepository) => {
           .status(HTTP_STATUS.UNAUTHORIZED)
           .json({ message: ERROR_MESSAGES.USER_NOT_FOUND });
       }
-
+      console.log("passing");
+      console.log("user.Secu: ", user.securityStamp, "decade: ", decoded.stamp);
+      if (user.securityStamp !== decoded.stamp) {
+        return res
+          .status(HTTP_STATUS.UNAUTHORIZED)
+          .json({ message: "Token has been revoked. Please login again." });
+      }
+      console.log("passing2");
       req.user = {
         id: user.id!,
         name: user.name,

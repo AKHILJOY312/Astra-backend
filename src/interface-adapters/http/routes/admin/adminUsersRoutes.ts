@@ -9,7 +9,7 @@ router.use(protect, adminOnly);
 router.get("/", adminUserController.listUsers.bind(adminUserController));
 router.patch(
   "/:id/status",
-  adminUserController.updateStatus.bind(adminUserController)
+  adminUserController.blockUser.bind(adminUserController)
 );
 router.patch(
   "/:id/role",

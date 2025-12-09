@@ -24,7 +24,8 @@ export class AdminLogin {
 
     const accessToken = this.authService.generateAccessToken(
       user.id!,
-      user.email
+      user.email,
+      user.securityStamp!
     );
 
     return {

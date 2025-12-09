@@ -19,11 +19,19 @@ export class LoginUser {
 
     if (!user.isVerified)
       throw new Error("Please verify your email before logging in");
+    if (user.isBlocked)
+      throw new Error(
+        "Sorry you have been blocked by the admin, contact the admin"
+      );
 
     const ok = await this.auth.comparePassword(password, user.password);
     if (!ok) throw new Error("Invalid email or password");
 
-    const access = this.auth.generateAccessToken(user.id!, user.email);
+    const access = this.auth.generateAccessToken(
+      user.id!,
+      user.email,
+      user.securityStamp!
+    );
     const refresh = this.auth.generateRefreshToken(user.id!);
 
     return {
