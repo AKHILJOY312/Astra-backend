@@ -16,8 +16,11 @@ export class JwtAuthService implements IAuthService {
     return bcrypt.compare(plain, hash);
   }
 
-  generateAccessToken(userId: string, email: string): string {
-    const securityStamp = crypto.randomBytes(32).toString("hex");
+  generateAccessToken(
+    userId: string,
+    email: string,
+    securityStamp: string
+  ): string {
     return jwt.sign(
       { id: userId, email, stamp: securityStamp },
       process.env.ACCESS_TOKEN_SECRET!,
@@ -48,11 +51,10 @@ export class JwtAuthService implements IAuthService {
   }
 
   async invalidateUserSessions(userId: string): Promise<void> {
-    // Implementation depends on how sessions are managed (e.g., token blacklist, session store)
-    // This is a placeholder for actual implementation
     const user = await this.userRepo.findById(userId);
+    console.log("Users: ", user);
     if (!user) throw new Error("User not found");
-
+    console.log("working 3");
     const newStamp = crypto.randomBytes(32).toString("hex");
 
     await this.userRepo.updateSecurityStamp(userId, newStamp);

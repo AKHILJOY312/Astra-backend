@@ -24,7 +24,7 @@ export interface IUserRepository {
   findUsersWithPagination(query: ListUsersQuery): Promise<PaginationResult>;
 
   // Optional: Specific methods for direct updates (alternative to using generic save)
-  updateStatus(userId: string, isBlocked: boolean): Promise<void>;
-  updateRole(userId: string, isAdmin: boolean): Promise<void>;
+  updateStatus(userId: string): Promise<void>;
+  updateRole(userId: string): Promise<void>;
   updateSecurityStamp(userId: string, stamp: string): Promise<void>;
 }

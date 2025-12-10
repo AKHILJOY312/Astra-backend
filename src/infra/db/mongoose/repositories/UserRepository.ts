@@ -20,6 +20,7 @@ export class UserRepository implements IUserRepository {
       verificationTokenExpires: doc.verificationTokenExpires ?? null,
       resetPasswordToken: doc.resetPasswordToken ?? null,
       resetPasswordExpires: doc.resetPasswordExpires ?? null,
+      securityStamp: doc.securityStamp,
     };
 
     const user = new User(props);
@@ -131,15 +132,17 @@ export class UserRepository implements IUserRepository {
     };
   }
 
-  async updateStatus(userId: string, isBlocked: boolean): Promise<void> {
-    await UserModel.updateOne(
-      { _id: userId },
-      { $set: { isBlocked: isBlocked } }
-    );
+  async updateStatus(userId: string): Promise<void> {
+    await UserModel.updateOne({ _id: userId }, [
+      { $set: { isBlocked: { $not: "$isBlocked" } } },
+    ]);
   }
 
-  async updateRole(userId: string, isAdmin: boolean): Promise<void> {
-    await UserModel.updateOne({ _id: userId }, { $set: { isAdmin: isAdmin } });
+  async updateRole(userId: string): Promise<void> {
+    await UserModel.updateOne(
+      { _id: userId },
+      [{ $set: { isAdmin: { $not: "$isAdmin" } } }] // pipeline syntax: array
+    );
   }
 
   async countAdmins(): Promise<number> {

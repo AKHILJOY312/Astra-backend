@@ -11,7 +11,7 @@ export interface UserProps {
   verificationTokenExpires?: Date | null;
   resetPasswordToken?: string | null;
   resetPasswordExpires?: Date | null;
-  securityStamp?: string;
+  securityStamp: string;
   createdAt?: Date;
 }
 

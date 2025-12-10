@@ -10,8 +10,15 @@ export class RefreshToken {
 
     const user = await this.userRepo.findById(payload.id);
     if (!user) throw new Error("Invalid refresh token");
-
-    const accessToken = this.auth.generateAccessToken(user.id!, user.email);
+    if (user.isBlocked) {
+      throw new Error("Sorry you have been blocked by the admin.");
+    }
+    console.log("user in refrsh token : ", user);
+    const accessToken = this.auth.generateAccessToken(
+      user.id!,
+      user.email,
+      user.securityStamp!
+    );
     return { accessToken };
   }
 }

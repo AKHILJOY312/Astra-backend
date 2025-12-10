@@ -4,16 +4,17 @@ import { IUserRepository } from "../../repositories/IUserRepository";
 export class AssignAdminRoleUseCase {
   constructor(private userRepo: IUserRepository) {}
 
-  async execute(userId: string, isAdmin: boolean) {
+  async execute(userId: string) {
     const user = await this.userRepo.findById(userId);
 
     if (!user) throw new Error("User not found");
-
+    const isAdmin = user.isAdmin;
     // 1. Update the role on the User entity
-    user.setAdminRole(isAdmin);
-
+    // console.log("user before setting the role : ", user);
+    user.setAdminRole(!isAdmin);
+    // console.log("user after setting the role : ", user);
     // 2. Persist the change
-    await this.userRepo.save(user); // Use existing save/updateRole (if created)
+    await this.userRepo.updateRole(user.id!); // Use existing save/updateRole (if created)
 
     return {
       id: user.id!,

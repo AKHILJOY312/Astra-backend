@@ -3,7 +3,7 @@ export interface IAuthService {
   hashPassword(plain: string): Promise<string>;
   comparePassword(plain: string, hash: string): Promise<boolean>;
 
-  generateAccessToken(userId: string, email: string): string;
+  generateAccessToken(userId: string, email: string, stamp: string): string;
   generateRefreshToken(userId: string): string;
 
   /** Returns decoded payload or null if invalid */
