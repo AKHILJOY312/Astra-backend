@@ -7,7 +7,7 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 dotenv.config();
 
-import routes from "../../interface-adapters/http/routes/index";
+import routes from "@/infra/web/express/routes/index";
 import { connectDB } from "../../config/database";
 import { setupGoogleStrategy } from "../passport/googleStrategy";
 import passport from "passport";

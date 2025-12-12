@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { Container } from "inversify";
-import { TYPES } from "../../../config/types";
-import { SubscriptionController } from "../../controllers/plan/SubscriptionController";
-import { createProtectMiddleware } from "../../../infra/middleware/protect";
+import { TYPES } from "@/config/types";
+import { SubscriptionController } from "@/interface-adapters/controllers/plan/SubscriptionController";
+import { createProtectMiddleware } from "@/infra/middleware/protect";
 
 export function getSubscriptionRoutes(container: Container): Router {
   const router = Router();

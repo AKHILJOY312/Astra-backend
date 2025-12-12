@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { Container } from "inversify";
-import { TYPES } from "../../../config/types";
-import { ProjectController } from "../../controllers/project/ProjectController";
-import { MemberController } from "../../controllers/project/MemberController";
-import { createProtectMiddleware } from "../../../infra/middleware/protect";
+import { TYPES } from "@/config/types";
+import { ProjectController } from "@/interface-adapters/controllers/project/ProjectController";
+import { MemberController } from "@/interface-adapters/controllers/project/MemberController";
+import { createProtectMiddleware } from "@/infra/middleware/protect";
 
 export function getProjectRoutes(container: Container): Router {
   const router = Router();

@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { Container } from "inversify";
-import { TYPES } from "../../../config/types";
-import { ChannelController } from "../../controllers/channel/ChannelController";
-import { MessageController } from "../../controllers/message/MessageController";
-import { createProtectMiddleware } from "../../../infra/middleware/protect";
+import { TYPES } from "@/config/types";
+import { ChannelController } from "@/interface-adapters/controllers/channel/ChannelController";
+import { MessageController } from "@/interface-adapters/controllers/message/MessageController";
+import { createProtectMiddleware } from "@/infra/middleware/protect";
 
 export function getChannelRoutes(container: Container): Router {
   const router = Router({ mergeParams: true });

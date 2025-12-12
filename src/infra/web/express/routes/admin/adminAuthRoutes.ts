@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { Container } from "inversify";
-import { TYPES } from "../../../../config/types";
-import { AdminAuthController } from "../../../controllers/auth/AdminAuthController";
+import { TYPES } from "@/config/types";
+import { AdminAuthController } from "@/interface-adapters/controllers/auth/AdminAuthController";
 
 export function getAdminAuthRoutes(container: Container): Router {
   const router = Router();

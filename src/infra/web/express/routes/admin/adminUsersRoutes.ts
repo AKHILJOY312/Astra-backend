@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { Container } from "inversify";
-import { TYPES } from "../../../../config/types";
-import { AdminUserController } from "../../../controllers/user/AdminUserController";
-import { createProtectMiddleware } from "../../../../infra/middleware/protect";
-import { adminOnly } from "../../../../infra/middleware/adminOnly";
+import { TYPES } from "@/config/types";
+import { AdminUserController } from "@/interface-adapters/controllers/user/AdminUserController";
+import { createProtectMiddleware } from "@/infra/middleware/protect";
+import { adminOnly } from "@/infra/middleware/adminOnly";
 
 export function getAdminUserRoutes(container: Container): Router {
   const router = Router();
