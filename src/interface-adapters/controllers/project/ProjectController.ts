@@ -7,6 +7,7 @@ import { HTTP_STATUS } from "../../http/constants/httpStatus";
 import { ERROR_MESSAGES } from "@/interface-adapters/http/constants/messages";
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/types";
+import { UpdateProjectUseCase } from "@/application/use-cases/project/UpdateProjectUseCase";
 
 @injectable()
 export class ProjectController {
@@ -14,7 +15,9 @@ export class ProjectController {
     @inject(TYPES.CreateProjectUseCase)
     private createProjectUseCase: CreateProjectUseCase,
     @inject(TYPES.GetUserProjectsUseCase)
-    private getUserProjectsUseCase: GetUserProjectsUseCase
+    private getUserProjectsUseCase: GetUserProjectsUseCase,
+    @inject(TYPES.UpdateProjectUseCase)
+    private updateProjectUseCase: UpdateProjectUseCase
   ) {}
 
   async createProject(req: Request, res: Response) {
@@ -54,6 +57,38 @@ export class ProjectController {
           upgradeRequired: true,
         });
       }
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: err.message });
+    }
+  }
+  async updateProject(req: Request, res: Response) {
+    const schema = z.object({
+      projectName: z.string().min(1).max(100).optional(),
+      description: z.string().optional(),
+      imageUrl: z.string().url().nullable().optional(),
+    });
+
+    const result = schema.safeParse(req.body);
+    if (!result.success) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ error: result.error.format() });
+    }
+
+    try {
+      const { projectId } = req.params;
+      const userId = req.user!.id;
+
+      const { project } = await this.updateProjectUseCase.execute({
+        projectId,
+        userId,
+        ...result.data,
+      });
+
+      return res.status(HTTP_STATUS.OK).json({
+        success: true,
+        data: project.toJSON(),
+      });
+    } catch (err: any) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: err.message });
     }
   }

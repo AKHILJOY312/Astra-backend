@@ -83,6 +83,7 @@ import { MessageController } from "@/interface-adapters/controllers/message/Mess
 // Middleware
 import { createProtectMiddleware } from "../infra/middleware/protect";
 import { ListProjectMembersUseCase } from "@/application/use-cases/project/ListProjectMembersUseCase";
+import { UpdateProjectUseCase } from "@/application/use-cases/project/UpdateProjectUseCase";
 
 const container = new Container();
 
@@ -191,6 +192,9 @@ container
   .bind<CreateProjectUseCase>(TYPES.CreateProjectUseCase)
   .to(CreateProjectUseCase);
 container
+  .bind<UpdateProjectUseCase>(TYPES.UpdateProjectUseCase)
+  .to(UpdateProjectUseCase);
+container
   .bind<GetUserProjectsUseCase>(TYPES.GetUserProjectsUseCase)
   .to(GetUserProjectsUseCase);
 container
@@ -205,6 +209,7 @@ container
 container
   .bind<ListProjectMembersUseCase>(TYPES.ListProjectMembers)
   .to(ListProjectMembersUseCase);
+
 // Channel Use Cases
 container
   .bind<CreateChannelUseCase>(TYPES.CreateChannelUseCase)

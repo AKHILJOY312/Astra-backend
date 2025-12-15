@@ -1,0 +1,68 @@
+import { inject, injectable } from "inversify";
+import { TYPES } from "@/config/types";
+import { IProjectRepository } from "../../ports/repositories/IProjectRepository";
+import { IProjectMembershipRepository } from "../../ports/repositories/IProjectMembershipRepository";
+import { Project } from "../../../domain/entities/project/Project";
+
+export interface UpdateProjectDTO {
+  projectId: string;
+  userId: string;
+  projectName?: string;
+  description?: string;
+  imageUrl?: string | null;
+}
+
+export interface UpdateProjectResultDTO {
+  project: Project;
+}
+
+@injectable()
+export class UpdateProjectUseCase {
+  constructor(
+    @inject(TYPES.ProjectRepository)
+    private projectRepo: IProjectRepository,
+
+    @inject(TYPES.ProjectMembershipRepository)
+    private membershipRepo: IProjectMembershipRepository
+  ) {}
+
+  async execute(input: UpdateProjectDTO): Promise<UpdateProjectResultDTO> {
+    const { projectId, userId, projectName, description, imageUrl } = input;
+
+    // 1️⃣ Fetch project
+    const project = await this.projectRepo.findById(projectId);
+    if (!project) {
+      throw new Error("Project not found");
+    }
+
+    // 2️⃣ Authorization
+    if (project.ownerId !== userId) {
+      const membership = await this.membershipRepo.findByProjectAndUser(
+        projectId,
+        userId
+      );
+
+      if (!membership || membership.role !== "manager") {
+        throw new Error("You are not allowed to edit this project");
+      }
+    }
+
+    // 3️⃣ Update entity using domain methods
+    if (projectName !== undefined) {
+      project.updateName(projectName);
+    }
+
+    if (description !== undefined) {
+      project.updateDescription(description);
+    }
+
+    if (imageUrl !== undefined) {
+      project.updateImageUrl(imageUrl);
+    }
+
+    // 4️⃣ Persist changes
+    await this.projectRepo.update(project);
+
+    return { project };
+  }
+}

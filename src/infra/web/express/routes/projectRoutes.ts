@@ -22,17 +22,15 @@ export function getProjectRoutes(container: Container): Router {
 
   router.post("/", projectController.createProject.bind(projectController));
 
-  router.get(
-    "/",
-
-    projectController.getUserProjects.bind(projectController)
+  router.get("/", projectController.getUserProjects.bind(projectController));
+  router.patch(
+    "/:projectId",
+    projectController.updateProject.bind(projectController)
   );
-
   router.post(
     "/:projectId/members",
     memberController.addMember.bind(memberController)
   );
-
   router.get(
     "/:projectId/members",
     memberController.listMembers.bind(memberController)

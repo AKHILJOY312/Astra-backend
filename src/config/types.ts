@@ -61,6 +61,7 @@ const TYPES = {
 
   // Use Cases (Project/Membership)
   CreateProjectUseCase: Symbol.for("CreateProjectUseCase"),
+  UpdateProjectUseCase: Symbol.for("UpdateProjectUseCase"),
   GetUserProjectsUseCase: Symbol.for("GetUserProjectsUseCase"),
   AddMemberToProjectUseCase: Symbol.for("AddMemberToProjectUseCase"),
   RemoveMemberFromProjectUseCase: Symbol.for("RemoveMemberFromProjectUseCase"),
