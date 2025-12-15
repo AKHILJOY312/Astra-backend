@@ -43,7 +43,7 @@ export class CreateChannelUseCase {
       projectId,
       createdBy
     );
-    console.log("membership: ", membership);
+
     if (!membership || membership.role !== "manager") {
       throw new Error("Only project manager can create channels");
     }

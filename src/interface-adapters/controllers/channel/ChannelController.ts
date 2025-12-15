@@ -90,12 +90,12 @@ export class ChannelController {
       return res
         .status(HTTP_STATUS.BAD_REQUEST)
         .json({ error: result.error.format() });
-    console.log("result.data: ", result.data);
+
     try {
       const data = await this.editChannelUC.execute({
         ...result.data,
       });
-      console.log("data: ", data);
+
       return res.json({ success: true, data: data });
     } catch (err: any) {
       return res.status(400).json({ error: err.message });
