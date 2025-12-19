@@ -1,6 +1,7 @@
 import { inject, injectable } from "inversify";
 import { IUserRepository } from "../../ports/repositories/IUserRepository";
 import { TYPES } from "@/config/types";
+import { BadRequestError } from "@/application/error/AppError";
 
 @injectable()
 export class VerifyEmail {
@@ -10,7 +11,7 @@ export class VerifyEmail {
 
   async execute(token: string): Promise<{ message: string }> {
     const user = await this.userRepo.findByVerificationToken(token);
-    if (!user) throw new Error("Invalid or expired token");
+    if (!user) throw new BadRequestError("Invalid or expired token");
 
     user.verify();
     user.clearVerificationToken();

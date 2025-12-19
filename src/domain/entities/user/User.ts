@@ -74,7 +74,12 @@ export class User {
   // set password(newPassword: string) {
   //   this.password = newPassword;
   // }
-
+  setEmail(email: string) {
+    this._props.email = email;
+  }
+  setName(name: string): void {
+    this._props.name = name;
+  }
   setSecurityStamp(stamp: string): void {
     this._props.securityStamp = stamp;
   }

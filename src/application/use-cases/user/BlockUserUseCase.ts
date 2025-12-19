@@ -3,6 +3,7 @@ import { inject, injectable } from "inversify";
 import { IUserRepository } from "../../ports/repositories/IUserRepository";
 import { IAuthService } from "../../ports/services/IAuthService"; // Assuming an AuthService exists
 import { TYPES } from "@/config/types";
+import { NotFoundError } from "@/application/error/AppError";
 
 @injectable()
 export class BlockUserUseCase {
@@ -14,7 +15,7 @@ export class BlockUserUseCase {
   async execute(userId: string) {
     const user = await this.userRepo.findById(userId);
 
-    if (!user) throw new Error("User not found");
+    if (!user) throw new NotFoundError("User");
 
     const isBlocked = user.isBlocked;
     // 1. Flip status on the User entity

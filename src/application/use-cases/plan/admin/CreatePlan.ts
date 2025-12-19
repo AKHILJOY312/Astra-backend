@@ -4,6 +4,7 @@ import { CreatePlanDto } from "../../../dto/plan/CreatePlanDto";
 import { v4 as uuidv4 } from "uuid";
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/types";
+import { BadRequestError } from "@/application/error/AppError";
 
 @injectable()
 export class CreatePlan {
@@ -14,7 +15,7 @@ export class CreatePlan {
   async execute(dto: CreatePlanDto): Promise<Plan> {
     const existing = await this.planRepo.findByName(dto.name);
     if (existing) {
-      throw new Error("A plan with this name already exists.");
+      throw new BadRequestError("A plan with this name already exists.");
     }
 
     const plan = new Plan({

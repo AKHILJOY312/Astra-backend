@@ -1,36 +1,17 @@
 // infrastructure/repositories/PlanRepository.ts
-import { PlanModel } from "../models/PlanModal";
+import { PlanDoc, PlanModel, toPlanEntity } from "../models/PlanModal";
 import { Plan } from "../../../../domain/entities/billing/Plan";
 import { IPlanRepository } from "../../../../application/ports/repositories/IPlanRepository";
+import { HydratedDocument } from "mongoose";
 
 export class PlanRepository implements IPlanRepository {
   // Mapper: Mongo Doc → Domain Entity
-  private toDomain(doc: any): Plan {
-    const props = {
-      id: doc.id,
-      name: doc.name,
-      description: doc.description,
-      price: doc.price,
-      finalAmount: doc.finalAmount,
-      currency: doc.currency,
-      billingCycle: doc.billingCycle,
-      features: doc.features || [],
-      maxProjects: doc.maxProjects,
-      maxMembersPerProject: doc.maxMembersPerProject,
-      isActive: doc.isActive,
-      isDeleted: doc.isDeleted || false,
-      createdAt: doc.createdAt,
-      updatedAt: doc.updatedAt,
-    };
-
-    const plan = new Plan(props);
-
-    // if (doc._id) plan.setId(doc._id.toString());
-    return plan;
+  private toDomain(doc: HydratedDocument<PlanDoc>): Plan {
+    return toPlanEntity(doc);
   }
 
   // Mapper: Domain Entity → MongoDB save format
-  private toPersistence(plan: Plan): any {
+  private toPersistence(plan: Plan): Partial<PlanDoc> {
     return {
       id: plan.id,
       name: plan.name,
@@ -38,7 +19,7 @@ export class PlanRepository implements IPlanRepository {
       price: plan.price,
       finalAmount: plan.finalAmount,
       currency: plan.currency,
-      billingCycle: plan.billingCycle,
+      billingCycle: plan.billingCycle as "monthly" | "yearly",
       features: plan.features,
       maxProjects: plan.maxProjects,
       maxMembersPerProject: plan.maxMembersPerProject,

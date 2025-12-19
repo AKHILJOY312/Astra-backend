@@ -29,3 +29,27 @@ export class UnauthorizedError extends AppError {
     super(message, 401, "UNAUTHORIZED");
   }
 }
+
+export class ForbiddenError extends AppError {
+  constructor(message = "Forbidden") {
+    super(message, 403, "FORBIDDEN");
+  }
+}
+export class BadRequestError extends AppError {
+  constructor(message = "Bad Request") {
+    super(message, 400, "BAD_REQUEST");
+  }
+}
+
+export class PlanLimitError extends ForbiddenError {
+  public readonly upgradeRequired = true;
+
+  constructor(maxProjects: number) {
+    super(
+      `You've reached the limit of ${maxProjects} project${
+        maxProjects === 1 ? "" : "s"
+      }. Upgrade your plan to create more.`
+    );
+    this.name = "PlanLimitError";
+  }
+}

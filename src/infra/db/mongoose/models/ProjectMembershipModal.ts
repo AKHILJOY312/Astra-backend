@@ -6,7 +6,8 @@ import {
   ProjectRole,
 } from "../../../../domain/entities/project/ProjectMembership";
 
-interface MembershipDoc extends Document {
+export interface MembershipDoc extends Document {
+  _id: mongoose.Types.ObjectId;
   projectId: mongoose.Types.ObjectId;
   userId: mongoose.Types.ObjectId;
   role: ProjectRole;

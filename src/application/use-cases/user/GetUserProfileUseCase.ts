@@ -2,6 +2,7 @@ import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/types";
 import { IUserRepository } from "@/application/ports/repositories/IUserRepository";
 import { IUserSubscriptionRepository } from "@/application/ports/repositories/IUserSubscriptionRepository";
+import { NotFoundError } from "@/application/error/AppError";
 
 @injectable()
 export class GetUserProfileUseCase {
@@ -15,7 +16,7 @@ export class GetUserProfileUseCase {
 
   async execute(userId: string) {
     const user = await this.userRepo.findById(userId);
-    if (!user) throw new Error("User not found");
+    if (!user) throw new NotFoundError("User");
 
     const activeSubscription = await this.subscriptionRepo.findActiveByUserId(
       userId

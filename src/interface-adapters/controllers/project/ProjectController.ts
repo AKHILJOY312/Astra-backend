@@ -4,10 +4,30 @@ import { CreateProjectUseCase } from "../../../application/use-cases/project/Cre
 import { z } from "zod";
 import { GetUserProjectsUseCase } from "../../../application/use-cases/project/GetUserProjectsUseCase";
 import { HTTP_STATUS } from "../../http/constants/httpStatus";
-import { ERROR_MESSAGES } from "@/interface-adapters/http/constants/messages";
+// import { ERROR_MESSAGES } from "@/interface-adapters/http/constants/messages";
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/types";
 import { UpdateProjectUseCase } from "@/application/use-cases/project/UpdateProjectUseCase";
+import { ValidationError } from "@/application/error/AppError";
+import { asyncHandler } from "@/infra/web/express/handler/asyncHandler";
+
+const CreateProjectSchema = z.object({
+  projectName: z.string().min(1).max(100),
+  description: z.string().optional(),
+  imageUrl: z.string().url().nullable().optional(),
+});
+
+const UpdateProjectSchema = z.object({
+  projectName: z.string().min(1).max(100).optional(),
+  description: z.string().optional(),
+  imageUrl: z.string().url().nullable().optional(),
+});
+
+const PaginationQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(30).default(10),
+  search: z.string().optional(),
+});
 
 @injectable()
 export class ProjectController {
@@ -20,106 +40,71 @@ export class ProjectController {
     private updateProjectUseCase: UpdateProjectUseCase
   ) {}
 
-  async createProject(req: Request, res: Response) {
-    const schema = z.object({
-      projectName: z.string().min(1).max(100),
-      description: z.string().optional(),
-      imageUrl: z.string().url().nullable().optional(),
-    });
-
-    const result = schema.safeParse(req.body);
+  createProject = asyncHandler(async (req: Request, res: Response) => {
+    const result = CreateProjectSchema.safeParse(req.body);
 
     if (!result.success) {
-      return res
-        .status(HTTP_STATUS.BAD_REQUEST)
-        .json({ error: result.error.format() });
+      throw new ValidationError("Invalid project data");
     }
 
     const { projectName, description, imageUrl } = result.data;
     const ownerId = req.user!.id;
 
-    try {
-      const { project } = await this.createProjectUseCase.execute({
-        projectName,
-        description,
-        imageUrl,
-        ownerId,
-      });
-
-      return res.status(HTTP_STATUS.CREATED).json({
-        success: true,
-        data: project.toJSON(),
-      });
-    } catch (err: any) {
-      if (err.message.includes("limit")) {
-        return res.status(HTTP_STATUS.FORBIDDEN).json({
-          error: err.message,
-          upgradeRequired: true,
-        });
-      }
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: err.message });
-    }
-  }
-  async updateProject(req: Request, res: Response) {
-    const schema = z.object({
-      projectName: z.string().min(1).max(100).optional(),
-      description: z.string().optional(),
-      imageUrl: z.string().url().nullable().optional(),
+    const { project } = await this.createProjectUseCase.execute({
+      projectName,
+      description,
+      imageUrl,
+      ownerId,
     });
 
-    const result = schema.safeParse(req.body);
+    return res.status(HTTP_STATUS.CREATED).json({
+      success: true,
+      data: project.toJSON(),
+    });
+  });
+  updateProject = asyncHandler(async (req: Request, res: Response) => {
+    const result = UpdateProjectSchema.safeParse(req.body);
     if (!result.success) {
-      return res
-        .status(HTTP_STATUS.BAD_REQUEST)
-        .json({ error: result.error.format() });
+      throw new ValidationError("Invalid update data");
     }
 
-    try {
-      const { projectId } = req.params;
-      const userId = req.user!.id;
+    const { projectId } = req.params;
+    const userId = req.user!.id;
 
-      const { project } = await this.updateProjectUseCase.execute({
-        projectId,
-        userId,
-        ...result.data,
-      });
+    const { project } = await this.updateProjectUseCase.execute({
+      projectId,
+      userId,
+      ...result.data,
+    });
 
-      return res.status(HTTP_STATUS.OK).json({
-        success: true,
-        data: project.toJSON(),
-      });
-    } catch (err: any) {
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: err.message });
+    return res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: project.toJSON(),
+    });
+  });
+
+  getUserProjects = asyncHandler(async (req: Request, res: Response) => {
+    const queryParsed = PaginationQuerySchema.safeParse(req.params);
+    if (!queryParsed.success) {
+      throw new ValidationError("Invalid pagination parameters");
     }
-  }
+    const { page, limit, search } = queryParsed.data;
+    const userId = req.user!.id;
 
-  async getUserProjects(req: Request, res: Response) {
-    try {
-      const userId = req.user!.id;
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = Math.min(parseInt(req.query.limit as string) || 10, 30);
-      const search = req.query.search as string | undefined;
+    const result = await this.getUserProjectsUseCase.execute({
+      userId,
+      page,
+      limit,
+      search,
+    });
 
-      const result = await this.getUserProjectsUseCase.execute({
-        userId,
-        page,
-        limit,
-        search,
-      });
-
-      return res.status(HTTP_STATUS.OK).json({
-        success: true,
-        data: result.projects.map((p) => p.toJSON()),
-        page: result.page,
-        limit: result.limit,
-        totalPages: result.totalPages,
-        totalCount: result.totalCount,
-      });
-    } catch (err: any) {
-      console.error(err);
-      return res
-        .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-        .json({ error: ERROR_MESSAGES.FAILED_FETCH });
-    }
-  }
+    return res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: result.projects.map((p) => p.toJSON()),
+      page: result.page,
+      limit: result.limit,
+      totalPages: result.totalPages,
+      totalCount: result.totalCount,
+    });
+  });
 }

@@ -7,6 +7,7 @@ import { ProjectMembership } from "../../../domain/entities/project/ProjectMembe
 import { IProjectMembershipRepository } from "../../ports/repositories/IProjectMembershipRepository";
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/types";
+import { NotFoundError, PlanLimitError } from "@/application/error/AppError";
 
 export interface CreateProjectDTO {
   projectName: string;
@@ -44,13 +45,11 @@ export class CreateProjectUseCase {
 
     const plan = await this.planRepo.findById(planId);
 
-    if (!plan) throw new Error("Plan not found");
+    if (!plan) throw new NotFoundError("Plan");
 
     // 3. Enforce project limit
     if (currentCount >= plan.maxProjects) {
-      throw new Error(
-        `You have reached the limit of ${plan.maxProjects} projects. Upgrade to create more.`
-      );
+      throw new PlanLimitError(plan.maxProjects);
     }
 
     // 4. Create project entity

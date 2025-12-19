@@ -14,6 +14,7 @@ import passport from "passport";
 import { HTTP_STATUS } from "@/interface-adapters/http/constants/httpStatus";
 import { createSocketServer } from "../websocket/SocketServer";
 import { container } from "@/config/container";
+import { globalErrorHandler } from "../middleware/globalErrorHandler";
 
 const app = express();
 const server = http.createServer(app);
@@ -70,22 +71,7 @@ app.all("*", (req, res) => {
   });
 });
 
-//  Global Error Handler
-app.use(
-  (
-    err: any,
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
-    console.error("Error:", err.message);
-    res.status(HTTP_STATUS.BAD_REQUEST).json({
-      success: false,
-      message: "Internal Server Error",
-      error: err.message,
-    });
-  }
-);
+app.use(globalErrorHandler);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {

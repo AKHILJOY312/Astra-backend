@@ -4,6 +4,10 @@ import { inject, injectable } from "inversify";
 import { IChannelRepository } from "../../ports/repositories/IChannelRepository";
 import { IProjectMembershipRepository } from "../../ports/repositories/IProjectMembershipRepository";
 import { TYPES } from "@/config/types";
+import {
+  BadRequestError,
+  UnauthorizedError,
+} from "@/application/error/AppError";
 
 @injectable()
 export class DeleteChannelUseCase {
@@ -15,7 +19,7 @@ export class DeleteChannelUseCase {
 
   async execute(channelId: string, userId: string) {
     const channel = await this.channelRepo.findById(channelId);
-    if (!channel) throw new Error("Channel not found");
+    if (!channel) throw new BadRequestError("Channel not found");
 
     const membership = await this.membershipRepo.findByProjectAndUser(
       channel.projectId,
@@ -23,7 +27,7 @@ export class DeleteChannelUseCase {
     );
 
     if (!membership || membership.role !== "manager") {
-      throw new Error("Only project admins can delete channels");
+      throw new UnauthorizedError("Only project admins can delete channels");
     }
 
     return await this.channelRepo.delete(channelId);

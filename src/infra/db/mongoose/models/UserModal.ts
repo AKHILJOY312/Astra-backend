@@ -1,6 +1,23 @@
-import mongoose from "mongoose";
+import mongoose, { Model, Schema, Types } from "mongoose";
 
-const userSchema = new mongoose.Schema(
+export interface IUserDocument extends Document {
+  _id: Types.ObjectId; // Explicitly define _id to solve Error 2339
+  name: string;
+  email: string;
+  password: string;
+  avatar_url?: string;
+  isAdmin: boolean;
+  isBlocked: boolean;
+  isVerified: boolean;
+  verificationToken?: string;
+  verificationTokenExpires?: Date;
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
+  securityStamp: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+const userSchema = new Schema<IUserDocument>(
   {
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
@@ -28,4 +45,8 @@ userSchema.index({ email: 1 });
 // For a combined search field:
 userSchema.index({ name: 1, email: 1 });
 
-export default mongoose.model("User", userSchema);
+const UserModel: Model<IUserDocument> = mongoose.model<IUserDocument>(
+  "User",
+  userSchema
+);
+export default UserModel;

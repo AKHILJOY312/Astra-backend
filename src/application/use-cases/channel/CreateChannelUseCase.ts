@@ -5,6 +5,10 @@ import { Channel } from "../../../domain/entities/channel/Channel";
 import { IChannelRepository } from "../../ports/repositories/IChannelRepository";
 import { IProjectMembershipRepository } from "../../ports/repositories/IProjectMembershipRepository";
 import { TYPES } from "@/config/types";
+import {
+  BadRequestError,
+  UnauthorizedError,
+} from "@/application/error/AppError";
 
 export interface CreateChannelDTO {
   projectId: string;
@@ -45,7 +49,7 @@ export class CreateChannelUseCase {
     );
 
     if (!membership || membership.role !== "manager") {
-      throw new Error("Only project manager can create channels");
+      throw new UnauthorizedError("Only project manager can create channels");
     }
 
     // 2. Unique name
@@ -54,7 +58,7 @@ export class CreateChannelUseCase {
       channelName
     );
     if (exists) {
-      throw new Error("Channel name already exists");
+      throw new BadRequestError("Channel name already exists");
     }
 
     // 3. Create entity

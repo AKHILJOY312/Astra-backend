@@ -1,5 +1,5 @@
-// src/infrastructure/db/mongoose/repositories/UserRepository.ts
-import UserModel from "../models/UserModal";
+import { FilterQuery, UpdateQuery } from "mongoose";
+import UserModel, { IUserDocument } from "../models/UserModal";
 import { User, UserProps } from "../../../../domain/entities/user/User";
 import {
   IUserRepository,
@@ -8,36 +8,35 @@ import {
 import { ListUsersQuery } from "@/application/use-cases/user/ListUserUseCase";
 
 export class UserRepository implements IUserRepository {
-  private toDomain(doc: any): User {
+  // Changed doc: any -> doc: IUserDocument
+  private toDomain(doc: IUserDocument): User {
     const props: UserProps = {
+      id: doc._id.toString(),
       name: doc.name,
       email: doc.email,
       password: doc.password,
       isAdmin: doc.isAdmin,
       isBlocked: doc.isBlocked,
-      isVerified: doc.isVerified ?? false,
+      isVerified: doc.isVerified,
       verificationToken: doc.verificationToken ?? null,
       verificationTokenExpires: doc.verificationTokenExpires ?? null,
       resetPasswordToken: doc.resetPasswordToken ?? null,
       resetPasswordExpires: doc.resetPasswordExpires ?? null,
-      securityStamp: doc.securityStamp,
-      imageUrl: doc.avatar_url ?? null,
+      securityStamp: doc.securityStamp ?? "",
+      imageUrl: doc.avatar_url ?? undefined,
+      createdAt: doc.createdAt,
     };
 
-    const user = new User(props);
-    if (doc._id) {
-      user.setId(doc._id.toString());
-    }
-    return user;
+    return new User(props);
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    const doc = await UserModel.findOne({ email }).select("+password");
+    const doc = await UserModel.findOne({ email }).select("+password").exec();
     return doc ? this.toDomain(doc) : null;
   }
 
   async findById(id: string): Promise<User | null> {
-    const doc = await UserModel.findById(id).select("-password");
+    const doc = await UserModel.findById(id).select("-password").exec();
     return doc ? this.toDomain(doc) : null;
   }
 
@@ -45,7 +44,7 @@ export class UserRepository implements IUserRepository {
     const doc = await UserModel.findOne({
       verificationToken: token,
       verificationTokenExpires: { $gt: new Date() },
-    });
+    }).exec();
     return doc ? this.toDomain(doc) : null;
   }
 
@@ -53,7 +52,7 @@ export class UserRepository implements IUserRepository {
     const doc = await UserModel.findOne({
       resetPasswordToken: token,
       resetPasswordExpires: { $gt: new Date() },
-    });
+    }).exec();
     return doc ? this.toDomain(doc) : null;
   }
 
@@ -63,42 +62,38 @@ export class UserRepository implements IUserRepository {
       email: user.email,
       password: user.password,
       isVerified: user.isVerified,
+      isAdmin: user.isAdmin,
+      isBlocked: user.isBlocked,
+      securityStamp: user.securityStamp,
       verificationToken: user.verificationToken ?? undefined,
       verificationTokenExpires: user.verificationTokenExpires ?? undefined,
     });
 
-    const created = this.toDomain(doc);
-    created.setId(doc._id.toString()); // ← CORRECT
-    return created;
+    return this.toDomain(doc);
   }
 
   async save(user: User): Promise<void> {
     if (!user.id) throw new Error("Cannot save user without id");
 
-    // Convert domain entity to plain object
-    const props = {
+    const $set: UpdateQuery<IUserDocument>["$set"] = {
       isVerified: user.isVerified,
       password: user.password,
-      verificationToken: user.verificationToken,
-      verificationTokenExpires: user.verificationTokenExpires,
-      resetPasswordToken: user.resetPasswordToken,
-      resetPasswordExpires: user.resetPasswordExpires,
+      name: user.name,
+      isAdmin: user.isAdmin,
+      isBlocked: user.isBlocked,
+      securityStamp: user.securityStamp,
+      verificationToken: user.verificationToken ?? undefined,
+      verificationTokenExpires: user.verificationTokenExpires ?? undefined,
+      resetPasswordToken: user.resetPasswordToken ?? undefined,
+      resetPasswordExpires: user.resetPasswordExpires ?? undefined,
     };
 
-    // Separate fields into $set and $unset automatically
-    const $set: Record<string, any> = {};
-    const $unset: Record<string, string> = {};
+    // Clean up undefined values for $unset if needed
+    const $unset: UpdateQuery<IUserDocument>["$unset"] = {};
+    if (user.verificationToken === null) $unset.verificationToken = "";
+    if (user.resetPasswordToken === null) $unset.resetPasswordToken = "";
 
-    Object.entries(props).forEach(([key, value]) => {
-      if (value === null || value === undefined) {
-        $unset[key] = ""; // remove field entirely
-      } else {
-        $set[key] = value;
-      }
-    });
-
-    // Perform a single clean update
-    await UserModel.updateOne({ _id: user.id }, { $set, $unset });
+    await UserModel.updateOne({ _id: user.id }, { $set, $unset }).exec();
   }
 
   async findUsersWithPagination(
@@ -107,7 +102,9 @@ export class UserRepository implements IUserRepository {
     const { page = 1, limit = 10, search } = query;
     const skip = (page - 1) * limit;
 
-    let filter: any = {};
+    // Use FilterQuery<IUserDocument> instead of any
+    const filter: FilterQuery<IUserDocument> = {};
+
     if (search) {
       const searchRegex = new RegExp(search, "i");
       filter.$or = [{ name: searchRegex }, { email: searchRegex }];
@@ -118,14 +115,13 @@ export class UserRepository implements IUserRepository {
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
-        .select("-password"),
-      UserModel.countDocuments(filter),
+        .select("-password")
+        .exec(),
+      UserModel.countDocuments(filter).exec(),
     ]);
 
-    const users = docs.map((doc) => this.toDomain(doc));
-
     return {
-      users,
+      users: docs.map((doc) => this.toDomain(doc)),
       page,
       limit,
       total,
@@ -134,25 +130,31 @@ export class UserRepository implements IUserRepository {
   }
 
   async updateStatus(userId: string): Promise<void> {
+    // Mongoose update pipelines require cast as any or specific casting
     await UserModel.updateOne({ _id: userId }, [
       { $set: { isBlocked: { $not: "$isBlocked" } } },
-    ]);
+    ]).exec();
   }
 
   async updateRole(userId: string): Promise<void> {
-    await UserModel.updateOne(
-      { _id: userId },
-      [{ $set: { isAdmin: { $not: "$isAdmin" } } }] // pipeline syntax: array
-    );
+    await UserModel.updateOne({ _id: userId }, [
+      { $set: { isAdmin: { $not: "$isAdmin" } } },
+    ]).exec();
   }
 
   async countAdmins(): Promise<number> {
-    return UserModel.countDocuments({ isAdmin: true });
+    return UserModel.countDocuments({ isAdmin: true }).exec();
   }
+
   async updateSecurityStamp(userId: string, stamp: string): Promise<void> {
     await UserModel.updateOne(
       { _id: userId },
       { $set: { securityStamp: stamp } }
-    );
+    ).exec();
+  }
+
+  async delete(userId: string): Promise<void> {
+    await UserModel.deleteOne({ _id: userId }).exec();
+    // Fixed: changed {userId} to {_id: userId} to match Mongo primary key
   }
 }

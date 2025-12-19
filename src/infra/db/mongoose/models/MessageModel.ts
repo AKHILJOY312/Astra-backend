@@ -1,5 +1,5 @@
 // src/infrastructure/persistence/mongoose/models/MessageModel.ts
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, Types } from "mongoose";
 import {
   Message,
   MessageProps,
@@ -7,7 +7,8 @@ import {
 
 // 1. Mongoose Document Interface
 
-interface MessageDoc extends Document {
+export interface MessageDoc extends Document {
+  _id: Types.ObjectId;
   channelId: mongoose.Types.ObjectId;
   senderId: mongoose.Types.ObjectId;
   text: string;

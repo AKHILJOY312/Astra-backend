@@ -5,6 +5,15 @@ import { BlockUserUseCase } from "../../../application/use-cases/user/BlockUserU
 import { AssignAdminRoleUseCase } from "../../../application/use-cases/user/AssingAdminRoleUseCase";
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/types";
+import { z } from "zod";
+import { BadRequestError } from "@/application/error/AppError";
+import { asyncHandler } from "@/infra/web/express/handler/asyncHandler";
+
+const ListUsersQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(30).default(10),
+  search: z.string().optional(),
+});
 
 @injectable()
 export class AdminUserController {
@@ -15,45 +24,36 @@ export class AdminUserController {
     private assignAdminRoleUseCase: AssignAdminRoleUseCase
   ) {}
 
-  async listUsers(req: Request, res: Response): Promise<void> {
-    try {
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = Math.min(parseInt(req.query.limit as string) || 10, 30);
-      const search = req.query.search as string | undefined;
+  listUsers = asyncHandler(
+    async (req: Request, res: Response): Promise<void> => {
+      const parsed = ListUsersQuerySchema.safeParse(req.query);
+      if (!parsed.success) {
+        throw new BadRequestError("Invalid pagination or search parameters");
+      }
 
+      const { page, limit, search } = parsed.data;
       const result = await this.listUsersUseCase.execute({
         page,
         limit,
         search,
       });
-      res.status(200).json(result);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch users" });
+      res.json(result);
     }
-  }
+  );
 
-  async blockUser(req: Request, res: Response): Promise<void> {
-    try {
+  blockUser = asyncHandler(
+    async (req: Request, res: Response): Promise<void> => {
       const { id } = req.params;
       const user = await this.blockUserUseCase.execute(id);
-
-      res.status(200).json({ message: `User status updated `, user });
-    } catch (error) {
-      // Check for "User not found" error type
-      res.status(404).json({ message: "User not found" });
+      res.json({ message: `User status updated `, user });
     }
-  }
+  );
 
-  async updateRole(req: Request, res: Response): Promise<void> {
-    try {
+  updateRole = asyncHandler(
+    async (req: Request, res: Response): Promise<void> => {
       const { id } = req.params;
-
       const user = await this.assignAdminRoleUseCase.execute(id);
-
-      res.status(200).json({ message: `User role updated`, user });
-    } catch (error) {
-      // Check for "User not found" error type
-      res.status(404).json({ message: "User not found" });
+      res.json({ message: `User role updated`, user });
     }
-  }
+  );
 }

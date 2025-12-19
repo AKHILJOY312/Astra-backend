@@ -27,4 +27,5 @@ export interface IUserRepository {
   updateStatus(userId: string): Promise<void>;
   updateRole(userId: string): Promise<void>;
   updateSecurityStamp(userId: string, stamp: string): Promise<void>;
+  delete(userId: string): Promise<void>;
 }

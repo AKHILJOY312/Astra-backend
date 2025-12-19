@@ -9,13 +9,21 @@ import { GetMe } from "../../../application/use-cases/auth/GetMe";
 import { ForgotPassword } from "../../../application/use-cases/auth/ForgotPassword";
 import { ResetPassword } from "../../../application/use-cases/auth/ResetPassword";
 import { VerifyResetToken } from "../../../application/use-cases/auth/VerifyResetToken";
-import { GoogleLogin } from "../../../application/use-cases/auth/GoogleLogin";
+import {
+  GoogleLogin,
+  GoogleProfile,
+} from "../../../application/use-cases/auth/GoogleLogin";
 import { HTTP_STATUS } from "../../http/constants/httpStatus";
 import { AUTH_MESSAGES } from "@/interface-adapters/http/constants/messages";
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/types";
+import { asyncHandler } from "@/infra/web/express/handler/asyncHandler";
+import { BadRequestError } from "@/application/error/AppError";
+import {
+  clearRefreshTokenCookie,
+  setRefreshTokenCookie,
+} from "@/infra/web/express/utils/cookieUtils";
 
-// Dependency container (simple DI – you can replace with Inversify, tsyringe, etc.)
 @injectable()
 export class AuthController {
   constructor(
@@ -23,7 +31,7 @@ export class AuthController {
     @inject(TYPES.VerifyEmail) private verifyEmailUC: VerifyEmail,
     @inject(TYPES.LoginUser) private loginUC: LoginUser,
     @inject(TYPES.RefreshToken) private refreshUC: RefreshToken,
-    @inject(TYPES.LoginUser) private logoutUC: LogoutUser,
+    @inject(TYPES.LogoutUser) private logoutUC: LogoutUser,
     @inject(TYPES.GetMe) private meUC: GetMe,
     @inject(TYPES.ForgotPassword) private forgotUC: ForgotPassword,
     @inject(TYPES.ResetPassword) private resetUC: ResetPassword,
@@ -37,147 +45,98 @@ export class AuthController {
 
   googleCallback = async (req: Request, res: Response) => {
     try {
-      const googleProfile = req.user as any;
+      const googleProfile = req.user as GoogleProfile | undefined;
       if (!googleProfile) throw new Error("Google login failed");
 
       const { accessToken, refreshToken } = await this.googleLoginUC.execute(
         googleProfile
       );
 
-      res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      });
+      setRefreshTokenCookie(res, refreshToken);
 
       const redirectUrl = `${process.env.CLIENT_URL}/success?token=${accessToken}`;
       res.redirect(redirectUrl);
-    } catch (e: any) {
-      res.redirect(
-        `${process.env.FRONTEND_URL}/login?error=${encodeURIComponent(
-          e.message
-        )}`
-      );
+    } catch (error) {
+      // Type narrowed: error is unknown here (best practice)
+      const message =
+        error instanceof BadRequestError
+          ? error.message
+          : "Authentication failed";
+
+      const errorRedirect = `${
+        process.env.CLIENT_URL
+      }/auth/login?error=${encodeURIComponent(message)}`;
+      res.redirect(errorRedirect);
     }
   };
 
-  register = async (req: Request, res: Response) => {
-    try {
-      const result = await this.registerUC.execute(req.body);
-      res.status(HTTP_STATUS.CREATED).json(result);
-    } catch (e: any) {
-      res.status(HTTP_STATUS.BAD_REQUEST).json({ message: e.message });
-    }
-  };
+  register = asyncHandler(async (req: Request, res: Response) => {
+    const result = await this.registerUC.execute(req.body);
+    res.status(HTTP_STATUS.CREATED).json(result);
+  });
 
-  verifyEmail = async (req: Request, res: Response) => {
-    try {
-      const { token } = req.query;
+  verifyEmail = asyncHandler(async (req: Request, res: Response) => {
+    const { token } = req.query;
+    if (typeof token !== "string") throw new BadRequestError("Invalid token");
+    const msg = await this.verifyEmailUC.execute(token);
+    res.json(msg);
+  });
 
-      if (typeof token !== "string") throw new Error("Invalid token");
-      const msg = await this.verifyEmailUC.execute(token);
-      res.json(msg);
-    } catch (e: any) {
-      res.status(HTTP_STATUS.BAD_REQUEST).json({ message: e.message });
-    }
-  };
+  login = asyncHandler(async (req: Request, res: Response) => {
+    const { email, password } = req.body;
+    const { accessToken, refreshToken, user } = await this.loginUC.execute(
+      email,
+      password
+    );
 
-  login = async (req: Request, res: Response) => {
-    try {
-      const { email, password } = req.body;
-      const { accessToken, refreshToken, user } = await this.loginUC.execute(
-        email,
-        password
-      );
+    setRefreshTokenCookie(res, refreshToken);
 
-      res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      });
+    res.json({ message: AUTH_MESSAGES.LOGIN_SUCCESS, accessToken, user });
+  });
 
-      res.json({ message: AUTH_MESSAGES.LOGIN_SUCCESS, accessToken, user });
-    } catch (e: any) {
-      res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: e.message });
-    }
-  };
-
-  refreshToken = async (req: Request, res: Response) => {
+  refreshToken = asyncHandler(async (req: Request, res: Response) => {
     const token = req.cookies.refreshToken;
     if (!token)
       return res
         .status(HTTP_STATUS.UNAUTHORIZED)
         .json({ message: AUTH_MESSAGES.NO_REFRESH_TOKEN });
 
-    try {
-      const { accessToken } = await this.refreshUC.execute(token);
-      res.json({ accessToken });
-    } catch (e: any) {
-      res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: e.message });
-    }
-  };
+    const { accessToken } = await this.refreshUC.execute(token);
+    res.json({ accessToken });
+  });
 
   logout = (_: Request, res: Response) => {
-    res.clearCookie("refreshToken", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-    });
+    clearRefreshTokenCookie(res);
     res.json({ message: AUTH_MESSAGES.LOGOUT_SUCCESS });
   };
 
-  me = async (req: Request, res: Response) => {
+  me = asyncHandler(async (req: Request, res: Response) => {
     // @ts-expect-error – set by protect middleware
     const userId: string = req.user.id;
+    const data = await this.meUC.execute(userId);
+    res.json(data);
+  });
 
-    try {
-      const data = await this.meUC.execute(userId);
-
-      res.json(data);
-    } catch (e: any) {
-      res.status(HTTP_STATUS.NOT_FOUND).json({ message: e.message });
-    }
-  };
-
-  forgotPassword = async (req: Request, res: Response) => {
+  forgotPassword = asyncHandler(async (req: Request, res: Response) => {
     const { email } = req.body;
     if (!email)
       return res
         .status(HTTP_STATUS.BAD_REQUEST)
         .json({ message: AUTH_MESSAGES.EMAIL_REQUIRED });
+    const msg = await this.forgotUC.execute(email);
+    res.json(msg);
+  });
 
-    try {
-      const msg = await this.forgotUC.execute(email);
-      res.json(msg);
-    } catch (e: any) {
-      res
-        .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-        .json({ message: e.message });
-    }
-  };
-
-  resetPassword = async (req: Request, res: Response) => {
+  resetPassword = asyncHandler(async (req: Request, res: Response) => {
     const { token } = req.query as { token: string };
     const { password, confirmPassword } = req.body;
+    const msg = await this.resetUC.execute(token, password, confirmPassword);
+    res.json(msg);
+  });
 
-    try {
-      const msg = await this.resetUC.execute(token, password, confirmPassword);
-      res.json(msg);
-    } catch (e: any) {
-      res.status(HTTP_STATUS.BAD_REQUEST).json({ message: e.message });
-    }
-  };
-
-  verifyResetToken = async (req: Request, res: Response) => {
+  verifyResetToken = asyncHandler(async (req: Request, res: Response) => {
     const { token } = req.query as { token: string };
-
-    try {
-      const { valid } = await this.verifyResetUC.execute(token);
-      res.json({ message: AUTH_MESSAGES.RESET_TOKEN_VALID, valid });
-    } catch (e: any) {
-      res.status(HTTP_STATUS.BAD_REQUEST).json({ message: e.message });
-    }
-  };
+    const { valid } = await this.verifyResetUC.execute(token);
+    res.json({ message: AUTH_MESSAGES.RESET_TOKEN_VALID, valid });
+  });
 }

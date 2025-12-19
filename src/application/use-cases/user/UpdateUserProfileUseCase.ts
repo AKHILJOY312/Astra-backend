@@ -1,6 +1,7 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/types";
 import { IUserRepository } from "@/application/ports/repositories/IUserRepository";
+import { NotFoundError } from "@/application/error/AppError";
 
 interface UpdateProfileDTO {
   name?: string;
@@ -16,18 +17,16 @@ export class UpdateUserProfileUseCase {
 
   async execute(userId: string, dto: UpdateProfileDTO) {
     const user = await this.userRepo.findById(userId);
-    if (!user) throw new Error("User not found");
+    if (!user) throw new NotFoundError("User");
 
-    if (dto.name) {
-      (user as any)._props.name = dto.name;
-    }
+    if (dto.name) user.setName(dto.name);
 
     if (dto.email && dto.email !== user.email) {
       const existing = await this.userRepo.findByEmail(dto.email);
       if (existing) throw new Error("Email already in use");
 
-      (user as any)._props.email = dto.email;
-      (user as any)._props.isVerified = false;
+      user.setEmail(dto.email);
+      // (user as any)._props.isVerified = true;
     }
 
     await this.userRepo.save(user);

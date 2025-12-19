@@ -20,12 +20,8 @@ export class PlanController {
   ) {}
 
   create = async (req: Request, res: Response) => {
-    try {
-      const plan = await this.createPlan.execute(req.body);
-      res.status(HTTP_STATUS.CREATED).json(plan);
-    } catch (err: any) {
-      res.status(HTTP_STATUS.BAD_REQUEST).json({ message: err.message });
-    }
+    const plan = await this.createPlan.execute(req.body);
+    res.status(HTTP_STATUS.CREATED).json(plan);
   };
 
   getAll = async (req: Request, res: Response) => {
@@ -36,27 +32,18 @@ export class PlanController {
   };
 
   update = async (req: Request, res: Response) => {
-    try {
-      const dto = {
-        id: req.params.id,
-        ...req.body,
-      };
+    const dto = {
+      id: req.params.id,
+      ...req.body,
+    };
 
-      const result = await this.updatePlan.execute(dto);
+    const result = await this.updatePlan.execute(dto);
 
-      return res.json({
-        success: true,
-        message: PLAN_MESSAGES.PLAN_CREATED,
-        data: result,
-      });
-    } catch (error: any) {
-      console.error("Update plan error:", error);
-
-      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: error.message || PLAN_MESSAGES.PLAN_UPDATE_FAILED,
-      });
-    }
+    return res.json({
+      success: true,
+      message: PLAN_MESSAGES.PLAN_CREATED,
+      data: result,
+    });
   };
 
   delete = async (req: Request, res: Response) => {

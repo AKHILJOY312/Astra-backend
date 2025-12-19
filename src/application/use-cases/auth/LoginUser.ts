@@ -2,6 +2,11 @@ import { inject, injectable } from "inversify";
 import { IUserRepository } from "../../ports/repositories/IUserRepository";
 import { IAuthService } from "../../ports/services/IAuthService";
 import { TYPES } from "@/config/types";
+import {
+  BadRequestError,
+  ForbiddenError,
+  UnauthorizedError,
+} from "@/application/error/AppError";
 
 @injectable()
 export class LoginUser {
@@ -18,20 +23,21 @@ export class LoginUser {
     refreshToken: string;
     user: { id: string; name: string; email: string };
   }> {
-    if (!email || !password) throw new Error("Email and password are required");
+    if (!email || !password)
+      throw new BadRequestError("Email and password are required");
 
     const user = await this.userRepo.findByEmail(email);
-    if (!user) throw new Error("Invalid email or password");
+    if (!user) throw new UnauthorizedError("Invalid email or password");
 
     if (!user.isVerified)
-      throw new Error("Please verify your email before logging in");
+      throw new ForbiddenError("Please verify your email before logging in");
     if (user.isBlocked)
-      throw new Error(
+      throw new ForbiddenError(
         "Sorry you have been blocked by the admin, contact the admin"
       );
 
     const ok = await this.auth.comparePassword(password, user.password);
-    if (!ok) throw new Error("Invalid email or password");
+    if (!ok) throw new UnauthorizedError("Invalid email or password");
 
     const access = this.auth.generateAccessToken(
       user.id!,

@@ -3,6 +3,11 @@ import { inject, injectable } from "inversify";
 import { IUserRepository } from "../../../ports/repositories/IUserRepository";
 import { IAuthService } from "../../../ports/services/IAuthService";
 import { TYPES } from "@/config/types";
+import {
+  BadRequestError,
+  UnauthorizedError,
+  ValidationError,
+} from "@/application/error/AppError";
 
 @injectable()
 export class AdminLogin {
@@ -13,17 +18,17 @@ export class AdminLogin {
 
   async execute(email: string, password: string) {
     const user = await this.userRepo.findByEmail(email);
-    if (!user) throw new Error("Invalid credentials");
+    if (!user) throw new BadRequestError("Invalid credentials");
 
     if (!user.isAdmin) {
-      throw new Error("Access denied. Admins only.");
+      throw new UnauthorizedError("Access denied. Admins only.");
     }
 
     const isValid = await this.authService.comparePassword(
       password,
       user.password
     );
-    if (!isValid) throw new Error("Invalid credentials");
+    if (!isValid) throw new ValidationError("Invalid credentials");
 
     const accessToken = this.authService.generateAccessToken(
       user.id!,

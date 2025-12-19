@@ -3,6 +3,7 @@ import { TYPES } from "@/config/types";
 import { IProjectRepository } from "../../ports/repositories/IProjectRepository";
 import { IProjectMembershipRepository } from "../../ports/repositories/IProjectMembershipRepository";
 import { Project } from "../../../domain/entities/project/Project";
+import { NotFoundError, UnauthorizedError } from "@/application/error/AppError";
 
 export interface UpdateProjectDTO {
   projectId: string;
@@ -29,13 +30,13 @@ export class UpdateProjectUseCase {
   async execute(input: UpdateProjectDTO): Promise<UpdateProjectResultDTO> {
     const { projectId, userId, projectName, description, imageUrl } = input;
 
-    // 1️⃣ Fetch project
+    // 1️ Fetch project
     const project = await this.projectRepo.findById(projectId);
     if (!project) {
-      throw new Error("Project not found");
+      throw new NotFoundError("Project");
     }
 
-    // 2️⃣ Authorization
+    // 2️ Authorization
     if (project.ownerId !== userId) {
       const membership = await this.membershipRepo.findByProjectAndUser(
         projectId,
@@ -43,11 +44,11 @@ export class UpdateProjectUseCase {
       );
 
       if (!membership || membership.role !== "manager") {
-        throw new Error("You are not allowed to edit this project");
+        throw new UnauthorizedError("You are not allowed to edit this project");
       }
     }
 
-    // 3️⃣ Update entity using domain methods
+    // 3️ Update entity using domain methods
     if (projectName !== undefined) {
       project.updateName(projectName);
     }
@@ -60,7 +61,7 @@ export class UpdateProjectUseCase {
       project.updateImageUrl(imageUrl);
     }
 
-    // 4️⃣ Persist changes
+    // 4️ Persist changes
     await this.projectRepo.update(project);
 
     return { project };

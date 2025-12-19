@@ -15,7 +15,7 @@ export class DeleteUserAccountUseCase {
 
   async execute(userId: string) {
     const user = await this.userRepo.findById(userId);
-    if (!user) throw new Error("User not found");
+    if (!user) throw new Error("User");
 
     const subscription = await this.subscriptionRepo.findByUserId(userId);
 
@@ -24,6 +24,6 @@ export class DeleteUserAccountUseCase {
     }
 
     // hard delete
-    await (this.userRepo as any).delete(userId);
+    await this.userRepo.delete(userId);
   }
 }

@@ -4,6 +4,10 @@ import { inject, injectable } from "inversify";
 import { IChannelRepository } from "../../ports/repositories/IChannelRepository";
 import { IProjectMembershipRepository } from "../../ports/repositories/IProjectMembershipRepository";
 import { TYPES } from "@/config/types";
+import {
+  BadRequestError,
+  UnauthorizedError,
+} from "@/application/error/AppError";
 
 export interface EditChannelDTO {
   channelId: string;
@@ -33,7 +37,7 @@ export class EditChannelUseCase {
     } = input;
 
     const channel = await this.channelRepo.findById(channelId);
-    if (!channel) throw new Error("Channel not found");
+    if (!channel) throw new BadRequestError("Channel not found");
 
     const membership = await this.membershipRepo.findByProjectAndUser(
       channel.projectId,
@@ -41,7 +45,7 @@ export class EditChannelUseCase {
     );
 
     if (!membership || membership.role !== "manager") {
-      throw new Error("Only project admins can edit channels");
+      throw new UnauthorizedError("Only project admins can edit channels");
     }
 
     if (channelName) channel.rename(channelName);

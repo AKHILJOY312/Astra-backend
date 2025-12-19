@@ -7,6 +7,7 @@ import {
 
 import { IProjectMembershipRepository } from "../../ports/repositories/IProjectMembershipRepository";
 import { TYPES } from "@/config/types";
+import { NotFoundError, UnauthorizedError } from "@/application/error/AppError";
 
 export interface ChangeMemberRoleDTO {
   projectId: string;
@@ -37,7 +38,9 @@ export class ChangeMemberRoleUseCase {
       requestedBy
     );
     if (!requester || requester.role !== "manager") {
-      throw new Error("Only project managers can change member roles");
+      throw new UnauthorizedError(
+        "Only project managers can change member roles"
+      );
     }
 
     // 2. Target must be a member
@@ -46,7 +49,7 @@ export class ChangeMemberRoleUseCase {
       memberId
     );
     if (!target) {
-      throw new Error("User is not a member of this project");
+      throw new NotFoundError("User");
     }
 
     // 3. Prevent removing last manager
@@ -55,7 +58,7 @@ export class ChangeMemberRoleUseCase {
         projectId
       );
       if (managerCount <= 1) {
-        throw new Error(
+        throw new UnauthorizedError(
           "Cannot demote the last manager — transfer ownership first"
         );
       }

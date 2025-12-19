@@ -2,6 +2,7 @@
 import { inject, injectable } from "inversify";
 import { IUserRepository } from "../../ports/repositories/IUserRepository";
 import { TYPES } from "@/config/types";
+import { NotFoundError } from "@/application/error/AppError";
 
 @injectable()
 export class AssignAdminRoleUseCase {
@@ -12,7 +13,7 @@ export class AssignAdminRoleUseCase {
   async execute(userId: string) {
     const user = await this.userRepo.findById(userId);
 
-    if (!user) throw new Error("User not found");
+    if (!user) throw new NotFoundError("User");
     const isAdmin = user.isAdmin;
     // 1. Update the role on the User entity
     // console.log("user before setting the role : ", user);

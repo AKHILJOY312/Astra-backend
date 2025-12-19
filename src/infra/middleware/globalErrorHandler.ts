@@ -1,46 +1,34 @@
-// src/infrastructure/http/middleware/globalErrorHandler.ts
-import { Request, Response, NextFunction } from "express";
-import { AppError } from "../../application/error/AppError";
+// src/infra/http/errorMiddleware.ts
+import { ErrorRequestHandler } from "express";
+import { AppError } from "@/application/error/AppError";
+import { HTTP_STATUS } from "@/interface-adapters/http/constants/httpStatus";
 
-export const globalErrorHandler = (
-  err: any,
-  req: Request,
-  res: Response,
-  next: NextFunction
+export const globalErrorHandler: ErrorRequestHandler = (
+  err,
+  req,
+  res,
+  next
 ) => {
-  // Operational, trusted error (we threw it)
+  // Special handling for plan limit errors
+  if (err.name === "PlanLimitError") {
+    return res.status(HTTP_STATUS.FORBIDDEN).json({
+      message: err.message,
+      upgradeRequired: true,
+    });
+  }
+
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({
-      success: false,
       message: err.message,
-      code: err.code,
     });
   }
 
-  // Zod validation
-  if (err.name === "ZodError") {
-    return res.status(400).json({
-      success: false,
-      message: "Validation failed",
-      errors: err.errors,
-    });
-  }
+  console.error("UNHANDLED ERROR:", err);
 
-  // JWT errors
-  if (err.name === "JsonWebTokenError" || err.name === "TokenExpiredError") {
-    return res.status(401).json({
-      success: false,
-      message: "Invalid or expired token",
-    });
-  }
-
-  // Everything else = unexpected bug
-  console.error("Unhandled Exception:", err);
-
-  res.status(500).json({
-    success: false,
-    message: "Internal server error",
-    // Only expose stack trace in development
-    ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
+  res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+    message: "Internal Server Error",
   });
+
+  // explicitly mark as used (ESLint-safe)
+  next();
 };

@@ -1,6 +1,11 @@
 import { IMessageRepository } from "@/application/ports/repositories/IMessageRepository";
 import { Message } from "@/domain/entities/message/Message";
-import { MessageModel, toMessageEntity } from "../models/MessageModel";
+import {
+  MessageDoc,
+  MessageModel,
+  toMessageEntity,
+} from "../models/MessageModel";
+import { FilterQuery, Types } from "mongoose";
 
 export class MessageRepository implements IMessageRepository {
   async create(msg: Message): Promise<Message> {
@@ -19,7 +24,9 @@ export class MessageRepository implements IMessageRepository {
     cursor?: string,
     limit: number = 20
   ): Promise<Message[]> {
-    const query: any = { channelId };
+    const query: FilterQuery<MessageDoc> = {
+      channelId: new Types.ObjectId(channelId),
+    };
 
     if (cursor) {
       query.createdAt = { $lt: new Date(cursor) };
