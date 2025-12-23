@@ -15,7 +15,7 @@ export class VerifyEmail {
 
     user.verify();
     user.clearVerificationToken();
-    await this.userRepo.save(user);
+    await this.userRepo.update(user);
 
     return { message: "Email verified successfully. You can now log in." };
   }

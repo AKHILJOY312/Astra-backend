@@ -29,7 +29,7 @@ export class UpdateUserProfileUseCase {
       // (user as any)._props.isVerified = true;
     }
 
-    await this.userRepo.save(user);
+    await this.userRepo.update(user);
 
     return {
       id: user.id,

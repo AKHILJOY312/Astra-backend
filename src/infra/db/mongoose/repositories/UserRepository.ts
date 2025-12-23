@@ -72,7 +72,7 @@ export class UserRepository implements IUserRepository {
     return this.toDomain(doc);
   }
 
-  async save(user: User): Promise<void> {
+  async update(user: User): Promise<void> {
     if (!user.id) throw new Error("Cannot save user without id");
 
     const $set: UpdateQuery<IUserDocument>["$set"] = {

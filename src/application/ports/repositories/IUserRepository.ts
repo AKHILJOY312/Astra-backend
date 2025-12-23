@@ -11,21 +11,19 @@ export interface PaginationResult {
 }
 
 export interface IUserRepository {
-  findByEmail(email: string): Promise<User | null>;
+  create(user: User): Promise<User>;
+  delete(userId: string): Promise<void>;
   findById(id: string): Promise<User | null>;
+  update(user: User): Promise<void>;
 
+  findByEmail(email: string): Promise<User | null>;
   findByVerificationToken(token: string): Promise<User | null>;
   findByResetToken(token: string): Promise<User | null>;
-
-  create(user: User): Promise<User>;
-  save(user: User): Promise<void>;
-
-  countAdmins(): Promise<number>;
   findUsersWithPagination(query: ListUsersQuery): Promise<PaginationResult>;
 
+  countAdmins(): Promise<number>;
   // Optional: Specific methods for direct updates (alternative to using generic save)
   updateStatus(userId: string): Promise<void>;
   updateRole(userId: string): Promise<void>;
   updateSecurityStamp(userId: string, stamp: string): Promise<void>;
-  delete(userId: string): Promise<void>;
 }

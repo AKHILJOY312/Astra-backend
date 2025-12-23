@@ -24,7 +24,7 @@ export class ForgotPassword {
     const expires = new Date(Date.now() + 3_600_000); // 1h
 
     user.setResetToken(token, expires);
-    await this.userRepo.save(user);
+    await this.userRepo.update(user);
 
     const resetUrl = `${ENV.CLIENT_URL}/verify-email?token=${token}&type=reset`;
     await this.email.sendPasswordReset(email, token, resetUrl);

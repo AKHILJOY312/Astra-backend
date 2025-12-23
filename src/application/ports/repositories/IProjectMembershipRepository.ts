@@ -1,14 +1,16 @@
 // src/core/repositories/IProjectMembershipRepository.ts
 import { ProjectMemberView } from "@/application/dto/project/ProjectMemberView";
 import { ProjectMembership } from "../../../domain/entities/project/ProjectMembership";
+import { IBaseRepository } from "./IBaseRepository";
 
-export interface IProjectMembershipRepository {
-  create(membership: ProjectMembership): Promise<ProjectMembership>;
-  update(membership: ProjectMembership): Promise<void>;
-  delete(id: string): Promise<ProjectMembership | null>;
+export interface IProjectMembershipRepository
+  extends IBaseRepository<ProjectMembership> {
+  // create(membership: ProjectMembership): Promise<ProjectMembership>;
+  // update(membership: ProjectMembership): Promise<void>;
+  // delete(id: string): Promise<ProjectMembership | null>;
+  // findById(id: string): Promise<ProjectMembership | null>;
+
   deleteByProjectAndUser(projectId: string, userId: string): Promise<void>;
-
-  findById(id: string): Promise<ProjectMembership | null>;
   findByProjectAndUser(
     projectId: string,
     userId: string

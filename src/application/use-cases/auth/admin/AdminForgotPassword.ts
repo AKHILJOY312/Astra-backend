@@ -25,7 +25,7 @@ export class AdminForgotPassword {
     const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
     user.setResetToken(token, expires);
-    await this.userRepo.save(user);
+    await this.userRepo.update(user);
 
     const resetUrl = `${process.env.ADMIN_URL}/reset-password?token=${token}`;
     await this.emailService.sendPasswordReset(user.email, token, resetUrl);

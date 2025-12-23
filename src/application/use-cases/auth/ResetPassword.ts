@@ -29,7 +29,7 @@ export class ResetPassword {
 
     user.setPassword(hashed);
     user.clearResetToken();
-    await this.userRepo.save(user);
+    await this.userRepo.update(user);
 
     return {
       message: "Password reset successfully",

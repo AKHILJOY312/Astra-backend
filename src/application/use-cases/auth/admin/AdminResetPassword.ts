@@ -28,7 +28,7 @@ export class AdminResetPassword {
     const hashed = await this.authService.hashPassword(password);
     user.setPassword(hashed);
     user.clearResetToken();
-    await this.userRepo.save(user);
+    await this.userRepo.update(user);
 
     return { message: "Admin password reset successfully" };
   }

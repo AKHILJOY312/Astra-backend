@@ -1,11 +1,13 @@
 // src/core/repositories/IProjectRepository.ts
 import { Project } from "../../../domain/entities/project/Project";
+import { IBaseRepository } from "./IBaseRepository";
 
-export interface IProjectRepository {
-  create(project: Project): Promise<Project>;
-  update(project: Project): Promise<void>;
-  delete(id: string): Promise<Project | null>;
-  findById(id: string): Promise<Project | null>;
+export interface IProjectRepository extends IBaseRepository<Project> {
+  // create(project: Project): Promise<Project>;
+  // update(project: Project): Promise<void>;
+  // delete(id: string): Promise<Project | null>;
+  // findById(id: string): Promise<Project | null>;
+
   findByOwnerId(ownerId: string): Promise<Project[]>;
   findPaginatedByUserId(input: {
     userId: string;
