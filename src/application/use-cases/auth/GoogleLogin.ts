@@ -4,15 +4,20 @@ import { IUserRepository } from "../../ports/repositories/IUserRepository";
 import { IAuthService } from "../../ports/services/IAuthService";
 import crypto from "crypto";
 import { TYPES } from "@/config/types";
+import { NotFoundError } from "@/application/error/AppError";
+import {
+  GoogleProfile,
+  IGoogleLogin,
+} from "@/application/ports/use-cases/auth/IGoogleLoginUseCase";
 
 @injectable()
-export class GoogleLogin {
+export class GoogleLogin implements IGoogleLogin {
   constructor(
     @inject(TYPES.UserRepository) private userRepo: IUserRepository,
     @inject(TYPES.AuthService) private authService: IAuthService
   ) {}
 
-  async execute(profile: any): Promise<{
+  async execute(profile: GoogleProfile): Promise<{
     user: User;
     accessToken: string;
     refreshToken: string;
@@ -20,7 +25,7 @@ export class GoogleLogin {
     const email = profile.emails?.[0]?.value;
     const name = profile.displayName || email?.split("@")[0];
 
-    if (!email) throw new Error("No email from Google");
+    if (!email) throw new NotFoundError("Email");
 
     let user = await this.userRepo.findByEmail(email);
 

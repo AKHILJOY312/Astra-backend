@@ -4,9 +4,11 @@ import { inject, injectable } from "inversify";
 import { IChannelRepository } from "../../ports/repositories/IChannelRepository";
 import { IProjectMembershipRepository } from "../../ports/repositories/IProjectMembershipRepository";
 import { TYPES } from "@/config/types";
+import { UnauthorizedError } from "@/application/error/AppError";
+import { IListChannelsForUserUseCase } from "@/application/ports/use-cases/channel/IListChannelsForUserUseCase";
 
 @injectable()
-export class ListChannelsForUserUseCase {
+export class ListChannelsForUserUseCase implements IListChannelsForUserUseCase {
   constructor(
     @inject(TYPES.ChannelRepository) private channelRepo: IChannelRepository,
     @inject(TYPES.ProjectMembershipRepository)
@@ -18,10 +20,10 @@ export class ListChannelsForUserUseCase {
       projectId,
       userId
     );
-    if (!membership) throw new Error("You are not a project member");
+    if (!membership)
+      throw new UnauthorizedError("You are not a project member");
 
     const userRole = membership.role;
-
     const channels = await this.channelRepo.findByProjectId(projectId);
 
     // Filter by visibility

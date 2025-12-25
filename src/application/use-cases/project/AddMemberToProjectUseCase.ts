@@ -1,28 +1,24 @@
 // src/core/use-cases/project/AddMemberToProjectUseCase.ts
-import {
-  ProjectMembership,
-  ProjectRole,
-} from "../../../domain/entities/project/ProjectMembership";
+import { ProjectMembership } from "../../../domain/entities/project/ProjectMembership";
 import { IProjectRepository } from "../../ports/repositories/IProjectRepository";
 import { IProjectMembershipRepository } from "../../ports/repositories/IProjectMembershipRepository";
 import { IPlanRepository } from "../../ports/repositories/IPlanRepository";
 import { IUserSubscriptionRepository } from "../../ports/repositories/IUserSubscriptionRepository";
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/types";
-
-export interface AddMemberDTO {
-  projectId: string;
-  userId: string;
-  role?: ProjectRole;
-  requestedBy: string;
-}
-
-export interface AddMemberResultDTO {
-  membership: ProjectMembership;
-}
+import {
+  BadRequestError,
+  NotFoundError,
+  UnauthorizedError,
+} from "@/application/error/AppError";
+import {
+  AddMemberDTO,
+  AddMemberResultDTO,
+  IAddMemberToProjectUseCase,
+} from "@/application/ports/use-cases/project/IAddMemberToProjectUseCase";
 
 @injectable()
-export class AddMemberToProjectUseCase {
+export class AddMemberToProjectUseCase implements IAddMemberToProjectUseCase {
   constructor(
     @inject(TYPES.ProjectMembershipRepository)
     private membershipRepo: IProjectMembershipRepository,
@@ -42,7 +38,7 @@ export class AddMemberToProjectUseCase {
     );
 
     if (existing) {
-      throw new Error("User is already a member of this project");
+      throw new BadRequestError("User is already a member of this project");
     }
 
     // 2. Check requester is manager
@@ -51,7 +47,7 @@ export class AddMemberToProjectUseCase {
       requestedBy
     );
     if (!requesterMembership || requesterMembership.role !== "manager") {
-      throw new Error("Only project managers can add members");
+      throw new UnauthorizedError("Only project managers can add members");
     }
 
     // 3. Count current members
@@ -61,17 +57,17 @@ export class AddMemberToProjectUseCase {
 
     // 4. Get project owner to check subscription
     const project = await this.projectRepo.findById(projectId);
-    if (!project) throw new Error("Project not found");
+    if (!project) throw new NotFoundError("Project");
 
     const ownerSub = await this.subscriptionRepo.findActiveByUserId(
       project.ownerId
     );
     const plan = await this.planRepo.findById(ownerSub?.planType || "free");
-    if (!plan) throw new Error("Plan not found");
+    if (!plan) throw new NotFoundError("Plan");
 
     // 5. Enforce member limit
     if (memberCount >= plan.maxMembersPerProject) {
-      throw new Error(
+      throw new UnauthorizedError(
         `Maximum ${plan.maxMembersPerProject} members allowed. Upgrade plan to add more.`
       );
     }

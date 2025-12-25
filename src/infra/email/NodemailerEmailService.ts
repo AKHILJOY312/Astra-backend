@@ -1,82 +1,128 @@
 // src/infrastructure/email/NodemailerEmailService.ts
-import nodemailer from "nodemailer";
-import { IEmailService } from "../../application/ports/services/IEmailService";
-// Create transporter once (reused across requests)
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.NODEMAILER_Email,
-    pass: process.env.NODEMAILER_Password,
-  },
-});
+import nodemailer, { Transporter, SendMailOptions } from "nodemailer";
+import { IEmailService } from "@/application/ports/services/IEmailService";
+import { injectable } from "inversify";
+import { ENV } from "@/config/env.config";
 
-// Optional: Verify on startup
-transporter.verify((error) => {
-  if (error) {
-    console.error("SMTP transporter error:", error);
-  } else {
-    console.log("SMTP transporter is ready to send emails");
-  }
-});
-
+@injectable()
 export class NodemailerEmailService implements IEmailService {
-  async sendVerification(email: string, token: string): Promise<void> {
-    const verificationUrl = `${process.env.CLIENT_URL}/verify-email?token=${token}`;
+  private transporter: Transporter;
+  private fromEmail: string;
+  private clientUrl: string;
 
-    const mailOptions = {
-      from: process.env.NODEMAILER_Email,
+  constructor() {
+    const email = ENV.MAIL.USER;
+    const pass = ENV.MAIL.PASS;
+    this.clientUrl = ENV.CLIENT_URL || "http://localhost:5173";
+
+    if (!email || !pass) {
+      throw new Error(
+        "NODEMAILER_EMAIL and NODEMAILER_PASS must be defined in .env"
+      );
+    }
+
+    this.fromEmail = email;
+
+    this.transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: email,
+        pass,
+      },
+    });
+
+    this.transporter.verify((error) => {
+      if (error) {
+        console.error("SMTP connection failed:", error);
+      } else {
+        console.log("SMTP ready – emails can be sent from:", email);
+      }
+    });
+  }
+
+  private getVerificationHtml(verificationUrl: string): string {
+    return `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+        <h2 style="color: #1a73e8;">Verify Your Email Address</h2>
+        <p>Thank you for signing up! Please confirm your email by clicking the button below:</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${verificationUrl}" 
+             style="background-color: #1a73e8; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+            Verify Email
+          </a>
+        </div>
+        <p>Or copy and paste this link:</p>
+        <p style="word-break: break-all; color: #555;">${verificationUrl}</p>
+        <p><small>This link expires in 1 hour.</small></p>
+      </div>
+    `;
+  }
+
+  private getPasswordResetHtml(resetUrl: string): string {
+    return `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+        <h2 style="color: #d93025;">Password Reset Request</h2>
+        <p>We received a request to reset your password. Click the button below to set a new one:</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${resetUrl}" 
+             style="background-color: #d93025; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+            Reset Password
+          </a>
+        </div>
+        <p>Or copy and paste this link:</p>
+        <p style="word-break: break-all; color: #555;">${resetUrl}</p>
+        <p><small>This link expires in 1 hour. If you didn't request this, ignore this email.</small></p>
+      </div>
+    `;
+  }
+
+  async sendVerification(email: string, token: string): Promise<void> {
+    const verificationUrl = `${this.clientUrl}/verify-email?token=${token}`;
+
+    const mailOptions: SendMailOptions = {
+      from: `"Your App" <${this.fromEmail}>`,
       to: email,
-      subject: "Verify Your Email",
-      html: `
-        <h2>Email Verification</h2>
-        <p>Click the link below to verify your email:</p>
-        <a href="${verificationUrl}" style="color: #1a73e8; font-weight: bold;">Verify Email</a>
-        <p>This link expires in 1 hour.</p>
-      `,
+      subject: "Verify Your Email Address",
+      html: this.getVerificationHtml(verificationUrl),
     };
 
     try {
-      const info = await transporter.sendMail(mailOptions);
-      console.log("Verification email sent:", info.messageId);
-    } catch (error: any) {
+      const info = await this.transporter.sendMail(mailOptions);
+      console.log("Verification email sent:", info.messageId, "to:", email);
+    } catch (error: unknown) {
+      const err = error as Error; // Safe — nodemailer errors extend Error
       console.error("Failed to send verification email:", {
         to: email,
-        error: error.message,
-        code: error.code,
-        response: error.response,
+        message: err.message,
       });
-      throw new Error(`Failed to send verification email: ${error.message}`);
+      throw new Error(
+        "Failed to send verification email. Please try again later."
+      );
     }
   }
 
-  async sendPasswordReset(
-    email: string,
-    token: string,
-    resetUrl: string
-  ): Promise<void> {
-    const mailOptions = {
-      from: process.env.NODEMAILER_Email,
+  async sendPasswordReset(email: string, token: string): Promise<void> {
+    const resetUrl = `${this.clientUrl}/reset-password?token=${token}`;
+
+    const mailOptions: SendMailOptions = {
+      from: `"Your App" <${this.fromEmail}>`,
       to: email,
       subject: "Reset Your Password",
-      html: `
-        <h2>Password Reset Request</h2>
-        <p>Click the link below to reset your password:</p>
-        <a href="${resetUrl}" style="color: #1a73e8; font-weight: bold;">Reset Password</a>
-        <p>This link expires in 1 hour.</p>
-      `,
+      html: this.getPasswordResetHtml(resetUrl),
     };
 
     try {
-      const info = await transporter.sendMail(mailOptions);
-      console.log("Password reset email sent:", info.messageId);
-    } catch (error: any) {
+      const info = await this.transporter.sendMail(mailOptions);
+      console.log("Password reset email sent:", info.messageId, "to:", email);
+    } catch (error: unknown) {
+      const err = error as Error;
       console.error("Failed to send password reset email:", {
         to: email,
-        error: error.message,
-        code: error.code,
-        response: error.response,
+        message: err.message,
       });
-      throw new Error(`Failed to send password reset email: ${error.message}`);
+      throw new Error(
+        "Failed to send password reset email. Please try again later."
+      );
     }
   }
 }

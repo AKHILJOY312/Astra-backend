@@ -6,9 +6,11 @@ import { RegisterUserDto } from "../../dto/RegisterUserDto";
 import crypto from "crypto";
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/types";
+import { BadRequestError } from "@/application/error/AppError";
+import { IRegisterUser } from "@/application/ports/use-cases/auth/IRegisterUserUseCase";
 
 @injectable()
-export class RegisterUser {
+export class RegisterUser implements IRegisterUser {
   constructor(
     @inject(TYPES.UserRepository) private userRepo: IUserRepository,
     @inject(TYPES.AuthService) private auth: IAuthService,
@@ -17,13 +19,14 @@ export class RegisterUser {
 
   async execute(dto: RegisterUserDto): Promise<{ message: string }> {
     if (!dto.name || !dto.email || !dto.password || !dto.confirmPassword)
-      throw new Error("All fields are required");
+      throw new BadRequestError("All fields are required");
 
     if (dto.password !== dto.confirmPassword)
-      throw new Error("Passwords do not match");
+      throw new BadRequestError("Passwords do not match");
 
     const existing = await this.userRepo.findByEmail(dto.email);
-    if (existing) throw new Error("User already exists");
+    if (existing)
+      throw new BadRequestError("User Already Existed Login Instead");
 
     const hashed = await this.auth.hashPassword(dto.password);
     const token = crypto.randomBytes(32).toString("hex");

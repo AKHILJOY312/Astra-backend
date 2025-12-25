@@ -15,7 +15,7 @@ const TYPES = {
   AuthService: Symbol.for("AuthService"), // For JwtAuthService
   EmailService: Symbol.for("EmailService"), // For NodemailerEmailService
   PaymentService: Symbol.for("PaymentService"), // For RazorpayService
-
+  TokenBlacklistService: Symbol.for("TokenBlacklistService"),
   // Middleware
   ProtectMiddleware: Symbol.for("ProtectMiddleware"),
 
@@ -29,6 +29,7 @@ const TYPES = {
   ChannelController: Symbol.for("ChannelController"),
   SubscriptionController: Symbol.for("SubscriptionController"),
   MessageController: Symbol.for("MessageController"),
+  UserController: Symbol.for("UserController"),
 
   // Use Cases (User/Auth)
   RegisterUser: Symbol.for("RegisterUser"),
@@ -52,6 +53,11 @@ const TYPES = {
   BlockUserUseCase: Symbol.for("BlockUserUseCase"),
   AssignAdminRoleUseCase: Symbol.for("AssignAdminRoleUseCase"),
 
+  // Use Cases ( User)
+  GetUserProfileUseCase: Symbol.for("GetUserProfileUseCase"),
+  UpdateUserProfileUseCase: Symbol.for("UpdateUserProfileUseCase"),
+  DeleteUserAccountUseCase: Symbol.for("DeleteUserAccountUseCase"),
+
   // Use Cases (Plan Admin)
   CreatePlan: Symbol.for("CreatePlan"),
   UpdatePlan: Symbol.for("UpdatePlan"),
@@ -61,6 +67,7 @@ const TYPES = {
 
   // Use Cases (Project/Membership)
   CreateProjectUseCase: Symbol.for("CreateProjectUseCase"),
+  UpdateProjectUseCase: Symbol.for("UpdateProjectUseCase"),
   GetUserProjectsUseCase: Symbol.for("GetUserProjectsUseCase"),
   AddMemberToProjectUseCase: Symbol.for("AddMemberToProjectUseCase"),
   RemoveMemberFromProjectUseCase: Symbol.for("RemoveMemberFromProjectUseCase"),

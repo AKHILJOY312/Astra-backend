@@ -2,19 +2,20 @@
 import { inject, injectable } from "inversify";
 import { IProjectMembershipRepository } from "../../ports/repositories/IProjectMembershipRepository";
 import { TYPES } from "@/config/types";
-
-export interface RemoveMemberDTO {
-  projectId: string;
-  memberId: string; // userId to remove
-  requestedBy: string; // who is removing (must be manager)
-}
-
-export interface RemoveMemberResultDTO {
-  message: string;
-}
+import {
+  BadRequestError,
+  UnauthorizedError,
+} from "@/application/error/AppError";
+import {
+  IRemoveMemberFromProjectUseCase,
+  RemoveMemberDTO,
+  RemoveMemberResultDTO,
+} from "@/application/ports/use-cases/project/IRemoveMemberFromProjectUseCase";
 
 @injectable()
-export class RemoveMemberFromProjectUseCase {
+export class RemoveMemberFromProjectUseCase
+  implements IRemoveMemberFromProjectUseCase
+{
   constructor(
     @inject(TYPES.ProjectMembershipRepository)
     private membershipRepo: IProjectMembershipRepository
@@ -29,7 +30,7 @@ export class RemoveMemberFromProjectUseCase {
       requestedBy
     );
     if (!requester || requester.role !== "manager") {
-      throw new Error("Only project managers can remove members");
+      throw new UnauthorizedError("Only project managers can remove members");
     }
 
     // 2. Cannot remove self if you're the only manager
@@ -38,7 +39,7 @@ export class RemoveMemberFromProjectUseCase {
         projectId
       );
       if (managerCount <= 1) {
-        throw new Error(
+        throw new BadRequestError(
           "You cannot remove yourself — there must be at least one manager left"
         );
       }
@@ -50,7 +51,7 @@ export class RemoveMemberFromProjectUseCase {
       memberId
     );
     if (!target) {
-      throw new Error("User is not a member of this project");
+      throw new BadRequestError("User is not a member of this project");
     }
 
     // 4. Delete membership

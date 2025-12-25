@@ -4,22 +4,16 @@ import { IPlanRepository } from "@/application/ports/repositories/IPlanRepositor
 import { IRazorpayService } from "@/application/ports/services/IRazorpayService";
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/types";
-
-export interface UpgradeToPlanInput {
-  userId: string;
-  planId: string;
-}
-
-export interface UpgradeToPlanOutput {
-  subscription: UserSubscription;
-  razorpayOrderId: string;
-  amount: number;
-  currency: string;
-  keyId: string;
-}
+import { BadRequestError } from "@/application/error/AppError";
+import { ENV } from "@/config/env.config";
+import {
+  IUpgradeToPlanUseCase,
+  UpgradeToPlanInput,
+  UpgradeToPlanOutput,
+} from "@/application/ports/use-cases/upgradetopremium/IUpgradeToPlanUseCase";
 
 @injectable()
-export class UpgradeToPlanUseCase {
+export class UpgradeToPlanUseCase implements IUpgradeToPlanUseCase {
   constructor(
     @inject(TYPES.UserSubscriptionRepository)
     private subscriptionRepo: IUserSubscriptionRepository,
@@ -32,10 +26,10 @@ export class UpgradeToPlanUseCase {
 
     const plan = await this.planRepo.findById(planId);
     if (!plan || !plan.isActive) {
-      throw new Error("Invalid or inactive plan");
+      throw new BadRequestError("Invalid or inactive plan");
     }
     if (plan.finalAmount <= 0) {
-      throw new Error("This is a free plan");
+      throw new BadRequestError("This is a free plan");
     }
 
     const orderObject = {
@@ -46,14 +40,14 @@ export class UpgradeToPlanUseCase {
     };
 
     const order = await this.razorpayService.createOrder(orderObject);
-    console.log("order: ", order);
+
     let subscription = await this.subscriptionRepo.findByUserId(userId);
 
     const now = new Date();
     const endDate = this.getNextBillingDate(plan.billingCycle);
 
     if (subscription) {
-      subscription.setPlan(planId as any, plan.finalAmount, plan.currency);
+      subscription.setPlan(planId, plan.finalAmount, plan.currency);
       subscription.setStatus("pending");
       subscription.setOrderId(order.id);
       subscription.setStartDate(now);
@@ -64,7 +58,7 @@ export class UpgradeToPlanUseCase {
     } else {
       subscription = new UserSubscription({
         userId,
-        planType: planId as any,
+        planType: planId,
         amount: plan.finalAmount,
         currency: plan.currency,
         startDate: now,
@@ -80,7 +74,7 @@ export class UpgradeToPlanUseCase {
       razorpayOrderId: order.id,
       amount: order.amount,
       currency: order.currency,
-      keyId: process.env.RAZORPAY_KEY_ID!,
+      keyId: ENV.PAYMENTS.RAZORPAY_ID!,
     };
   }
 

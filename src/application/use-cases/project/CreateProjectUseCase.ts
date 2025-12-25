@@ -7,20 +7,20 @@ import { ProjectMembership } from "../../../domain/entities/project/ProjectMembe
 import { IProjectMembershipRepository } from "../../ports/repositories/IProjectMembershipRepository";
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/types";
+import {
+  BadRequestError,
+  NotFoundError,
+  PlanLimitError,
+} from "@/application/error/AppError";
 
-export interface CreateProjectDTO {
-  projectName: string;
-  description?: string;
-  imageUrl?: string | null;
-  ownerId: string;
-}
-
-export interface CreateProjectResultDTO {
-  project: Project;
-}
+import {
+  CreateProjectDTO,
+  CreateProjectResultDTO,
+  ICreateProjectUseCase,
+} from "@/application/ports/use-cases/project/ICreateProjectUseCase";
 
 @injectable()
-export class CreateProjectUseCase {
+export class CreateProjectUseCase implements ICreateProjectUseCase {
   constructor(
     @inject(TYPES.ProjectRepository) private projectRepo: IProjectRepository,
     @inject(TYPES.UserSubscriptionRepository)
@@ -34,7 +34,15 @@ export class CreateProjectUseCase {
     const { ownerId, projectName, description, imageUrl } = input;
     // 1. Count current projects
     const currentCount = await this.projectRepo.countByOwnerId(ownerId);
-
+    const sameNameExist = await this.projectRepo.existsByNameAndOwnerId(
+      projectName,
+      ownerId
+    );
+    if (sameNameExist) {
+      throw new BadRequestError(
+        "Project with this same name exists. Try a another name."
+      );
+    }
     // 2. Get user subscription + plan limits
     const subscription = await this.subscriptionRepo.findActiveByUserId(
       ownerId
@@ -44,13 +52,11 @@ export class CreateProjectUseCase {
 
     const plan = await this.planRepo.findById(planId);
 
-    if (!plan) throw new Error("Plan not found");
+    if (!plan) throw new NotFoundError("Plan");
 
     // 3. Enforce project limit
     if (currentCount >= plan.maxProjects) {
-      throw new Error(
-        `You have reached the limit of ${plan.maxProjects} projects. Upgrade to create more.`
-      );
+      throw new PlanLimitError(plan.maxProjects);
     }
 
     // 4. Create project entity

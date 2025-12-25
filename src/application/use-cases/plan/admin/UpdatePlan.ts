@@ -4,16 +4,18 @@ import { UpdatePlanDto } from "../../../dto/plan/UpdatePlanDto";
 import { Plan } from "../../../../domain/entities/billing/Plan";
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/types";
+import { NotFoundError } from "@/application/error/AppError";
+import { IUpdatePlan } from "@/application/ports/use-cases/plan/admin/IUpdatePlanUseCase";
 
 @injectable()
-export class UpdatePlan {
+export class UpdatePlan implements IUpdatePlan {
   constructor(
     @inject(TYPES.PlanRepository) private planRepo: IPlanRepository
   ) {}
 
   async execute(dto: UpdatePlanDto): Promise<Plan | null> {
     const plan = await this.planRepo.findById(dto.id);
-    if (!plan) throw new Error("Plan not found");
+    if (!plan) throw new NotFoundError("Plan");
 
     // apply updates only when provided
     if (dto.name !== undefined) plan.setName(dto.name);

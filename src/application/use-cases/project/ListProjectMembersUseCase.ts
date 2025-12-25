@@ -1,18 +1,17 @@
 // src/core/use-cases/project/ListProjectMembersUseCase.ts
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/types";
-
 import { IProjectMembershipRepository } from "../../ports/repositories/IProjectMembershipRepository";
 import { IProjectRepository } from "../../ports/repositories/IProjectRepository";
 import { ProjectMemberView } from "@/application/dto/project/ProjectMemberView";
-
-export interface ListProjectMembersDTO {
-  projectId: string;
-  requestedBy: string;
-}
+import { NotFoundError, UnauthorizedError } from "@/application/error/AppError";
+import {
+  IListProjectMembersUseCase,
+  ListProjectMembersDTO,
+} from "@/application/ports/use-cases/project/IListProjectMembersUseCase";
 
 @injectable()
-export class ListProjectMembersUseCase {
+export class ListProjectMembersUseCase implements IListProjectMembersUseCase {
   constructor(
     @inject(TYPES.ProjectMembershipRepository)
     private readonly membershipRepo: IProjectMembershipRepository,
@@ -24,23 +23,23 @@ export class ListProjectMembersUseCase {
   async execute(input: ListProjectMembersDTO): Promise<ProjectMemberView[]> {
     const { projectId, requestedBy } = input;
 
-    // 1️⃣ Validate project exists
+    // 1 Validate project exists
     const project = await this.projectRepo.findById(projectId);
     if (!project) {
-      throw new Error("Project not found");
+      throw new NotFoundError("Project");
     }
 
-    // 2️⃣ Ensure requester is a member
+    // 2 Ensure requester is a member
     const requesterMembership = await this.membershipRepo.findByProjectAndUser(
       projectId,
       requestedBy
     );
 
     if (!requesterMembership) {
-      throw new Error("You are not a member of this project");
+      throw new UnauthorizedError("You are not a member of this project");
     }
 
-    // 3️⃣ Fetch all members
+    // Fetch all members
     const members = await this.membershipRepo.findMembersWithUserDetails(
       projectId
     );

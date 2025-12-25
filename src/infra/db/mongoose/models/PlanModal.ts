@@ -1,69 +1,9 @@
-// import mongoose from "mongoose";
-
-// const planSchema = new mongoose.Schema(
-//   {
-//     id: {
-//       type: String,
-//       required: true,
-//       unique: true,
-//     },
-//     name: {
-//       type: String,
-//       required: true,
-//       trim: true,
-//     },
-//     description: {
-//       type: String,
-//       required: true,
-//     },
-//     price: {
-//       type: Number,
-//       required: true,
-//     },
-//     finalAmount: {
-//       type: Number,
-//       required: true,
-//     },
-//     currency: {
-//       type: String,
-//       required: true,
-//       enum: ["INR", "USD", "EUR"],
-//     },
-//     billingCycle: {
-//       type: String,
-//       enum: ["monthly", "yearly"],
-//       required: true,
-//     },
-//     features: {
-//       type: [String],
-//       default: [],
-//     },
-//     maxProjects: {
-//       type: Number,
-//       default: 0,
-//     },
-//     maxStorage: {
-//       type: Number,
-//       default: 0,
-//     },
-//     isActive: {
-//       type: Boolean,
-//       default: true,
-//     },
-//     isDeleted: { type: Boolean, default: false },
-//   },
-//   {
-//     timestamps: true, // generates camelCase: createdAt, updatedAt
-//   }
-// );
-
-// export default mongoose.model("Plan", planSchema);
-
 // src/infrastructure/persistence/mongoose/models/PlanModel.ts
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, Types } from "mongoose";
 import { Plan, PlanProps } from "../../../../domain/entities/billing/Plan";
 
-interface PlanDoc extends Document {
+export interface PlanDoc extends Document {
+  _id: Types.ObjectId;
   id: string;
   name: string;
   description: string;
@@ -119,7 +59,5 @@ export const toPlanEntity = (doc: PlanDoc): Plan => {
     updatedAt: doc.updatedAt,
   };
 
-  const plan = new Plan(props);
-  if (doc._id) plan.setId(doc._id.toString());
-  return plan;
+  return new Plan(props);
 };

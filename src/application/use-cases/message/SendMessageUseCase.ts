@@ -1,13 +1,15 @@
+import { BadRequestError } from "@/application/error/AppError";
 import { IMessageRepository } from "@/application/ports/repositories/IMessageRepository";
 import { IProjectMembershipRepository } from "@/application/ports/repositories/IProjectMembershipRepository";
 import { IUserRepository } from "@/application/ports/repositories/IUserRepository";
+import { ISendMessageUseCase } from "@/application/ports/use-cases/message/ISendMessageUseCase";
 import { TYPES } from "@/config/types";
 import { Message } from "@/domain/entities/message/Message";
 import { inject, injectable } from "inversify";
 import { v4 as uuidv4 } from "uuid";
 
 @injectable()
-export class SendMessageUseCase {
+export class SendMessageUseCase implements ISendMessageUseCase {
   constructor(
     @inject(TYPES.MessageRepository) private messageRepo: IMessageRepository,
     @inject(TYPES.ProjectMembershipRepository)
@@ -27,12 +29,12 @@ export class SendMessageUseCase {
       input.senderId
     );
     if (!isMember) {
-      throw new Error("User is not a member of the project");
+      throw new BadRequestError("User is not a member of the project");
     }
-    console.log("send message use case is working ");
+
     const senderDetails = await this.userRepo.findById(input.senderId);
     if (!senderDetails) {
-      throw new Error("Sender user not found");
+      throw new BadRequestError("Sender user not found");
     }
     const now = new Date().toISOString();
     const messageProps = {

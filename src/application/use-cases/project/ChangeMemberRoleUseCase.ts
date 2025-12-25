@@ -1,26 +1,17 @@
 // src/core/use-cases/project/AddMemberToProjectUseCase.ts
 import { inject, injectable } from "inversify";
-import {
-  ProjectMembership,
-  ProjectRole,
-} from "../../../domain/entities/project/ProjectMembership";
 
 import { IProjectMembershipRepository } from "../../ports/repositories/IProjectMembershipRepository";
 import { TYPES } from "@/config/types";
-
-export interface ChangeMemberRoleDTO {
-  projectId: string;
-  memberId: string; // userId to change role
-  newRole: ProjectRole;
-  requestedBy: string; // who is changing (must be manager)
-}
-
-export interface ChangeMemberRoleResultDTO {
-  membership: ProjectMembership;
-}
+import { NotFoundError, UnauthorizedError } from "@/application/error/AppError";
+import {
+  ChangeMemberRoleDTO,
+  ChangeMemberRoleResultDTO,
+  IChangeMemberRoleUseCase,
+} from "@/application/ports/use-cases/project/IChangeMemberRoleUseCase";
 
 @injectable()
-export class ChangeMemberRoleUseCase {
+export class ChangeMemberRoleUseCase implements IChangeMemberRoleUseCase {
   constructor(
     @inject(TYPES.ProjectMembershipRepository)
     private membershipRepo: IProjectMembershipRepository
@@ -37,7 +28,9 @@ export class ChangeMemberRoleUseCase {
       requestedBy
     );
     if (!requester || requester.role !== "manager") {
-      throw new Error("Only project managers can change member roles");
+      throw new UnauthorizedError(
+        "Only project managers can change member roles"
+      );
     }
 
     // 2. Target must be a member
@@ -46,7 +39,7 @@ export class ChangeMemberRoleUseCase {
       memberId
     );
     if (!target) {
-      throw new Error("User is not a member of this project");
+      throw new NotFoundError("User");
     }
 
     // 3. Prevent removing last manager
@@ -55,7 +48,7 @@ export class ChangeMemberRoleUseCase {
         projectId
       );
       if (managerCount <= 1) {
-        throw new Error(
+        throw new UnauthorizedError(
           "Cannot demote the last manager — transfer ownership first"
         );
       }

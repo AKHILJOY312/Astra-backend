@@ -5,7 +5,8 @@ import {
   ProjectProps,
 } from "../../../../domain/entities/project/Project";
 
-interface ProjectDoc extends Document {
+export interface ProjectDoc extends Document {
+  _id: mongoose.Types.ObjectId;
   projectName: string;
   imageUrl?: string | null;
   description?: string;

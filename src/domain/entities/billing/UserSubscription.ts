@@ -108,7 +108,7 @@ export class UserSubscription {
     this._props.razorPayOrderId = orderId;
   }
   setPaymentId(paymentId: string) {
-    this._props.razorpayPaymentId;
+    this._props.razorpayPaymentId = paymentId;
   }
   setStartDate(date: Date) {
     this._props.startDate = date;

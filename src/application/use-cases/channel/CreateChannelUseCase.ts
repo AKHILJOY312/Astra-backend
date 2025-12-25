@@ -5,23 +5,18 @@ import { Channel } from "../../../domain/entities/channel/Channel";
 import { IChannelRepository } from "../../ports/repositories/IChannelRepository";
 import { IProjectMembershipRepository } from "../../ports/repositories/IProjectMembershipRepository";
 import { TYPES } from "@/config/types";
-
-export interface CreateChannelDTO {
-  projectId: string;
-  channelName: string;
-  description?: string;
-  createdBy: string;
-
-  visibleToRoles: string[];
-  permissionsByRole: Record<string, "view" | "message" | "manager">;
-}
-
-export interface CreateChannelResultDTO {
-  channel: Channel;
-}
+import {
+  BadRequestError,
+  UnauthorizedError,
+} from "@/application/error/AppError";
+import {
+  CreateChannelDTO,
+  CreateChannelResultDTO,
+} from "@/application/dto/channel/channelDtos";
+import { ICreateChannelUseCase } from "@/application/ports/use-cases/channel/ICreateChannelUseCase";
 
 @injectable()
-export class CreateChannelUseCase {
+export class CreateChannelUseCase implements ICreateChannelUseCase {
   constructor(
     @inject(TYPES.ChannelRepository) private channelRepo: IChannelRepository,
     @inject(TYPES.ProjectMembershipRepository)
@@ -43,9 +38,9 @@ export class CreateChannelUseCase {
       projectId,
       createdBy
     );
-    console.log("membership: ", membership);
+
     if (!membership || membership.role !== "manager") {
-      throw new Error("Only project manager can create channels");
+      throw new UnauthorizedError("Only project manager can create channels");
     }
 
     // 2. Unique name
@@ -54,7 +49,7 @@ export class CreateChannelUseCase {
       channelName
     );
     if (exists) {
-      throw new Error("Channel name already exists");
+      throw new BadRequestError("Channel name already exists");
     }
 
     // 3. Create entity

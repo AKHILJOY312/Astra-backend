@@ -4,9 +4,10 @@ import { IUserRepository } from "../../../ports/repositories/IUserRepository";
 import { IEmailService } from "../../../ports/services/IEmailService";
 import crypto from "crypto";
 import { TYPES } from "@/config/types";
+import { IAdminForgotPassword } from "@/application/ports/use-cases/auth/admin/IAdminForgotPasswordUseCase";
 
 @injectable()
-export class AdminForgotPassword {
+export class AdminForgotPassword implements IAdminForgotPassword {
   constructor(
     @inject(TYPES.UserRepository) private userRepo: IUserRepository,
     @inject(TYPES.EmailService) private emailService: IEmailService
@@ -25,7 +26,7 @@ export class AdminForgotPassword {
     const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
     user.setResetToken(token, expires);
-    await this.userRepo.save(user);
+    await this.userRepo.update(user);
 
     const resetUrl = `${process.env.ADMIN_URL}/reset-password?token=${token}`;
     await this.emailService.sendPasswordReset(user.email, token, resetUrl);

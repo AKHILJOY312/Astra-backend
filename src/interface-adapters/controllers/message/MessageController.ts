@@ -1,53 +1,48 @@
-import { ListMessagesUseCase } from "@/application/use-cases/message/ListMessagesUseCase";
-import { SendMessageUseCase } from "@/application/use-cases/message/SendMessageUseCase";
+import { IListMessagesUseCase } from "@/application/ports/use-cases/message/IListMessagesUseCase";
+import { ISendMessageUseCase } from "@/application/ports/use-cases/message/ISendMessageUseCase";
 import { TYPES } from "@/config/types";
+import { asyncHandler } from "@/infra/web/express/handler/asyncHandler";
 import { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 
 @injectable()
 export class MessageController {
   constructor(
-    @inject(TYPES.SendMessageUseCase) private sendMessageUC: SendMessageUseCase,
+    @inject(TYPES.SendMessageUseCase)
+    private sendMessageUC: ISendMessageUseCase,
     @inject(TYPES.ListMessagesUseCase)
-    private listMessagesUC: ListMessagesUseCase
+    private listMessagesUC: IListMessagesUseCase
   ) {}
 
-  async listMessagesPerChannel(req: Request, res: Response) {
+  listMessagesPerChannel = asyncHandler(async (req: Request, res: Response) => {
     const channelId = req.params.channelId;
     const cursor = req.query.cursor as string | undefined;
     const limit = req.query.limit
       ? parseInt(req.query.limit as string, 10)
       : undefined;
 
-    try {
-      const messages = await this.listMessagesUC.execute({
-        channelId,
-        cursor,
-        limit,
-      });
-      return res
-        .status(200)
-        .json({ success: true, data: messages.map((msg) => msg.toJSON()) });
-    } catch (err: any) {
-      return res.status(400).json({ error: err.message });
-    }
-  }
-  async sendMessage(req: Request, res: Response) {
+    const messages = await this.listMessagesUC.execute({
+      channelId,
+      cursor,
+      limit,
+    });
+    return res
+      .status(200)
+      .json({ success: true, data: messages.map((msg) => msg.toJSON()) });
+  });
+  sendMessage = asyncHandler(async (req: Request, res: Response) => {
     const channelId = req.params.channelId;
     const projectId = req.params.projectId;
     const senderId = req.user!.id;
     const { text, attachments } = req.body;
-    try {
-      const message = await this.sendMessageUC.execute({
-        projectId,
-        channelId,
-        senderId,
-        text,
-        attachments,
-      });
-      return res.status(201).json({ success: true, data: message.toJSON() });
-    } catch (err: any) {
-      return res.status(400).json({ error: err.message });
-    }
-  }
+
+    const message = await this.sendMessageUC.execute({
+      projectId,
+      channelId,
+      senderId,
+      text,
+      attachments,
+    });
+    return res.status(201).json({ success: true, data: message.toJSON() });
+  });
 }

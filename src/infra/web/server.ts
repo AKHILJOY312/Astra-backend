@@ -14,6 +14,9 @@ import passport from "passport";
 import { HTTP_STATUS } from "@/interface-adapters/http/constants/httpStatus";
 import { createSocketServer } from "../websocket/SocketServer";
 import { container } from "@/config/container";
+import { globalErrorHandler } from "./express/middleware/globalErrorHandler";
+import { logger, morganMiddleware } from "../logger/logger";
+import { ENV } from "@/config/env.config";
 
 const app = express();
 const server = http.createServer(app);
@@ -40,21 +43,12 @@ const limiter = rateLimit({
 });
 
 app.use(limiter);
+app.use(morganMiddleware);
 
 setupGoogleStrategy();
 
 app.use(passport.initialize());
 // Routes
-app.use((req, res, next) => {
-  console.log(
-    "######################################################################################################"
-  );
-  console.log(
-    "######################################################################################################"
-  );
-  console.log("REQUEST URL:", req.method, req.url);
-  next();
-});
 
 app.use("/api", routes);
 
@@ -70,24 +64,9 @@ app.all("*", (req, res) => {
   });
 });
 
-//  Global Error Handler
-app.use(
-  (
-    err: any,
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
-    console.error("Error:", err.message);
-    res.status(HTTP_STATUS.BAD_REQUEST).json({
-      success: false,
-      message: "Internal Server Error",
-      error: err.message,
-    });
-  }
-);
+app.use(globalErrorHandler);
 
-const PORT = process.env.PORT || 3000;
+const PORT = ENV.PORT;
 server.listen(PORT, () => {
-  console.log(`Astra Backend running on http://localhost:${PORT}`);
+  logger.info(`Astra Backend running on http://localhost:${PORT}`);
 });
