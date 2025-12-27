@@ -5,10 +5,11 @@ import { IAuthService } from "../../ports/services/IAuthService";
 import crypto from "crypto";
 import { TYPES } from "@/config/types";
 import { NotFoundError } from "@/application/error/AppError";
+import { IGoogleLogin } from "@/application/ports/use-cases/auth/IGoogleLoginUseCase";
 import {
+  GoogleLoginResponseDTO,
   GoogleProfile,
-  IGoogleLogin,
-} from "@/application/ports/use-cases/auth/IGoogleLoginUseCase";
+} from "@/application/dto/auth/authDtos";
 
 @injectable()
 export class GoogleLogin implements IGoogleLogin {
@@ -17,11 +18,7 @@ export class GoogleLogin implements IGoogleLogin {
     @inject(TYPES.AuthService) private authService: IAuthService
   ) {}
 
-  async execute(profile: GoogleProfile): Promise<{
-    user: User;
-    accessToken: string;
-    refreshToken: string;
-  }> {
+  async execute(profile: GoogleProfile): Promise<GoogleLoginResponseDTO> {
     const email = profile.emails?.[0]?.value;
     const name = profile.displayName || email?.split("@")[0];
 
@@ -58,6 +55,17 @@ export class GoogleLogin implements IGoogleLogin {
     );
     const refreshToken = this.authService.generateRefreshToken(user.id!);
 
-    return { user, accessToken, refreshToken };
+    return {
+      user: {
+        id: user.id!,
+        name: user.name,
+        email: user.email,
+        isAdmin: user.isAdmin,
+        isVerified: user.isVerified,
+        imageUrl: user.ImageUrl,
+      },
+      accessToken,
+      refreshToken,
+    };
   }
 }

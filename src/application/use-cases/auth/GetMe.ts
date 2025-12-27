@@ -3,6 +3,7 @@ import { IUserRepository } from "../../ports/repositories/IUserRepository";
 import { TYPES } from "@/config/types";
 import { NotFoundError } from "@/application/error/AppError";
 import { IGetMe } from "@/application/ports/use-cases/auth/IGetMeUseCase";
+import { GetMeResponseDTO } from "@/application/dto/auth/authDtos";
 
 @injectable()
 export class GetMe implements IGetMe {
@@ -10,9 +11,7 @@ export class GetMe implements IGetMe {
     @inject(TYPES.UserRepository) private userRepo: IUserRepository
   ) {}
 
-  async execute(userId: string): Promise<{
-    user: { id: string; name: string; email: string; isAdmin: boolean };
-  }> {
+  async execute(userId: string): Promise<GetMeResponseDTO> {
     const user = await this.userRepo.findById(userId);
 
     if (!user) throw new NotFoundError("User");

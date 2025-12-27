@@ -1,12 +1,7 @@
 // src/application/ports/useCases/IGetMe.ts
 
+import { GetMeResponseDTO } from "@/application/dto/auth/authDtos";
+
 export interface IGetMe {
-  execute(userId: string): Promise<{
-    user: {
-      id: string;
-      name: string;
-      email: string;
-      isAdmin: boolean;
-    };
-  }>;
+  execute(userId: string): Promise<GetMeResponseDTO>;
 }

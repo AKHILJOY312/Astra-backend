@@ -17,10 +17,7 @@ import {
   setRefreshTokenCookie,
 } from "@/infra/web/express/utils/cookieUtils";
 import { ENV } from "@/config/env.config";
-import {
-  GoogleProfile,
-  IGoogleLogin,
-} from "@/application/ports/use-cases/auth/IGoogleLoginUseCase";
+import { IGoogleLogin } from "@/application/ports/use-cases/auth/IGoogleLoginUseCase";
 import { IRegisterUser } from "@/application/ports/use-cases/auth/IRegisterUserUseCase";
 import { IVerifyEmail } from "@/application/ports/use-cases/auth/IVerifyEmailUseCase";
 import { ILoginUser } from "@/application/ports/use-cases/auth/ILoginUserUseCase";
@@ -30,6 +27,7 @@ import { IGetMe } from "@/application/ports/use-cases/auth/IGetMeUseCase";
 import { IForgotPassword } from "@/application/ports/use-cases/auth/IForgotPasswordUseCase";
 import { IResetPassword } from "@/application/ports/use-cases/auth/IResetPasswordUseCase";
 import { IVerifyResetToken } from "@/application/ports/use-cases/auth/IVerifyResetTokenUseCase";
+import { GoogleProfile } from "@/application/dto/auth/authDtos";
 
 @injectable()
 export class AuthController {
