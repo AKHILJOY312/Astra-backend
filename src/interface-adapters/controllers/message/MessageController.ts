@@ -1,7 +1,6 @@
 import { IListMessagesUseCase } from "@/application/ports/use-cases/message/IListMessagesUseCase";
 import { ISendMessageUseCase } from "@/application/ports/use-cases/message/ISendMessageUseCase";
 import { TYPES } from "@/config/types";
-import { asyncHandler } from "@/infra/web/express/handler/asyncHandler";
 import { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 
@@ -14,7 +13,7 @@ export class MessageController {
     private listMessagesUC: IListMessagesUseCase
   ) {}
 
-  listMessagesPerChannel = asyncHandler(async (req: Request, res: Response) => {
+  listMessagesPerChannel = async (req: Request, res: Response) => {
     const channelId = req.params.channelId;
     const cursor = req.query.cursor as string | undefined;
     const limit = req.query.limit
@@ -29,8 +28,8 @@ export class MessageController {
     return res
       .status(200)
       .json({ success: true, data: messages.map((msg) => msg.toJSON()) });
-  });
-  sendMessage = asyncHandler(async (req: Request, res: Response) => {
+  };
+  sendMessage = async (req: Request, res: Response) => {
     const channelId = req.params.channelId;
     const projectId = req.params.projectId;
     const senderId = req.user!.id;
@@ -44,5 +43,5 @@ export class MessageController {
       attachments,
     });
     return res.status(201).json({ success: true, data: message.toJSON() });
-  });
+  };
 }

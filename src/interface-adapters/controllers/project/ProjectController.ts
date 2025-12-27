@@ -5,7 +5,6 @@ import { HTTP_STATUS } from "../../http/constants/httpStatus";
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/types";
 import { ValidationError } from "@/application/error/AppError";
-import { asyncHandler } from "@/infra/web/express/handler/asyncHandler";
 import { PROJECT_MESSAGE } from "@/interface-adapters/http/constants/messages";
 import {
   CreateProjectSchema,
@@ -27,7 +26,7 @@ export class ProjectController {
     private updateProjectUseCase: IUpdateProjectUseCase
   ) {}
 
-  createProject = asyncHandler(async (req: Request, res: Response) => {
+  createProject = async (req: Request, res: Response) => {
     const result = CreateProjectSchema.safeParse(req.body);
 
     if (!result.success) {
@@ -48,8 +47,8 @@ export class ProjectController {
       success: true,
       data: project.toJSON(),
     });
-  });
-  updateProject = asyncHandler(async (req: Request, res: Response) => {
+  };
+  updateProject = async (req: Request, res: Response) => {
     const result = UpdateProjectSchema.safeParse(req.body);
     if (!result.success) {
       throw new ValidationError(PROJECT_MESSAGE.INVALID_DATA);
@@ -68,9 +67,9 @@ export class ProjectController {
       success: true,
       data: project.toJSON(),
     });
-  });
+  };
 
-  getUserProjects = asyncHandler(async (req: Request, res: Response) => {
+  getUserProjects = async (req: Request, res: Response) => {
     const queryParsed = PaginationQuerySchema.safeParse(req.params);
     if (!queryParsed.success) {
       throw new ValidationError(PROJECT_MESSAGE.INVALID_DATA);
@@ -93,5 +92,5 @@ export class ProjectController {
       totalPages: result.totalPages,
       totalCount: result.totalCount,
     });
-  });
+  };
 }

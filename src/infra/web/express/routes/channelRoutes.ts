@@ -5,6 +5,7 @@ import { ChannelController } from "@/interface-adapters/controllers/channel/Chan
 import { MessageController } from "@/interface-adapters/controllers/message/MessageController";
 import { createProtectMiddleware } from "@/infra/web/express/middleware/protect";
 import { API_ROUTES } from "@/config/routes.config";
+import { asyncHandler } from "../handler/asyncHandler";
 
 export function getChannelRoutes(container: Container): Router {
   const router = Router({ mergeParams: true });
@@ -23,19 +24,25 @@ export function getChannelRoutes(container: Container): Router {
 
   router
     .route(API_ROUTES.CHANNELS.ROOT)
-    .post(channelController.createChannel.bind(channelController))
+    .post(asyncHandler(channelController.createChannel.bind(channelController)))
     .get(
-      channelController.listProjectChannelsBasedOnRole.bind(channelController)
+      asyncHandler(
+        channelController.listProjectChannelsBasedOnRole.bind(channelController)
+      )
     );
 
   router
     .route(API_ROUTES.CHANNELS.BY_ID)
-    .patch(channelController.editChannel.bind(channelController))
-    .delete(channelController.deleteChannel.bind(channelController));
+    .patch(asyncHandler(channelController.editChannel.bind(channelController)))
+    .delete(
+      asyncHandler(channelController.deleteChannel.bind(channelController))
+    );
 
   router.get(
     API_ROUTES.CHANNELS.MESSAGES,
-    messageController.listMessagesPerChannel.bind(messageController)
+    asyncHandler(
+      messageController.listMessagesPerChannel.bind(messageController)
+    )
   );
 
   return router;

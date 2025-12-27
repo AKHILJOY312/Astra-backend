@@ -5,6 +5,7 @@ import { PlanController } from "@/interface-adapters/controllers/plan/PlanContro
 import { createProtectMiddleware } from "@/infra/web/express/middleware/protect";
 import { adminOnly } from "@/infra/web/express/middleware/adminOnly";
 import { API_ROUTES } from "@/config/routes.config";
+import { asyncHandler } from "../../handler/asyncHandler";
 
 export function getAdminPlanRoutes(container: Container): Router {
   const router = Router();
@@ -18,13 +19,13 @@ export function getAdminPlanRoutes(container: Container): Router {
 
   router
     .route(API_ROUTES.ADMIN.ROOT)
-    .post(planController.create.bind(planController))
-    .get(planController.getAll.bind(planController));
+    .post(asyncHandler(planController.create.bind(planController)))
+    .get(asyncHandler(planController.getAll.bind(planController)));
 
   router
     .route(API_ROUTES.ADMIN.BY_ID)
-    .put(planController.update.bind(planController))
-    .delete(planController.delete.bind(planController));
+    .put(asyncHandler(planController.update.bind(planController)))
+    .delete(asyncHandler(planController.delete.bind(planController)));
 
   return router;
 }

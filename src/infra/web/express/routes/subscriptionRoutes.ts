@@ -4,6 +4,7 @@ import { TYPES } from "@/config/types";
 import { SubscriptionController } from "@/interface-adapters/controllers/plan/SubscriptionController";
 import { createProtectMiddleware } from "@/infra/web/express/middleware/protect";
 import { API_ROUTES } from "@/config/routes.config";
+import { asyncHandler } from "../handler/asyncHandler";
 
 export function getSubscriptionRoutes(container: Container): Router {
   const router = Router();
@@ -16,22 +17,23 @@ export function getSubscriptionRoutes(container: Container): Router {
   );
 
   router.use(protect);
-
   router.get(
     API_ROUTES.SUBSCRIPTION.PLANS,
-    subscriptionController.getPlansToSubscribe.bind(subscriptionController)
+    asyncHandler(
+      subscriptionController.getPlansToSubscribe.bind(subscriptionController)
+    )
   );
   router.get(
     API_ROUTES.SUBSCRIPTION.LIMITS,
-    subscriptionController.getLimits.bind(subscriptionController)
+    asyncHandler(subscriptionController.getLimits.bind(subscriptionController))
   );
   router.post(
     API_ROUTES.SUBSCRIPTION.RAZORPAY.ORDER,
-    subscriptionController.upgrade.bind(subscriptionController)
+    asyncHandler(subscriptionController.upgrade.bind(subscriptionController))
   );
   router.post(
     API_ROUTES.SUBSCRIPTION.RAZORPAY.CAPTURE,
-    subscriptionController.capture.bind(subscriptionController)
+    asyncHandler(subscriptionController.capture.bind(subscriptionController))
   );
 
   return router;

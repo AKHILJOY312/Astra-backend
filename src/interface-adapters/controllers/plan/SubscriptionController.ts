@@ -7,7 +7,7 @@ import {
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/types";
 import { BadRequestError } from "@/application/error/AppError";
-import { asyncHandler } from "@/infra/web/express/handler/asyncHandler";
+
 import { IUpgradeToPlanUseCase } from "@/application/ports/use-cases/upgradetopremium/IUpgradeToPlanUseCase";
 import { IGetUserLimitsUseCase } from "@/application/ports/use-cases/upgradetopremium/IGetUserLimitsUseCase";
 import { IGetAvailablePlansUseCase } from "@/application/ports/use-cases/plan/user/IGetAvailablePlansUseCase";
@@ -27,21 +27,21 @@ export class SubscriptionController {
   ) {}
 
   // GET /api/subscription/plans
-  getPlansToSubscribe = asyncHandler(async (req: Request, res: Response) => {
+  getPlansToSubscribe = async (req: Request, res: Response) => {
     const plans = await this.getAvailablePlans.execute();
     return res.json({ success: true, plans });
-  });
+  };
 
   // GET /api/subscription/limits
-  getLimits = asyncHandler(async (req: Request, res: Response) => {
+  getLimits = async (req: Request, res: Response) => {
     const userId = req.user!.id;
     const projectId = req.query.projectId as string | undefined;
     const limits = await this.getLimitsUseCase.execute(userId, projectId);
     return res.json({ success: true, data: limits });
-  });
+  };
 
   // POST /api/subscription/upgrade
-  upgrade = asyncHandler(async (req: Request, res: Response) => {
+  upgrade = async (req: Request, res: Response) => {
     const userId = req.user!.id;
     const { planId } = req.body;
 
@@ -62,13 +62,13 @@ export class SubscriptionController {
         keyId: result.keyId,
       },
     });
-  });
+  };
 
-  capture = asyncHandler(async (req: Request, res: Response) => {
+  capture = async (req: Request, res: Response) => {
     const result = await this.captureUseCase.execute(req.body);
     if (!result.success) {
       throw new BadRequestError(result.message);
     }
     return res.json(result);
-  });
+  };
 }

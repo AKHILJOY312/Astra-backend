@@ -5,7 +5,6 @@ import { HTTP_STATUS } from "../../http/constants/httpStatus";
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/types";
 import { NotFoundError, ValidationError } from "@/application/error/AppError";
-import { asyncHandler } from "@/infra/web/express/handler/asyncHandler";
 import {
   AddMemberSchema,
   ChangeRoleSchema,
@@ -31,7 +30,7 @@ export class MemberController {
   ) {}
 
   // POST /projects/:projectId/members
-  addMember = asyncHandler(async (req: Request, res: Response) => {
+  addMember = async (req: Request, res: Response) => {
     const parseResult = AddMemberSchema.safeParse(req.body);
     if (!parseResult.success) {
       throw new ValidationError("Input member data");
@@ -57,9 +56,9 @@ export class MemberController {
       success: true,
       data: membership.toJSON(),
     });
-  });
+  };
 
-  listMembers = asyncHandler(async (req: Request, res: Response) => {
+  listMembers = async (req: Request, res: Response) => {
     const { projectId } = req.params;
     const requestedBy = req.user!.id;
 
@@ -72,10 +71,10 @@ export class MemberController {
       success: true,
       data: members,
     });
-  });
+  };
 
   // DELETE /projects/:projectId/members/:memberId
-  removeMember = asyncHandler(async (req: Request, res: Response) => {
+  removeMember = async (req: Request, res: Response) => {
     const { projectId, memberId } = req.params;
     const requestedBy = req.user!.id;
 
@@ -85,10 +84,10 @@ export class MemberController {
       requestedBy,
     });
     return res.json({ success: true, message: "Member removed" });
-  });
+  };
 
   // PATCH /projects/:projectId/members/:memberId/role
-  changeRole = asyncHandler(async (req: Request, res: Response) => {
+  changeRole = async (req: Request, res: Response) => {
     const parseResult = ChangeRoleSchema.safeParse(req.body);
     if (!parseResult.success) {
       throw new ValidationError("Invalid role");
@@ -109,5 +108,5 @@ export class MemberController {
       success: true,
       data: membership.toJSON(),
     });
-  });
+  };
 }

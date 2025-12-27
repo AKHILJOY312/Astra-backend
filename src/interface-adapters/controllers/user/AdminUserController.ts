@@ -3,7 +3,6 @@ import { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/types";
 import { BadRequestError } from "@/application/error/AppError";
-import { asyncHandler } from "@/infra/web/express/handler/asyncHandler";
 import { ListUsersQuerySchema } from "@/interface-adapters/http/validators/adminUserValidators";
 import { IListUsersUseCase } from "@/application/ports/use-cases/user/IListUsersUseCase";
 import { IBlockUserUseCase } from "@/application/ports/use-cases/user/IBlockUserUseCase";
@@ -18,36 +17,30 @@ export class AdminUserController {
     private assignAdminRoleUseCase: IAssignAdminRoleUseCase
   ) {}
 
-  listUsers = asyncHandler(
-    async (req: Request, res: Response): Promise<void> => {
-      const parsed = ListUsersQuerySchema.safeParse(req.query);
-      if (!parsed.success) {
-        throw new BadRequestError("Invalid pagination or search parameters");
-      }
-
-      const { page, limit, search } = parsed.data;
-      const result = await this.listUsersUseCase.execute({
-        page,
-        limit,
-        search,
-      });
-      res.json(result);
+  listUsers = async (req: Request, res: Response): Promise<void> => {
+    const parsed = ListUsersQuerySchema.safeParse(req.query);
+    if (!parsed.success) {
+      throw new BadRequestError("Invalid pagination or search parameters");
     }
-  );
 
-  blockUser = asyncHandler(
-    async (req: Request, res: Response): Promise<void> => {
-      const { id } = req.params;
-      const user = await this.blockUserUseCase.execute(id);
-      res.json({ message: `User status updated `, user });
-    }
-  );
+    const { page, limit, search } = parsed.data;
+    const result = await this.listUsersUseCase.execute({
+      page,
+      limit,
+      search,
+    });
+    res.json(result);
+  };
 
-  updateRole = asyncHandler(
-    async (req: Request, res: Response): Promise<void> => {
-      const { id } = req.params;
-      const user = await this.assignAdminRoleUseCase.execute(id);
-      res.json({ message: `User role updated`, user });
-    }
-  );
+  blockUser = async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+    const user = await this.blockUserUseCase.execute(id);
+    res.json({ message: `User status updated `, user });
+  };
+
+  updateRole = async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+    const user = await this.assignAdminRoleUseCase.execute(id);
+    res.json({ message: `User role updated`, user });
+  };
 }

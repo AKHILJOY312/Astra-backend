@@ -5,6 +5,7 @@ import { AdminUserController } from "@/interface-adapters/controllers/user/Admin
 import { createProtectMiddleware } from "@/infra/web/express/middleware/protect";
 import { adminOnly } from "@/infra/web/express/middleware/adminOnly";
 import { API_ROUTES } from "@/config/routes.config";
+import { asyncHandler } from "../../handler/asyncHandler";
 
 export function getAdminUserRoutes(container: Container): Router {
   const router = Router();
@@ -20,17 +21,17 @@ export function getAdminUserRoutes(container: Container): Router {
 
   router.get(
     API_ROUTES.ADMIN.ROOT,
-    adminUserController.listUsers.bind(adminUserController)
+    asyncHandler(adminUserController.listUsers.bind(adminUserController))
   );
 
   router.patch(
     API_ROUTES.ADMIN.STATUS,
-    adminUserController.blockUser.bind(adminUserController)
+    asyncHandler(adminUserController.blockUser.bind(adminUserController))
   );
 
   router.patch(
     API_ROUTES.ADMIN.ROLE,
-    adminUserController.updateRole.bind(adminUserController)
+    asyncHandler(adminUserController.updateRole.bind(adminUserController))
   );
 
   return router;

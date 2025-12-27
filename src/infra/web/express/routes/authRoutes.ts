@@ -5,6 +5,7 @@ import { AuthController } from "@/interface-adapters/controllers/auth/AuthContro
 import { createProtectMiddleware } from "@/infra/web/express/middleware/protect";
 import passport from "passport";
 import { API_ROUTES } from "@/config/routes.config";
+import { asyncHandler } from "../handler/asyncHandler";
 
 export function getAuthRoutes(container: Container): Router {
   const router = Router();
@@ -17,16 +18,16 @@ export function getAuthRoutes(container: Container): Router {
 
   router.post(
     API_ROUTES.AUTH.REGISTER,
-    authController.register.bind(authController)
+    asyncHandler(authController.register.bind(authController))
   );
   router.get(
     API_ROUTES.AUTH.VERIFY_EMAIL,
-    authController.verifyEmail.bind(authController)
+    asyncHandler(authController.verifyEmail.bind(authController))
   );
   router.post(API_ROUTES.AUTH.LOGIN, authController.login.bind(authController));
   router.post(
     API_ROUTES.AUTH.REFRESH,
-    authController.refreshToken.bind(authController)
+    asyncHandler(authController.refreshToken.bind(authController))
   );
   router.post(
     API_ROUTES.AUTH.LOGOUT,
@@ -35,19 +36,19 @@ export function getAuthRoutes(container: Container): Router {
   router.get(
     API_ROUTES.AUTH.ME,
     protect,
-    authController.me.bind(authController)
+    asyncHandler(authController.me.bind(authController))
   );
   router.post(
     API_ROUTES.AUTH.FORGOT_PASSWORD,
-    authController.forgotPassword.bind(authController)
+    asyncHandler(authController.forgotPassword.bind(authController))
   );
   router.get(
     API_ROUTES.AUTH.VERIFY_RESET_TOKEN,
-    authController.verifyResetToken.bind(authController)
+    asyncHandler(authController.verifyResetToken.bind(authController))
   );
   router.post(
     API_ROUTES.AUTH.RESET_PASSWORD,
-    authController.resetPassword.bind(authController)
+    asyncHandler(authController.resetPassword.bind(authController))
   );
 
   router.get(

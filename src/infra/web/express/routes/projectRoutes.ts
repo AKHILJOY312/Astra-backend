@@ -5,6 +5,7 @@ import { ProjectController } from "@/interface-adapters/controllers/project/Proj
 import { MemberController } from "@/interface-adapters/controllers/project/MemberController";
 import { createProtectMiddleware } from "@/infra/web/express/middleware/protect";
 import { API_ROUTES } from "@/config/routes.config";
+import { asyncHandler } from "../handler/asyncHandler";
 
 export function getProjectRoutes(container: Container): Router {
   const router = Router();
@@ -23,26 +24,26 @@ export function getProjectRoutes(container: Container): Router {
 
   router
     .route(API_ROUTES.PROJECTS.BASE)
-    .post(projectController.createProject.bind(projectController))
+    .post(asyncHandler(projectController.createProject.bind(projectController)))
     .get(projectController.getUserProjects.bind(projectController));
 
   router.patch(
     API_ROUTES.PROJECTS.BY_ID,
-    projectController.updateProject.bind(projectController)
+    asyncHandler(projectController.updateProject.bind(projectController))
   );
 
   router
     .route(API_ROUTES.PROJECTS.MEMBERS)
-    .post(memberController.addMember.bind(memberController))
-    .get(memberController.listMembers.bind(memberController));
+    .post(asyncHandler(memberController.addMember.bind(memberController)))
+    .get(asyncHandler(memberController.listMembers.bind(memberController)));
 
   router.delete(
     API_ROUTES.PROJECTS.BY_MEMBER_ID,
-    memberController.removeMember.bind(memberController)
+    asyncHandler(memberController.removeMember.bind(memberController))
   );
   router.patch(
     API_ROUTES.PROJECTS.MEMBER_ROLE,
-    memberController.changeRole.bind(memberController)
+    asyncHandler(memberController.changeRole.bind(memberController))
   );
 
   return router;

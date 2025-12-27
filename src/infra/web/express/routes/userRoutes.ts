@@ -4,6 +4,7 @@ import { TYPES } from "@/config/types";
 import { UserController } from "@/interface-adapters/controllers/user/UserController";
 import { createProtectMiddleware } from "@/infra/web/express/middleware/protect";
 import { API_ROUTES } from "@/config/routes.config";
+import { asyncHandler } from "../handler/asyncHandler";
 
 export function getUserRoutes(container: Container): Router {
   const router = Router();
@@ -16,9 +17,9 @@ export function getUserRoutes(container: Container): Router {
 
   router
     .route(API_ROUTES.USERS.ME)
-    .get(userController.getProfile.bind(userController))
-    .patch(userController.updateProfile.bind(userController))
-    .delete(userController.deleteAccount.bind(userController));
+    .get(asyncHandler(userController.getProfile.bind(userController)))
+    .patch(asyncHandler(userController.updateProfile.bind(userController)))
+    .delete(asyncHandler(userController.deleteAccount.bind(userController)));
 
   return router;
 }
