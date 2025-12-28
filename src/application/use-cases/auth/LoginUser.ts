@@ -7,7 +7,10 @@ import {
   ForbiddenError,
   UnauthorizedError,
 } from "@/application/error/AppError";
-import { ILoginUser } from "@/application/ports/use-cases/auth/ILoginUserUseCase";
+import {
+  ILoginUser,
+  LoginUserResponseDTO,
+} from "@/application/ports/use-cases/auth/ILoginUserUseCase";
 
 @injectable()
 export class LoginUser implements ILoginUser {
@@ -19,11 +22,7 @@ export class LoginUser implements ILoginUser {
   async execute(
     email: string,
     password: string
-  ): Promise<{
-    accessToken: string;
-    refreshToken: string;
-    user: { id: string; name: string; email: string };
-  }> {
+  ): Promise<LoginUserResponseDTO> {
     if (!email || !password)
       throw new BadRequestError("Email and password are required");
 

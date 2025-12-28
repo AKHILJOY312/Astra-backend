@@ -8,7 +8,10 @@ import {
   UnauthorizedError,
   ValidationError,
 } from "@/application/error/AppError";
-import { IAdminLogin } from "@/application/ports/use-cases/auth/admin/IAdminLoginUseCase";
+import {
+  AdminLoginResponseDTO,
+  IAdminLogin,
+} from "@/application/ports/use-cases/auth/admin/IAdminLoginUseCase";
 
 @injectable()
 export class AdminLogin implements IAdminLogin {
@@ -17,7 +20,10 @@ export class AdminLogin implements IAdminLogin {
     @inject(TYPES.AuthService) private authService: IAuthService
   ) {}
 
-  async execute(email: string, password: string) {
+  async execute(
+    email: string,
+    password: string
+  ): Promise<AdminLoginResponseDTO> {
     const user = await this.userRepo.findByEmail(email);
     if (!user) throw new BadRequestError("Invalid credentials");
 

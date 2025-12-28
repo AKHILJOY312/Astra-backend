@@ -1,9 +1,11 @@
 // src/application/use-cases/plan/GetPlansPaginated.ts
 import { IPlanRepository } from "../../../ports/repositories/IPlanRepository";
-import { Plan } from "../../../../domain/entities/billing/Plan";
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/types";
-import { IGetPlansPaginated } from "@/application/ports/use-cases/plan/admin/IGetPlansPaginatedUseCase";
+import {
+  IGetPlansPaginated,
+  PaginatedResponseDTO,
+} from "@/application/ports/use-cases/plan/admin/IGetPlansPaginatedUseCase";
 
 @injectable()
 export class GetPlansPaginated implements IGetPlansPaginated {
@@ -14,13 +16,7 @@ export class GetPlansPaginated implements IGetPlansPaginated {
   async execute(
     page: number = 1,
     limit: number = 10
-  ): Promise<{
-    plans: Plan[];
-    total: number;
-    page: number;
-    totalPages: number;
-    hasMore: boolean;
-  }> {
+  ): Promise<PaginatedResponseDTO> {
     const [plans, total] = await Promise.all([
       this.planRepo.findAllPaginated(page, limit),
       this.planRepo.count(),
