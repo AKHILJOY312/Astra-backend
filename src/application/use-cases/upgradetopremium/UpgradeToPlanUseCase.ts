@@ -31,6 +31,24 @@ export class UpgradeToPlanUseCase implements IUpgradeToPlanUseCase {
     if (plan.finalAmount <= 0) {
       throw new BadRequestError("This is a free plan");
     }
+    const existingSubscription = await this.subscriptionRepo.findByUserId(
+      userId
+    );
+
+    if (existingSubscription) {
+      const now = new Date();
+
+      const isActive =
+        existingSubscription.status === "active" &&
+        existingSubscription.endDate &&
+        existingSubscription.endDate > now;
+
+      if (isActive) {
+        throw new BadRequestError(
+          "You already have an active plan. Please wait until it expires."
+        );
+      }
+    }
 
     const orderObject = {
       amount: plan.finalAmount * 100,
