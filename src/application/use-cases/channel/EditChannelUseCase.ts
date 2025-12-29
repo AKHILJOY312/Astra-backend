@@ -33,23 +33,26 @@ export class EditChannelUseCase implements IEditChannelUseCase {
 
     const channel = await this.channelRepo.findById(channelId);
     if (!channel) throw new BadRequestError("Channel not found");
-    const sameNameExist = await this.channelRepo.findByProjectAndName(
-      channel.projectId,
-      channelName!
-    );
-    if (sameNameExist) {
-      throw new BadRequestError(
-        "Channel with this same name exists. Try a another name."
-      );
-    }
 
     const membership = await this.membershipRepo.findByProjectAndUser(
       channel.projectId,
       userId
     );
-
+    console.log(membership);
     if (!membership || membership.role !== "manager") {
       throw new UnauthorizedError("Only project admins can edit channels");
+    }
+
+    if (channelName && channel.channelName !== channelName) {
+      const sameNameExist = await this.channelRepo.findByProjectAndName(
+        channel.projectId,
+        channelName!
+      );
+      if (sameNameExist) {
+        throw new BadRequestError(
+          "Channel with this same name exists. Try a another name."
+        );
+      }
     }
 
     if (channelName) channel.rename(channelName);
