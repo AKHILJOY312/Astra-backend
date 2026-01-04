@@ -53,3 +53,14 @@ export class PlanLimitError extends ForbiddenError {
     this.name = "PlanLimitError";
   }
 }
+export class ConflictError extends AppError {
+  constructor(message = "Conflict") {
+    super(message, 409, "CONFLICT");
+  }
+}
+
+export class TooManyRequestError extends AppError {
+  constructor(message = "Too Many Requests") {
+    super(message, 429, "TOO_MANY_REQUESTS");
+  }
+}

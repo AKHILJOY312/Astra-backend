@@ -7,6 +7,7 @@ const TYPES = {
   ChannelRepository: Symbol.for("ChannelRepository"),
   UserSubscriptionRepository: Symbol.for("UserSubscriptionRepository"),
   MessageRepository: Symbol.for("MessageRepository"),
+  EmailChangeOtpRepository: Symbol.for("EmailChangeOtpRepository"),
 
   // Services
   UserService: Symbol.for("UserService"),
@@ -59,6 +60,8 @@ const TYPES = {
   DeleteUserAccountUseCase: Symbol.for("DeleteUserAccountUseCase"),
   UploadProfileImageUseCase: Symbol.for("UploadProfileImageUseCase"),
   ChangePasswordUseCase: Symbol.for("ChangePasswordUseCase"),
+  RequestEmailChangeUseCase: Symbol.for("RequestEmailChangeUseCase"),
+  VerifyEmailChangeUseCase: Symbol.for("VerifyEmailChangeUseCase"),
 
   // Use Cases (Plan Admin)
   CreatePlan: Symbol.for("CreatePlan"),

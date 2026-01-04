@@ -141,6 +141,19 @@ import { IFileUploadService } from "@/application/ports/services/IFileUploadServ
 import { S3FileUploadService } from "@/infra/services/S3FileUploadService";
 import { IChangePasswordUseCase } from "@/application/ports/use-cases/user/IChangePasswordUseCase";
 import { ChangePasswordUseCase } from "@/application/use-cases/user/ChangePasswordUseCase";
+import { IRequestEmailChangeUseCase } from "@/application/ports/use-cases/user/IRequestEmailChangeUseCase";
+import { RequestEmailChangeUseCase } from "@/application/use-cases/user/RequestEmailChangeUseCase";
+import { IVerifyEmailChangeUseCase } from "@/application/ports/use-cases/user/IVerifyEmailChangeUseCase";
+import { VerifyEmailChangeUseCase } from "@/application/use-cases/user/VerifyEmailChangeUseCase";
+import { IEmailChangeOtpRepository } from "@/application/ports/repositories/IEmailChangeOtpRepository";
+import { EmailChangeOtpRepository } from "@/infra/db/mongoose/repositories/EmailChangeOtpRepository";
+import { IMessageRepository } from "@/application/ports/repositories/IMessageRepository";
+import { IUserSubscriptionRepository } from "@/application/ports/repositories/IUserSubscriptionRepository";
+import { IChannelRepository } from "@/application/ports/repositories/IChannelRepository";
+import { IProjectMembershipRepository } from "@/application/ports/repositories/IProjectMembershipRepository";
+import { IProjectRepository } from "@/application/ports/repositories/IProjectRepository";
+import { IPlanRepository } from "@/application/ports/repositories/IPlanRepository";
+import { IUserRepository } from "@/application/ports/repositories/IUserRepository";
 
 const container = new Container();
 
@@ -149,34 +162,37 @@ const container = new Container();
 //-------------------------------------------------------
 
 container
-  .bind<UserRepository>(TYPES.UserRepository)
+  .bind<IUserRepository>(TYPES.UserRepository)
   .to(UserRepository)
   .inSingletonScope();
 container
-  .bind<PlanRepository>(TYPES.PlanRepository)
+  .bind<IPlanRepository>(TYPES.PlanRepository)
   .to(PlanRepository)
   .inSingletonScope();
 container
-  .bind<ProjectRepository>(TYPES.ProjectRepository)
+  .bind<IProjectRepository>(TYPES.ProjectRepository)
   .to(ProjectRepository)
   .inSingletonScope();
 container
-  .bind<ProjectMembershipRepository>(TYPES.ProjectMembershipRepository)
+  .bind<IProjectMembershipRepository>(TYPES.ProjectMembershipRepository)
   .to(ProjectMembershipRepository)
   .inSingletonScope();
 container
-  .bind<ChannelRepository>(TYPES.ChannelRepository)
+  .bind<IChannelRepository>(TYPES.ChannelRepository)
   .to(ChannelRepository)
   .inSingletonScope();
 container
-  .bind<UserSubscriptionRepository>(TYPES.UserSubscriptionRepository)
+  .bind<IUserSubscriptionRepository>(TYPES.UserSubscriptionRepository)
   .to(UserSubscriptionRepository)
   .inSingletonScope();
 container
-  .bind<MessageRepository>(TYPES.MessageRepository)
+  .bind<IMessageRepository>(TYPES.MessageRepository)
   .to(MessageRepository)
   .inSingletonScope();
-
+container
+  .bind<IEmailChangeOtpRepository>(TYPES.EmailChangeOtpRepository)
+  .to(EmailChangeOtpRepository)
+  .inSingletonScope();
 //-------------------------------------------------------
 // --- Services (Bind as a Singleton)
 //-------------------------------------------------------
@@ -266,6 +282,12 @@ container
 container
   .bind<IChangePasswordUseCase>(TYPES.ChangePasswordUseCase)
   .to(ChangePasswordUseCase);
+container
+  .bind<IRequestEmailChangeUseCase>(TYPES.RequestEmailChangeUseCase)
+  .to(RequestEmailChangeUseCase);
+container
+  .bind<IVerifyEmailChangeUseCase>(TYPES.VerifyEmailChangeUseCase)
+  .to(VerifyEmailChangeUseCase);
 
 // Plan Use Cases
 container.bind<ICreatePlan>(TYPES.CreatePlan).to(CreatePlan);

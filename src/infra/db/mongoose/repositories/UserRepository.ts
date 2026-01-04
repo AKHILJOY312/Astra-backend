@@ -76,6 +76,7 @@ export class UserRepository implements IUserRepository {
     if (!user.id) throw new Error("Cannot save user without id");
 
     const $set: UpdateQuery<IUserDocument>["$set"] = {
+      email: user.email,
       isVerified: user.isVerified,
       password: user.password,
       name: user.name,

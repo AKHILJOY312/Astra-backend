@@ -36,6 +36,8 @@ export const API_ROUTES = {
     PROFILE_IMAGE_URL: "/profile-image/upload-url",
     PROFILE_IMAGE: "/profile-image",
     CHANGE_PASSWORD: "/change-password",
+    REQUEST_EMAIL_OTP: "/change-email/request",
+    VERIFY_EMAIL_OTP: "/change-email/verify",
   },
 
   PROJECTS: {

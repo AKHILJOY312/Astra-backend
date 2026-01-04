@@ -9,6 +9,9 @@ import { IUploadProfileImageUseCase } from "@/application/ports/use-cases/user/I
 import { BadRequestError } from "@/application/error/AppError";
 import { IChangePasswordUseCase } from "@/application/ports/use-cases/user/IChangePasswordUseCase";
 import { changePasswordSchema } from "@/interface-adapters/http/validators/userValidators";
+import { IRequestEmailChangeUseCase } from "@/application/ports/use-cases/user/IRequestEmailChangeUseCase";
+import { IVerifyEmailChangeUseCase } from "@/application/ports/use-cases/user/IVerifyEmailChangeUseCase";
+import { emailSchema } from "@/interface-adapters/http/validators/baseValidators";
 
 @injectable()
 export class UserController {
@@ -22,7 +25,11 @@ export class UserController {
     @inject(TYPES.UploadProfileImageUseCase)
     private uploadProfileImageUC: IUploadProfileImageUseCase,
     @inject(TYPES.ChangePasswordUseCase)
-    private changePasswordUC: IChangePasswordUseCase
+    private changePasswordUC: IChangePasswordUseCase,
+    @inject(TYPES.RequestEmailChangeUseCase)
+    private requestOtpUC: IRequestEmailChangeUseCase,
+    @inject(TYPES.VerifyEmailChangeUseCase)
+    private verifyEmailUC: IVerifyEmailChangeUseCase
   ) {}
 
   getProfile = async (req: Request, res: Response) => {
@@ -98,6 +105,22 @@ export class UserController {
       validatedData.oldPassword,
       validatedData.newPassword
     );
-    res.json(result);
+    return res.json(result);
+  };
+  requestOtp = async (req: Request, res: Response) => {
+    const validatedEmail = await emailSchema.parse(req.body.newEmail);
+    const userId = req.user!.id;
+
+    const result = await this.requestOtpUC.execute(userId, validatedEmail);
+
+    return res.json(result);
+  };
+  verifyOtpAndChangeEmail = async (req: Request, res: Response) => {
+    const userId = req.user!.id;
+    const emailChangeOtp = req.body.emailChangeOtp;
+
+    const result = await this.verifyEmailUC.execute(userId, emailChangeOtp);
+    console.log(result);
+    return res.json(result);
   };
 }

@@ -60,12 +60,19 @@ export class JwtAuthService implements IAuthService {
 
   async invalidateUserSessions(userId: string): Promise<void> {
     const user = await this.userRepo.findById(userId);
-    console.log("Users: ", user);
+
     if (!user) throw new Error("User not found");
 
     const newStamp = crypto.randomBytes(32).toString("hex");
 
     await this.userRepo.updateSecurityStamp(userId, newStamp);
     return;
+  }
+  generateOtp(lengthOfOtp: number): number {
+    const min = Math.pow(10, lengthOfOtp - 1);
+    const max = Math.pow(10, lengthOfOtp) - 1;
+    const otp = Math.floor(Math.random() * (max - min + 1)) + min;
+    console.log("Email reset Password: ", otp);
+    return otp;
   }
 }

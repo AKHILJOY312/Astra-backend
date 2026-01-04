@@ -9,4 +9,5 @@ export interface IEmailService {
     token: string,
     resetUrl: string
   ): Promise<void>;
+  sendEmailChangeOtp(email: string, otp: string): Promise<void>;
 }

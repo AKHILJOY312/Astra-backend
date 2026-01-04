@@ -56,6 +56,8 @@ app.use("/api", routes);
 
 createSocketServer(server, container);
 
+app.use(globalErrorHandler);
+
 //  Catch-all route for undefined endpoints
 app.all("*", (req, res) => {
   res.status(HTTP_STATUS.BAD_REQUEST).json({
@@ -63,8 +65,6 @@ app.all("*", (req, res) => {
     message: `Route not found: ${req.originalUrl}`,
   });
 });
-
-app.use(globalErrorHandler);
 
 const PORT = ENV.PORT;
 server.listen(PORT, () => {

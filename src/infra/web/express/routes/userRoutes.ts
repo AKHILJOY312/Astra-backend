@@ -31,5 +31,14 @@ export function getUserRoutes(container: Container): Router {
   router
     .route(API_ROUTES.USER.CHANGE_PASSWORD)
     .patch(asyncHandler(userController.changePassword));
+
+  router
+    .route(API_ROUTES.USER.REQUEST_EMAIL_OTP)
+    .post(asyncHandler(userController.requestOtp));
+
+  router
+    .route(API_ROUTES.USER.VERIFY_EMAIL_OTP)
+    .post(asyncHandler(userController.verifyOtpAndChangeEmail));
+
   return router;
 }
