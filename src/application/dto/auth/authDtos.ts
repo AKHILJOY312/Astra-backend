@@ -46,6 +46,7 @@ export interface GetMeUserDTO {
   id: string;
   name: string;
   email: string;
+  avatarUrl?: string;
   isAdmin: boolean;
 }
 
