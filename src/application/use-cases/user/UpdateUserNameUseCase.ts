@@ -19,6 +19,9 @@ export class UpdateUserProfileUseCase implements IUpdateUserProfileUseCase {
     if (!user) throw new NotFoundError("User");
 
     if (dto.name) user.setName(dto.name);
+    if (dto.about) user.setAbout(dto.about);
+    if (dto.phone) user.setPhone(dto.phone);
+    if (dto.link) user.setLink(dto.link);
 
     await this.userRepo.update(user);
 
@@ -26,6 +29,9 @@ export class UpdateUserProfileUseCase implements IUpdateUserProfileUseCase {
       id: user.id,
       name: user.name,
       email: user.email,
+      about: user.about,
+      phone: user.phone,
+      link: user.link,
       isVerified: user.isVerified,
     };
   }

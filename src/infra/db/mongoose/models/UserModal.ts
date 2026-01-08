@@ -6,6 +6,9 @@ export interface IUserDocument extends Document {
   email: string;
   password: string;
   avatar_url?: string;
+  about?: string;
+  phone?: string;
+  link?: string;
   isAdmin: boolean;
   isBlocked: boolean;
   isVerified: boolean;
@@ -23,6 +26,9 @@ const userSchema = new Schema<IUserDocument>(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true, select: false },
     avatar_url: { type: String },
+    about: { type: String },
+    phone: { type: String },
+    link: { type: String },
     isAdmin: { type: Boolean, default: false },
     isBlocked: { type: Boolean, default: false },
     isVerified: { type: Boolean, default: false },

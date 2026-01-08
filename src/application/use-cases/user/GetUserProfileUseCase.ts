@@ -39,6 +39,9 @@ export class GetUserProfileUseCase implements IGetUserProfileUseCase {
       name: user.name,
       email: user.email,
       imageUrl: profileImageUrl,
+      about: user.about,
+      phone: user.phone,
+      link: user.link,
       isVerified: user.isVerified,
       createdAt: user.createdAt,
       plan: activeSubscription

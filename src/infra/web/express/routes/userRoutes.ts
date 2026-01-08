@@ -18,7 +18,7 @@ export function getUserRoutes(container: Container): Router {
   router
     .route(API_ROUTES.USER.ME)
     .get(asyncHandler(userController.getProfile))
-    .patch(asyncHandler(userController.updateName))
+    .patch(asyncHandler(userController.updateProfile))
     .delete(asyncHandler(userController.deleteAccount));
 
   router

@@ -8,7 +8,10 @@ import { IDeleteUserAccountUseCase } from "@/application/ports/use-cases/user/ID
 import { IUploadProfileImageUseCase } from "@/application/ports/use-cases/user/IUploadProfileImageUseCase";
 import { BadRequestError } from "@/application/error/AppError";
 import { IChangePasswordUseCase } from "@/application/ports/use-cases/user/IChangePasswordUseCase";
-import { changePasswordSchema } from "@/interface-adapters/http/validators/userValidators";
+import {
+  changePasswordSchema,
+  updateProfileSchema,
+} from "@/interface-adapters/http/validators/userValidators";
 import { IRequestEmailChangeUseCase } from "@/application/ports/use-cases/user/IRequestEmailChangeUseCase";
 import { IVerifyEmailChangeUseCase } from "@/application/ports/use-cases/user/IVerifyEmailChangeUseCase";
 import { emailSchema } from "@/interface-adapters/http/validators/baseValidators";
@@ -38,14 +41,11 @@ export class UserController {
     res.status(200).json(data);
   };
 
-  updateName = async (req: Request, res: Response) => {
+  updateProfile = async (req: Request, res: Response) => {
     const userId = req.user!.id;
-    const { name, email } = req.body;
+    const validatedData = updateProfileSchema.parse(req.body);
 
-    const updated = await this.updateProfileUC.execute(userId, {
-      name,
-      email,
-    });
+    const updated = await this.updateProfileUC.execute(userId, validatedData);
 
     res.status(200).json(updated);
   };

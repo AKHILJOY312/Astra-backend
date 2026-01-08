@@ -24,6 +24,9 @@ export class UserRepository implements IUserRepository {
       resetPasswordExpires: doc.resetPasswordExpires ?? null,
       securityStamp: doc.securityStamp ?? "",
       imageUrl: doc.avatar_url ?? undefined,
+      about: doc.about ?? undefined,
+      phone: doc.phone ?? undefined,
+      link: doc.link ?? undefined,
       createdAt: doc.createdAt,
     };
 
@@ -80,6 +83,10 @@ export class UserRepository implements IUserRepository {
       isVerified: user.isVerified,
       password: user.password,
       name: user.name,
+      avatar_url: user.ImageUrl ?? null,
+      about: user.about ?? null,
+      phone: user.phone ?? null,
+      link: user.link ?? null,
       isAdmin: user.isAdmin,
       isBlocked: user.isBlocked,
       securityStamp: user.securityStamp,
@@ -87,7 +94,6 @@ export class UserRepository implements IUserRepository {
       verificationTokenExpires: user.verificationTokenExpires ?? undefined,
       resetPasswordToken: user.resetPasswordToken ?? undefined,
       resetPasswordExpires: user.resetPasswordExpires ?? undefined,
-      avatar_url: user.ImageUrl ?? null,
     };
 
     // Clean up undefined values for $unset if needed
