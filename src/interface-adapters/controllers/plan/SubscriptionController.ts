@@ -28,7 +28,8 @@ export class SubscriptionController {
 
   // GET /api/subscription/plans
   getPlansToSubscribe = async (req: Request, res: Response) => {
-    const plans = await this.getAvailablePlans.execute();
+    const userId = req.user!.id;
+    const plans = await this.getAvailablePlans.execute(userId);
     return res.json({ success: true, plans });
   };
 
