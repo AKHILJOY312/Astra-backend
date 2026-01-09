@@ -5,7 +5,7 @@ import { IEmailService } from "../../ports/services/IEmailService";
 import { RegisterUserDto } from "../../dto/RegisterUserDto";
 import crypto from "crypto";
 import { inject, injectable } from "inversify";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { BadRequestError } from "@/application/error/AppError";
 import { IRegisterUser } from "@/application/ports/use-cases/auth/IRegisterUserUseCase";
 

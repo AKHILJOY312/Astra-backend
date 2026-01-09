@@ -3,7 +3,7 @@
 import { inject, injectable } from "inversify";
 import { IPlanRepository } from "../../../ports/repositories/IPlanRepository";
 // import { Plan } from "@/domain/entities/billing/Plan";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import {
   AvailablePlanDTO,
   IGetAvailablePlansUseCase,

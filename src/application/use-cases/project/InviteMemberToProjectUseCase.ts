@@ -4,7 +4,7 @@ import { IProjectMembershipRepository } from "../../ports/repositories/IProjectM
 import { IPlanRepository } from "../../ports/repositories/IPlanRepository";
 import { IUserSubscriptionRepository } from "../../ports/repositories/IUserSubscriptionRepository";
 import { inject, injectable } from "inversify";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import {
   BadRequestError,
   NotFoundError,

@@ -1,7 +1,7 @@
 // src/core/use-cases/project/RemoveMemberFromProjectUseCase.ts
 import { inject, injectable } from "inversify";
 import { IProjectMembershipRepository } from "../../ports/repositories/IProjectMembershipRepository";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import {
   BadRequestError,
   UnauthorizedError,

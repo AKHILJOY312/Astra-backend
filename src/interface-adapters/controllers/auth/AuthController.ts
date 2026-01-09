@@ -7,7 +7,7 @@ import {
   ERROR_MESSAGES,
 } from "@/interface-adapters/http/constants/messages";
 import { inject, injectable } from "inversify";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import {
   BadRequestError,
   UnauthorizedError,

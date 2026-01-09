@@ -1,7 +1,7 @@
 import { ListMessagesInput } from "@/application/dto/message/messageDtos";
 import { IMessageRepository } from "@/application/ports/repositories/IMessageRepository";
 import { IListMessagesUseCase } from "@/application/ports/use-cases/message/IListMessagesUseCase";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { inject, injectable } from "inversify";
 
 @injectable()

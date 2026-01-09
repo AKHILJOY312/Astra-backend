@@ -8,7 +8,7 @@ import { IUserRepository } from "@/application/ports/repositories/IUserRepositor
 import { IAuthService } from "@/application/ports/services/IAuthService";
 import { IEmailService } from "@/application/ports/services/IEmailService";
 import { IRequestEmailChangeUseCase } from "@/application/ports/use-cases/user/IRequestEmailChangeUseCase";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { EmailChangeOtp } from "@/domain/entities/auth/EmailChangeOtp";
 import { inject, injectable } from "inversify";
 

@@ -1,7 +1,7 @@
 import { inject, injectable } from "inversify";
 
 import { IProjectMembershipRepository } from "../../ports/repositories/IProjectMembershipRepository";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { NotFoundError, UnauthorizedError } from "@/application/error/AppError";
 import {
   ChangeMemberRoleDTO,

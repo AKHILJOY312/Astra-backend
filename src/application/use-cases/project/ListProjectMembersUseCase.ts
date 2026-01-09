@@ -1,6 +1,6 @@
 // src/core/use-cases/project/ListProjectMembersUseCase.ts
 import { inject, injectable } from "inversify";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { IProjectMembershipRepository } from "../../ports/repositories/IProjectMembershipRepository";
 import { IProjectRepository } from "../../ports/repositories/IProjectRepository";
 import { ProjectMemberView } from "@/application/dto/project/ProjectMemberView";

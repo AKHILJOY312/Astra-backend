@@ -1,5 +1,5 @@
 import { injectable, inject } from "inversify";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { IUserRepository } from "@/application/ports/repositories/IUserRepository";
 import {
   IUploadProfileImageUseCase,

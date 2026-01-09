@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { HTTP_STATUS } from "../../http/constants/httpStatus";
 // import { ERROR_MESSAGES } from "@/interface-adapters/http/constants/messages";
 import { inject, injectable } from "inversify";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { ValidationError } from "@/application/error/AppError";
 import {
   AcceptInvitationSchema,

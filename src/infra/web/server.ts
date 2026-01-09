@@ -13,7 +13,7 @@ import { setupGoogleStrategy } from "../passport/googleStrategy";
 import passport from "passport";
 import { HTTP_STATUS } from "@/interface-adapters/http/constants/httpStatus";
 import { createSocketServer } from "../websocket/SocketServer";
-import { container } from "@/config/container";
+import { container } from "@/config/di/container";
 import { globalErrorHandler } from "./express/middleware/globalErrorHandler";
 import { logger, morganMiddleware } from "../logger/logger";
 import { ENV } from "@/config/env.config";

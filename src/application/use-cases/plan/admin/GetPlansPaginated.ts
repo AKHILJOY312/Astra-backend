@@ -1,7 +1,7 @@
 // src/application/use-cases/plan/GetPlansPaginated.ts
 import { IPlanRepository } from "../../../ports/repositories/IPlanRepository";
 import { inject, injectable } from "inversify";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import {
   IGetPlansPaginated,
   PaginatedResponseDTO,

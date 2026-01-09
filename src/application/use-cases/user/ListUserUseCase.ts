@@ -5,7 +5,7 @@ import {
   UserDTO,
 } from "../../dto/user/UserListResponseDTO";
 import { inject, injectable } from "inversify";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { IListUsersUseCase } from "@/application/ports/use-cases/user/IListUsersUseCase";
 
 export interface ListUsersQuery {

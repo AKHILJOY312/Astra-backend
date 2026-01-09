@@ -3,7 +3,7 @@
 import { inject, injectable } from "inversify";
 import { IChannelRepository } from "../../ports/repositories/IChannelRepository";
 import { IProjectMembershipRepository } from "../../ports/repositories/IProjectMembershipRepository";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { UnauthorizedError } from "@/application/error/AppError";
 import { IListChannelsForUserUseCase } from "@/application/ports/use-cases/channel/IListChannelsForUserUseCase";
 

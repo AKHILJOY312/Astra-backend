@@ -1,7 +1,7 @@
 import { inject, injectable } from "inversify";
 import { IUserRepository } from "../../ports/repositories/IUserRepository";
 import { IAuthService } from "../../ports/services/IAuthService";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import {
   BadRequestError,
   ForbiddenError,

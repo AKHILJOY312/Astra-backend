@@ -5,7 +5,7 @@ import { IAuthService } from "../../application/ports/services/IAuthService";
 import crypto from "crypto";
 import { IUserRepository } from "@/application/ports/repositories/IUserRepository";
 import { inject, injectable } from "inversify";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { ENV } from "@/config/env.config";
 
 @injectable()

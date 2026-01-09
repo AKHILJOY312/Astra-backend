@@ -1,7 +1,7 @@
 // src/presentation/controllers/AdminUserController.ts
 import { Request, Response } from "express";
 import { inject, injectable } from "inversify";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { BadRequestError } from "@/application/error/AppError";
 import { ListUsersQuerySchema } from "@/interface-adapters/http/validators/adminUserValidators";
 import { IListUsersUseCase } from "@/application/ports/use-cases/user/IListUsersUseCase";

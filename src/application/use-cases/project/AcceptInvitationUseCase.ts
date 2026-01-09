@@ -9,7 +9,7 @@ import {
   AcceptInvitationDTO,
   IAcceptInvitationUseCase,
 } from "@/application/ports/use-cases/project/IAcceptInvitationUseCase";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { ProjectMembership } from "@/domain/entities/project/ProjectMembership";
 import { inject, injectable } from "inversify";
 

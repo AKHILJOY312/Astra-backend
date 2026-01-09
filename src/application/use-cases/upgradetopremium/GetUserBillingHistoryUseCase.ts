@@ -5,7 +5,7 @@ import {
   IGetUserBillingHistoryUseCase,
   UserBillingHistoryOutput,
 } from "@/application/ports/use-cases/upgradetopremium/IGetUserBillingHistoryUseCase ";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { inject, injectable } from "inversify";
 
 @injectable()

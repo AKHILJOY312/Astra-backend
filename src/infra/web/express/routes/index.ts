@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { container } from "@/config/container";
+import { container } from "@/config/di/container";
 
 import { getAuthRoutes } from "./authRoutes";
 import { getAdminAuthRoutes } from "./admin/adminAuthRoutes";

@@ -2,7 +2,7 @@
 import { Request, Response } from "express";
 import { HTTP_STATUS } from "../../http/constants/httpStatus";
 import { inject, injectable } from "inversify";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { BadRequestError, ValidationError } from "@/application/error/AppError";
 import { CHANNEL_MESSAGES } from "@/interface-adapters/http/constants/messages";
 import {

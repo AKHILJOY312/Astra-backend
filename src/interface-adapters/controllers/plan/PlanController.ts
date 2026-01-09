@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { HTTP_STATUS } from "../../http/constants/httpStatus";
 import { PLAN_MESSAGES } from "@/interface-adapters/http/constants/messages";
 import { inject, injectable } from "inversify";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { ICreatePlan } from "@/application/ports/use-cases/plan/admin/ICreatePlanUseCase";
 import { IUpdatePlan } from "@/application/ports/use-cases/plan/admin/IUpdatePlanUseCase";
 import { ISoftDeletePlan } from "@/application/ports/use-cases/plan/admin/ISoftDeletePlanUseCase";

@@ -7,7 +7,7 @@ import { IEmailChangeOtpRepository } from "@/application/ports/repositories/IEma
 import { IUserRepository } from "@/application/ports/repositories/IUserRepository";
 import { IAuthService } from "@/application/ports/services/IAuthService";
 import { IVerifyEmailChangeUseCase } from "@/application/ports/use-cases/user/IVerifyEmailChangeUseCase";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { inject, injectable } from "inversify";
 
 injectable();

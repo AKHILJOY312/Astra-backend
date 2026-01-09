@@ -3,7 +3,7 @@ import { User } from "../../../domain/entities/user/User";
 import { IUserRepository } from "../../ports/repositories/IUserRepository";
 import { IAuthService } from "../../ports/services/IAuthService";
 import crypto from "crypto";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { NotFoundError } from "@/application/error/AppError";
 import { IGoogleLogin } from "@/application/ports/use-cases/auth/IGoogleLoginUseCase";
 import {

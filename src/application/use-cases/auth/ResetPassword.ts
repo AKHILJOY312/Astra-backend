@@ -2,7 +2,7 @@
 import { inject, injectable } from "inversify";
 import { IUserRepository } from "../../ports/repositories/IUserRepository";
 import { IAuthService } from "../../ports/services/IAuthService";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { BadRequestError } from "@/application/error/AppError";
 import { IResetPassword } from "@/application/ports/use-cases/auth/IResetPasswordUseCase";
 

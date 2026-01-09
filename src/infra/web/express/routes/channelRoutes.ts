@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { Container } from "inversify";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { ChannelController } from "@/interface-adapters/controllers/channel/ChannelController";
 import { MessageController } from "@/interface-adapters/controllers/message/MessageController";
 import { createProtectMiddleware } from "@/infra/web/express/middleware/protect";

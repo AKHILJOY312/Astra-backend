@@ -7,7 +7,7 @@ import {
 import { IUserRepository } from "@/application/ports/repositories/IUserRepository";
 import { IAuthService } from "@/application/ports/services/IAuthService";
 import { IChangePasswordUseCase } from "@/application/ports/use-cases/user/IChangePasswordUseCase";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { inject, injectable } from "inversify";
 
 @injectable()

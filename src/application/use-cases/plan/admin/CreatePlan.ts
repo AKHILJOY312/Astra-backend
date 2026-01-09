@@ -3,7 +3,7 @@ import { IPlanRepository } from "../../../ports/repositories/IPlanRepository";
 import { CreatePlanDto } from "../../../dto/plan/CreatePlanDto";
 import { v4 as uuidv4 } from "uuid";
 import { inject, injectable } from "inversify";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { BadRequestError } from "@/application/error/AppError";
 import { ICreatePlan } from "@/application/ports/use-cases/plan/admin/ICreatePlanUseCase";
 

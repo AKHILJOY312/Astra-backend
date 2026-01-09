@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import { IUserRepository } from "../../ports/repositories/IUserRepository";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { NotFoundError } from "@/application/error/AppError";
 import { IGetMe } from "@/application/ports/use-cases/auth/IGetMeUseCase";
 import { GetMeResponseDTO } from "@/application/dto/auth/authDtos";

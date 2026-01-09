@@ -2,7 +2,7 @@
 import { Request, Response } from "express";
 
 import { inject, injectable } from "inversify";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { AUTH_MESSAGES } from "@/interface-adapters/http/constants/messages";
 import { IAdminLogin } from "@/application/ports/use-cases/auth/admin/IAdminLoginUseCase";
 import { IAdminForgotPassword } from "@/application/ports/use-cases/auth/admin/IAdminForgotPasswordUseCase";

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { Container } from "inversify";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { AdminUserController } from "@/interface-adapters/controllers/user/AdminUserController";
 import { createProtectMiddleware } from "@/infra/web/express/middleware/protect";
 import { adminOnly } from "@/infra/web/express/middleware/adminOnly";

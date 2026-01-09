@@ -1,5 +1,5 @@
 import { inject, injectable } from "inversify";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { IProjectRepository } from "../../ports/repositories/IProjectRepository";
 import { IProjectMembershipRepository } from "../../ports/repositories/IProjectMembershipRepository";
 

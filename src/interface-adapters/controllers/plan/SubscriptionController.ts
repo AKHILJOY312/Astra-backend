@@ -5,7 +5,7 @@ import {
   SUB_MESSAGE,
 } from "@/interface-adapters/http/constants/messages";
 import { inject, injectable } from "inversify";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { BadRequestError } from "@/application/error/AppError";
 
 import { IUpgradeToPlanUseCase } from "@/application/ports/use-cases/upgradetopremium/IUpgradeToPlanUseCase";

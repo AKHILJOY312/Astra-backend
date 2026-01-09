@@ -1,6 +1,6 @@
 import { IListMessagesUseCase } from "@/application/ports/use-cases/message/IListMessagesUseCase";
 import { ISendMessageUseCase } from "@/application/ports/use-cases/message/ISendMessageUseCase";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 

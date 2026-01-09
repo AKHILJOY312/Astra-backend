@@ -1,5 +1,5 @@
 import { inject, injectable } from "inversify";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { IUserRepository } from "@/application/ports/repositories/IUserRepository";
 import { IUserSubscriptionRepository } from "@/application/ports/repositories/IUserSubscriptionRepository";
 import { NotFoundError } from "@/application/error/AppError";

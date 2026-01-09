@@ -131,7 +131,7 @@ import jwt from "jsonwebtoken";
 import { Container } from "inversify";
 
 import { SendMessageUseCase } from "@/application/use-cases/message/SendMessageUseCase";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { AuthenticatedSocket } from "./handlers/BaseSocketHandler";
 import { MessageHandler } from "./handlers/MessageHandler";
 import { ChannelHandler } from "./handlers/ChannelHandler";

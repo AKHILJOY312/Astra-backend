@@ -1,7 +1,7 @@
 // src/application/use-cases/auth/LogoutUser.ts
 import { inject, injectable } from "inversify";
 import { ITokenBlacklistService } from "../../ports/services/ITokenBlacklistService";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { ILogoutUser } from "@/application/ports/use-cases/auth/ILogoutUserUseCase";
 
 @injectable()

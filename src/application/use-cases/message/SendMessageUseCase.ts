@@ -4,7 +4,7 @@ import { IMessageRepository } from "@/application/ports/repositories/IMessageRep
 import { IProjectMembershipRepository } from "@/application/ports/repositories/IProjectMembershipRepository";
 import { IUserRepository } from "@/application/ports/repositories/IUserRepository";
 import { ISendMessageUseCase } from "@/application/ports/use-cases/message/ISendMessageUseCase";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { Message } from "@/domain/entities/message/Message";
 import { inject, injectable } from "inversify";
 import { v4 as uuidv4 } from "uuid";

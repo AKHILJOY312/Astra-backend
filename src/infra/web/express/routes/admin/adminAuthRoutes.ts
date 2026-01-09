@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { Container } from "inversify";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { AdminAuthController } from "@/interface-adapters/controllers/auth/AdminAuthController";
 import { API_ROUTES } from "@/config/routes.config";
 import { asyncHandler } from "../../handler/asyncHandler";

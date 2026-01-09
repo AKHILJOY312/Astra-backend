@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { Container } from "inversify";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { UserController } from "@/interface-adapters/controllers/user/UserController";
 import { createProtectMiddleware } from "@/infra/web/express/middleware/protect";
 import { API_ROUTES } from "@/config/routes.config";

@@ -3,7 +3,7 @@ import { IUserSubscriptionRepository } from "@/application/ports/repositories/IU
 import { IPlanRepository } from "@/application/ports/repositories/IPlanRepository";
 import { IRazorpayService } from "@/application/ports/services/IRazorpayService";
 import { inject, injectable } from "inversify";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { BadRequestError, NotFoundError } from "@/application/error/AppError";
 import { ENV } from "@/config/env.config";
 import {
