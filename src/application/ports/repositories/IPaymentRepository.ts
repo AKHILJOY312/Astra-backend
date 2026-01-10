@@ -9,6 +9,7 @@ export interface IPaymentRepository {
     paymentId?: string
   ): Promise<void>;
   findByUserId(userId: string): Promise<Payment[]>;
+  findByInvoiceId(invoiceNumber: string): Promise<Payment | null>;
   findById(id: string): Promise<Payment | null>;
   findByUserIdPaginated(
     userId: string,

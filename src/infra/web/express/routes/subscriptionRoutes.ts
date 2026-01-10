@@ -37,6 +37,9 @@ export function getSubscriptionRoutes(container: Container): Router {
   router
     .route(API_ROUTES.SUBSCRIPTION.PAYMENT_HISTORY)
     .get(asyncHandler(subscriptionController.paymentHistory));
+  router
+    .route(API_ROUTES.SUBSCRIPTION.INVOICES)
+    .get(asyncHandler(subscriptionController.getInvoice));
 
   return router;
 }

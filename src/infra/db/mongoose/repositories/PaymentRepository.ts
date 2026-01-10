@@ -61,7 +61,10 @@ export class PaymentRepository implements IPaymentRepository {
     const doc = await PaymentModel.findById(id);
     return doc ? this.toEntity(doc) : null;
   }
-
+  async findByInvoiceId(invoiceNumber: string): Promise<Payment | null> {
+    const doc = await PaymentModel.findOne({ invoiceNumber });
+    return doc ? this.toEntity(doc) : null;
+  }
   async countAll(): Promise<number> {
     return await PaymentModel.countDocuments();
   }

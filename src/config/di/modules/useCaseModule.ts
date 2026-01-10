@@ -106,6 +106,8 @@ import { IUploadProfileImageUseCase } from "@/application/ports/use-cases/user/I
 import { UploadProfileImageUseCase } from "@/application/use-cases/user/UploadProfileImageUseCase";
 import { IGetUserBillingHistoryUseCase } from "@/application/ports/use-cases/upgradetopremium/IGetUserBillingHistoryUseCase ";
 import { GetUserBillingUseCase } from "@/application/use-cases/upgradetopremium/GetUserBillingHistoryUseCase";
+import { IDownloadInvoiceUseCase } from "@/application/ports/use-cases/upgradetopremium/IDownloadInvoiceOutput";
+import { DownloadInvoiceUseCase } from "@/application/use-cases/upgradetopremium/DownloadInvoiceUseCase ";
 
 export const useCaseModule = new ContainerModule((options) => {
   // Regular Auth Use Cases
@@ -223,6 +225,9 @@ export const useCaseModule = new ContainerModule((options) => {
   options
     .bind<IGetUserBillingHistoryUseCase>(TYPES.GetUserBillingUseCase)
     .to(GetUserBillingUseCase);
+  options
+    .bind<IDownloadInvoiceUseCase>(TYPES.DownloadInvoiceOutput)
+    .to(DownloadInvoiceUseCase);
   // Message Use Cases
   options
     .bind<ISendMessageUseCase>(TYPES.SendMessageUseCase)

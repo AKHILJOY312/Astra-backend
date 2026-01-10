@@ -65,5 +65,6 @@ export const API_ROUTES = {
       CAPTURE: "/razorpay/capture",
     },
     PAYMENT_HISTORY: "/history",
+    INVOICES: "/invoice/:paymentId",
   },
 } as const;

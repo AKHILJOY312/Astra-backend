@@ -40,6 +40,8 @@ import { IRazorpayService } from "@/application/ports/services/IRazorpayService"
 import { ITokenBlacklistService } from "@/application/ports/services/ITokenBlacklistService";
 import { IFileUploadService } from "@/application/ports/services/IFileUploadService";
 import { ICounterRepository } from "@/application/ports/repositories/ICounterRepository";
+import { IPdfInvoiceService } from "@/application/ports/services/IPdfInvoiceService";
+import { PdfKitInvoiceGenerator } from "@/infra/services/PdfKitInvoiceGenerator";
 
 export const coreModule = new ContainerModule((options) => {
   // Repositories (singletons)
@@ -112,5 +114,9 @@ export const coreModule = new ContainerModule((options) => {
   options
     .bind<IFileUploadService>(TYPES.FileUploadService)
     .to(S3FileUploadService)
+    .inSingletonScope();
+  options
+    .bind<IPdfInvoiceService>(TYPES.PdfInvoiceService)
+    .to(PdfKitInvoiceGenerator)
     .inSingletonScope();
 });

@@ -19,6 +19,7 @@ const TYPES = {
   PaymentService: Symbol.for("PaymentService"), // For RazorpayService
   TokenBlacklistService: Symbol.for("TokenBlacklistService"),
   FileUploadService: Symbol.for("FileUploadService"),
+  PdfInvoiceService: Symbol.for("PdfInvoiceService"),
 
   // Middleware
   ProtectMiddleware: Symbol.for("ProtectMiddleware"),
@@ -94,6 +95,8 @@ const TYPES = {
   UpgradeToPlanUseCase: Symbol.for("UpgradeToPlanUseCase"),
   CapturePaymentUseCase: Symbol.for("CapturePaymentUseCase"),
   GetUserBillingUseCase: Symbol.for("GetUserBillingUseCase"),
+  DownloadInvoiceOutput: Symbol.for("DownloadInvoiceOutput"),
+
   // Use Cases (Message)
   SendMessageUseCase: Symbol.for("SendMessageUseCase"),
   ListMessagesUseCase: Symbol.for("ListMessagesUseCase"),

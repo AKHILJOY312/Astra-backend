@@ -1,4 +1,5 @@
 export interface UserPaymentHistoryDTO {
+  paymentId?: string;
   invoiceNumber?: string;
   planName: string;
   amount: number;

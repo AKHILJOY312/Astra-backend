@@ -15,6 +15,7 @@ import { IGetAvailablePlansUseCase } from "@/application/ports/use-cases/plan/us
 import { ICapturePaymentUseCase } from "@/application/ports/use-cases/upgradetopremium/ICapturePaymentUseCase";
 import { IGetUserBillingHistoryUseCase } from "@/application/ports/use-cases/upgradetopremium/IGetUserBillingHistoryUseCase ";
 import { PaginationQuerySchema } from "@/interface-adapters/http/validators/projectValidators";
+import { IDownloadInvoiceUseCase } from "@/application/ports/use-cases/upgradetopremium/IDownloadInvoiceOutput";
 
 @injectable()
 export class SubscriptionController {
@@ -28,7 +29,9 @@ export class SubscriptionController {
     @inject(TYPES.CapturePaymentUseCase)
     private captureUseCase: ICapturePaymentUseCase,
     @inject(TYPES.GetUserBillingUseCase)
-    private paymentHistoryUC: IGetUserBillingHistoryUseCase
+    private paymentHistoryUC: IGetUserBillingHistoryUseCase,
+    @inject(TYPES.DownloadInvoiceOutput)
+    private downloadInvoiceUC: IDownloadInvoiceUseCase
   ) {}
 
   // GET /api/subscription/plans
@@ -92,5 +95,28 @@ export class SubscriptionController {
       search ? String(search) : undefined
     );
     return res.json(data);
+  };
+  // GET /api/subscription/invoice/:paymentId
+  getInvoice = async (req: Request, res: Response) => {
+    const userId = req.user?.id;
+    const paymentId = req.params.paymentId;
+
+    if (!paymentId) {
+      throw new BadRequestError("Invoice number is required");
+    }
+
+    const result = await this.downloadInvoiceUC.execute({
+      userId,
+      paymentId,
+    });
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=${result.fileName}`
+    );
+
+    // SEND ONLY THE BUFFER
+    res.send(result.pdfBuffer);
   };
 }
