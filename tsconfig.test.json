@@ -1,0 +1,15 @@
+// tsconfig.test.json  (or tsconfig.spec.json, tsconfig.jest.json — whatever name you use)
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true, // don't generate .js files for tests
+    "types": ["jest", "node"], // Jest + node globals
+    "isolatedModules": true // good with ts-jest
+  },
+  "include": [
+    "src/**/*.test.ts",
+    "src/**/*.spec.ts",
+    "test/**/*.ts" // ← if your tests are in /test folder
+  ],
+  "exclude": ["node_modules", "dist"]
+}

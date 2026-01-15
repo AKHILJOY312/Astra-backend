@@ -13,18 +13,20 @@ describe("EditChannelUseCase (Unit)", () => {
   let membershipRepo: Partial<IProjectMembershipRepository>;
   let useCase: EditChannelUseCase;
 
-  const channel = new Channel({
-    id: "channel-1",
-    projectId: "project-1",
-    channelName: "general",
-    description: "old description",
-    createdBy: "user-1",
-    visibleToRoles: ["manager", "member"],
-    permissionsByRole: {
-      manager: "manager",
-      member: "view",
-    },
-  });
+  // Factory to create a fresh Channel per test
+  const createChannel = () =>
+    new Channel({
+      id: "channel-1",
+      projectId: "project-1",
+      channelName: "general",
+      description: "old description",
+      createdBy: "user-1",
+      visibleToRoles: ["manager", "member"],
+      permissionsByRole: {
+        manager: "manager",
+        member: "view",
+      },
+    });
 
   const baseInput: EditChannelDTO = {
     channelId: "channel-1",
@@ -53,9 +55,8 @@ describe("EditChannelUseCase (Unit)", () => {
   });
 
   // --------------------------------------------------
-  //  Channel existence
+  // Channel existence
   // --------------------------------------------------
-
   it("should throw BadRequestError if channel not found", async () => {
     (channelRepo.findById as jest.Mock).mockResolvedValue(null);
 
@@ -65,10 +66,10 @@ describe("EditChannelUseCase (Unit)", () => {
   });
 
   // --------------------------------------------------
-  //  Authorization
+  // Authorization
   // --------------------------------------------------
-
   it("should throw UnauthorizedError if membership not found", async () => {
+    const channel = createChannel();
     (channelRepo.findById as jest.Mock).mockResolvedValue(channel);
     (membershipRepo.findByProjectAndUser as jest.Mock).mockResolvedValue(null);
 
@@ -78,6 +79,7 @@ describe("EditChannelUseCase (Unit)", () => {
   });
 
   it("should throw UnauthorizedError if user is not manager", async () => {
+    const channel = createChannel();
     (channelRepo.findById as jest.Mock).mockResolvedValue(channel);
     (membershipRepo.findByProjectAndUser as jest.Mock).mockResolvedValue({
       role: "member",
@@ -89,10 +91,10 @@ describe("EditChannelUseCase (Unit)", () => {
   });
 
   // --------------------------------------------------
-  //  Duplicate channel name
+  // Duplicate channel name
   // --------------------------------------------------
-
   it("should throw BadRequestError if new channel name already exists", async () => {
+    const channel = createChannel();
     (channelRepo.findById as jest.Mock).mockResolvedValue(channel);
     (membershipRepo.findByProjectAndUser as jest.Mock).mockResolvedValue({
       role: "manager",
@@ -113,13 +115,12 @@ describe("EditChannelUseCase (Unit)", () => {
   // --------------------------------------------------
   // ✅ Successful update
   // --------------------------------------------------
-
   it("should update channel fields successfully", async () => {
+    const channel = createChannel();
     (channelRepo.findById as jest.Mock).mockResolvedValue(channel);
     (membershipRepo.findByProjectAndUser as jest.Mock).mockResolvedValue({
       role: "manager",
     });
-
     (channelRepo.findByProjectAndName as jest.Mock).mockResolvedValue(null);
     (channelRepo.update as jest.Mock).mockImplementation(
       async (updatedChannel: Channel) => updatedChannel
@@ -135,28 +136,27 @@ describe("EditChannelUseCase (Unit)", () => {
       },
     });
 
-    expect(result.channelName).toBe("general-updated");
-    expect(result.description).toBe("new description");
+    expect(result!.channelName).toBe("general-updated");
+    expect(result!.description).toBe("new description");
     expect(channelRepo.update).toHaveBeenCalledTimes(1);
   });
 
   // --------------------------------------------------
-  //  Rename only when name changes
+  // Rename only when name changes
   // --------------------------------------------------
-
   it("should NOT check duplicate name if channel name is unchanged", async () => {
+    const channel = createChannel();
     (channelRepo.findById as jest.Mock).mockResolvedValue(channel);
     (membershipRepo.findByProjectAndUser as jest.Mock).mockResolvedValue({
       role: "manager",
     });
-
     (channelRepo.update as jest.Mock).mockImplementation(
       async (updatedChannel: Channel) => updatedChannel
     );
 
     await useCase.execute({
       ...baseInput,
-      channelName: "general",
+      channelName: "general", // same as original
     });
 
     expect(channelRepo.findByProjectAndName).not.toHaveBeenCalled();
