@@ -43,7 +43,7 @@ const userSchema = new Schema<IUserDocument>(
     securityStamp: { type: String },
   },
 
-  { timestamps: true }
+  { timestamps: true },
 );
 
 userSchema.index({ name: 1 });
@@ -53,6 +53,6 @@ userSchema.index({ name: 1, email: 1 });
 
 const UserModel: Model<IUserDocument> = mongoose.model<IUserDocument>(
   "User",
-  userSchema
+  userSchema,
 );
 export default UserModel;

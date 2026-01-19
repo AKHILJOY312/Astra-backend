@@ -23,7 +23,7 @@ export class S3FileUploadService implements IFileUploadService {
   }
   async generateProfileImageUpload(
     userId: string,
-    fileType: string
+    fileType: string,
   ): Promise<{ uploadUrl: string; fileKey: string }> {
     const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
     if (!allowedTypes.includes(fileType)) {
@@ -54,7 +54,7 @@ export class S3FileUploadService implements IFileUploadService {
     });
   }
   // infrastructure/services/S3FileUploadService.ts
-  async generateChatFileUploadUrl({
+  async generateFileUploadUrl({
     key,
     contentType,
     metadata,

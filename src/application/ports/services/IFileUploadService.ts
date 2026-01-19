@@ -1,10 +1,10 @@
 export interface IFileUploadService {
   generateProfileImageUpload(
     userId: string,
-    fileType: string
+    fileType: string,
   ): Promise<{ uploadUrl: string; fileKey: string }>;
   generateProfileImageViewUrl(fileKey: string): Promise<string>;
-  generateChatFileUploadUrl(input: {
+  generateFileUploadUrl(input: {
     key: string;
     contentType: string;
     metadata?: Record<string, string>;

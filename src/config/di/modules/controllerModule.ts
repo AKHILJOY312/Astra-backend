@@ -11,6 +11,8 @@ import { ChannelController } from "@/interface-adapters/controllers/channel/Chan
 import { SubscriptionController } from "@/interface-adapters/controllers/plan/SubscriptionController";
 import { MessageController } from "@/interface-adapters/controllers/message/MessageController";
 import { UserController } from "@/interface-adapters/controllers/user/UserController";
+import { TaskController } from "@/interface-adapters/controllers/task/TaskController";
+import { MemberSearchController } from "@/interface-adapters/controllers/task/MemberSearchController";
 
 export const controllerModule = new ContainerModule((options) => {
   options.bind<AuthController>(TYPES.AuthController).to(AuthController);
@@ -35,4 +37,8 @@ export const controllerModule = new ContainerModule((options) => {
     .bind<MessageController>(TYPES.MessageController)
     .to(MessageController);
   options.bind<UserController>(TYPES.UserController).to(UserController);
+  options.bind<TaskController>(TYPES.TaskController).to(TaskController);
+  options
+    .bind<MemberSearchController>(TYPES.MemberSearchController)
+    .to(MemberSearchController);
 });

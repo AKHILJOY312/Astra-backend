@@ -8,9 +8,7 @@ import {
 } from "../models/ProjectMembershipModal";
 import mongoose from "mongoose";
 
-export class ProjectMembershipRepository
-  implements IProjectMembershipRepository
-{
+export class ProjectMembershipRepository implements IProjectMembershipRepository {
   async create(membership: ProjectMembership): Promise<ProjectMembership> {
     const doc = new ProjectMembershipModel({
       projectId: membership.projectId,
@@ -35,7 +33,7 @@ export class ProjectMembershipRepository
 
   async deleteByProjectAndUser(
     projectId: string,
-    userId: string
+    userId: string,
   ): Promise<void> {
     await ProjectMembershipModel.deleteOne({ projectId, userId });
   }
@@ -47,7 +45,7 @@ export class ProjectMembershipRepository
 
   async findByProjectAndUser(
     projectId: string,
-    userId: string
+    userId: string,
   ): Promise<ProjectMembership | null> {
     const doc = await ProjectMembershipModel.findOne({ projectId, userId });
 
@@ -77,7 +75,7 @@ export class ProjectMembershipRepository
 
   async existsManagerInProject(
     projectId: string,
-    userId: string
+    userId: string,
   ): Promise<boolean> {
     return !!(await ProjectMembershipModel.findOne({
       projectId,
@@ -87,7 +85,7 @@ export class ProjectMembershipRepository
   }
 
   async findMembersWithUserDetails(
-    projectId: string
+    projectId: string,
   ): Promise<ProjectMemberView[]> {
     const results = await ProjectMembershipModel.aggregate([
       {
@@ -124,6 +122,7 @@ export class ProjectMembershipRepository
         id: m.user._id.toString(),
         name: m.user.name,
         email: m.user.email,
+        avatarUrl: m.user.avatarUrl,
       },
     }));
   }

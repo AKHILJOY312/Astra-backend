@@ -19,16 +19,16 @@ export class GenerateUploadUrlUseCase implements IGenerateUploadUrlUseCase {
     @inject(TYPES.ProjectMembershipRepository)
     private membershipRepo: IProjectMembershipRepository,
     @inject(TYPES.FileUploadService)
-    private fileUploadService: IFileUploadService // ← we'll extend it
+    private fileUploadService: IFileUploadService, // ← we'll extend it
   ) {}
 
   async execute(
-    input: GenerateUploadUrlInput
+    input: GenerateUploadUrlInput,
   ): Promise<GenerateUploadUrlOutput> {
     // Security check: is user member?
     const membership = await this.membershipRepo.findByProjectAndUser(
       input.projectId,
-      input.senderId
+      input.senderId,
     );
     if (!membership) {
       throw new BadRequestError("User is not a member of this project");
@@ -48,7 +48,7 @@ export class GenerateUploadUrlUseCase implements IGenerateUploadUrlUseCase {
       "application/vnd",
     ];
     const isAllowed = allowedPrefixes.some((prefix) =>
-      input.mimeType.startsWith(prefix)
+      input.mimeType.startsWith(prefix),
     );
     if (!isAllowed) {
       throw new BadRequestError("Unsupported file type");
@@ -60,12 +60,11 @@ export class GenerateUploadUrlUseCase implements IGenerateUploadUrlUseCase {
     const key = `chat-files/${input.channelId}/${input.senderId}/${safeName}`;
 
     // Use extended file upload service
-    const { uploadUrl } =
-      await this.fileUploadService.generateChatFileUploadUrl({
-        key,
-        contentType: input.mimeType,
-        // optional: ACL, Metadata...
-      });
+    const { uploadUrl } = await this.fileUploadService.generateFileUploadUrl({
+      key,
+      contentType: input.mimeType,
+      // optional: ACL, Metadata...
+    });
 
     const permanentUrl = `https://${ENV.AWS.S3_BUCKET}.s3.${ENV.AWS.REGION}.amazonaws.com/${key}`;
 

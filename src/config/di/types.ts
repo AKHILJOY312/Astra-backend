@@ -12,6 +12,8 @@ const TYPES = {
   PaymentRepository: Symbol.for("PaymentRepository"),
   CounterRepository: Symbol.for("CounterRepository"),
   AttachmentRepository: Symbol.for("AttachmentRepository"),
+  TaskRepository: Symbol.for("TaskRepository"),
+  MemberRepository: Symbol.for("MemberRepository"),
   // Services
   UserService: Symbol.for("UserService"),
   AuthService: Symbol.for("AuthService"), // For JwtAuthService
@@ -35,6 +37,8 @@ const TYPES = {
   SubscriptionController: Symbol.for("SubscriptionController"),
   MessageController: Symbol.for("MessageController"),
   UserController: Symbol.for("UserController"),
+  TaskController: Symbol.for("TaskController"),
+  MemberSearchController: Symbol.for("MemberSearchController"),
 
   // Use Cases (User/Auth)
   RegisterUser: Symbol.for("RegisterUser"),
@@ -102,8 +106,18 @@ const TYPES = {
   ListMessagesUseCase: Symbol.for("ListMessagesUseCase"),
   GenerateUploadUrlUseCase: Symbol.for("GenerateUploadUrlUseCase"),
   GetAttachmentDownloadUrlUseCase: Symbol.for(
-    "GetAttachmentDownloadUrlUseCase"
+    "GetAttachmentDownloadUrlUseCase",
   ),
+
+  //Tasks
+  CreateTaskUseCase: Symbol.for("CreateTaskUseCase"),
+  DeleteTaskUseCase: Symbol.for("DeleteTaskUseCase"),
+  GetProjectTasksUseCase: Symbol.for("GetProjectTasksUseCase"),
+  UpdateTaskStatusUseCase: Symbol.for("UpdateTaskStatusUseCase"),
+  GetAttachmentUploadUrlUseCase: Symbol.for("GetAttachmentUploadUrlUseCase"),
+
+  //Search the user with the project
+  SearchProjectMembersUseCase: Symbol.for("SearchProjectMembersUseCase"),
 };
 
 export { TYPES };

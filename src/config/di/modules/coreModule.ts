@@ -44,6 +44,10 @@ import { IPdfInvoiceService } from "@/application/ports/services/IPdfInvoiceServ
 import { PdfKitInvoiceGenerator } from "@/infra/services/PdfKitInvoiceGenerator";
 import { IAttachmentRepository } from "@/application/ports/repositories/IAttachmentRepository";
 import { AttachmentRepository } from "@/infra/db/mongoose/repositories/AttachmentRepository";
+import { ITaskRepository } from "@/application/ports/repositories/ITaskRepository";
+import { TaskRepository } from "@/infra/db/mongoose/repositories/TaskRepository";
+import { IMemberRepository } from "@/application/ports/repositories/IMemberRepository ";
+import { MemberRepository } from "@/infra/db/mongoose/repositories/MemberRepository";
 
 export const coreModule = new ContainerModule((options) => {
   // Repositories (singletons)
@@ -95,6 +99,9 @@ export const coreModule = new ContainerModule((options) => {
     .bind<IAttachmentRepository>(TYPES.AttachmentRepository)
     .to(AttachmentRepository)
     .inSingletonScope();
+  options.bind<ITaskRepository>(TYPES.TaskRepository).to(TaskRepository);
+  options.bind<IMemberRepository>(TYPES.MemberRepository).to(MemberRepository);
+
   // Services (singletons)
   options
     .bind<IUserService>(TYPES.UserService)

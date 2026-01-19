@@ -1,21 +1,21 @@
 import {
-  UpdateTaskRequestDTO,
+  UpdateTaskStatusRequestDTO,
   TaskResponseDTO,
 } from "@/application/dto/task/taskDto";
 import {
-  BadRequestError,
+  ConflictError,
   NotFoundError,
   UnauthorizedError,
 } from "@/application/error/AppError";
 import { IProjectMembershipRepository } from "@/application/ports/repositories/IProjectMembershipRepository";
 import { ITaskRepository } from "@/application/ports/repositories/ITaskRepository";
-import { IUpdateTaskUseCase } from "@/application/ports/use-cases/task/interfaces";
+import { IUpdateTaskStatusUseCase } from "@/application/ports/use-cases/task/interfaces";
 import { TYPES } from "@/config/di/types";
-import { Task } from "@/domain/entities/task/Task";
+import { Task, TaskStatus } from "@/domain/entities/task/Task";
 import { inject, injectable } from "inversify";
 
 @injectable()
-export class UpdateTaskUseCase implements IUpdateTaskUseCase {
+export class UpdateTaskStatusUseCase implements IUpdateTaskStatusUseCase {
   constructor(
     @inject(TYPES.TaskRepository) private taskRepo: ITaskRepository,
     @inject(TYPES.ProjectMembershipRepository)
@@ -24,49 +24,48 @@ export class UpdateTaskUseCase implements IUpdateTaskUseCase {
 
   async execute(
     taskId: string,
-    input: UpdateTaskRequestDTO,
-    managerId: string,
+    input: UpdateTaskStatusRequestDTO,
+    userId: string,
   ): Promise<TaskResponseDTO> {
     const task = await this.taskRepo.findById(taskId);
-    if (!task) throw new NotFoundError("Task");
-    //1.Manger authorization
+    if (!task) throw new NotFoundError("Task not found");
+
     const membership = await this.membershipRepo.findByProjectAndUser(
       task.projectId,
-      managerId,
+      userId,
     );
-    if (!membership || membership.role !== "manager") {
-      throw new UnauthorizedError("Only mangers can update tasks");
+
+    if (!membership) {
+      throw new UnauthorizedError("Not a project member");
     }
 
-    //2. Reassignment validation
-    if (input.assignedTo) {
-      const assignee = await this.membershipRepo.findByProjectAndUser(
-        task.projectId,
-        input.assignedTo,
-      );
-      if (!assignee) {
-        throw new BadRequestError("Assignee must be a project member");
-      }
-      task.assignTo(input.assignedTo);
+    // Member restriction
+    if (membership.role === "member" && task.assignedTo !== userId) {
+      throw new UnauthorizedError("Cannot update others' tasks");
     }
 
-    //3. Metadata updates
-    if (input.title) task.updateTitle(input.title);
-    if (input.description !== undefined)
-      task.updateDescription(input.description);
-    if (input.priority) task.changePriority(input.priority);
-    if (input.dueDate !== undefined)
-      task.setDueDate(input.dueDate ? new Date(input.dueDate) : null);
+    // Simple forward-only validation (manager override allowed)
+
+    if (
+      membership.role === "member" &&
+      !this.validFlow[task.status].includes(input.status)
+    ) {
+      throw new ConflictError("Invalid status transition");
+    }
+
+    task.changeStatus(input.status);
     task.setUpdatedAt(new Date());
 
-    const update = await this.taskRepo.update(task);
-    return this.mapToResponse(update!);
+    const updated = await this.taskRepo.update(task);
+    return this.mapToResponse(updated!);
   }
   private mapToResponse(task: Task): TaskResponseDTO {
     return {
       id: task.id!,
       projectId: task.projectId,
-      assignedTo: { id: task.assignedTo, name: "" },
+      assignedTo: task.assignedTo
+        ? { id: task.assignedTo, name: "" }
+        : undefined,
       title: task.title,
       description: task.description ?? null,
       status: task.status,
@@ -74,6 +73,12 @@ export class UpdateTaskUseCase implements IUpdateTaskUseCase {
       dueDate: task.dueDate?.toISOString() ?? null,
       hasAttachments: task.hasAttachments ?? false,
       createdAt: task.createdAt.toISOString(),
+      // updatedAt: task.updatedAt.toISOString(),   ← add if needed
     };
   }
+  private readonly validFlow: Record<TaskStatus, TaskStatus[]> = {
+    todo: ["inprogress"],
+    inprogress: ["done"],
+    done: [],
+  };
 }

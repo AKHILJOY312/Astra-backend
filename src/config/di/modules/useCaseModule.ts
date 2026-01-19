@@ -112,6 +112,20 @@ import { GenerateUploadUrlUseCase } from "@/application/use-cases/message/Genera
 import { IGenerateUploadUrlUseCase } from "@/application/ports/use-cases/message/IGenerateUploadUrlUseCase";
 import { IGetAttachmentDownloadUrlUseCase } from "@/application/ports/use-cases/message/IGetAttachmentDownloadUrlUseCase";
 import { GetAttachmentDownloadUrlUseCase } from "@/application/use-cases/message/GetAttachmentDownloadUrlUseCase";
+import {
+  ICreateTaskUseCase,
+  IDeleteTaskUseCase,
+  IGetAttachmentUploadUrlUseCase,
+  IGetProjectTasksUseCase,
+  ISearchProjectMembersUseCase,
+  IUpdateTaskStatusUseCase,
+} from "@/application/ports/use-cases/task/interfaces";
+import { CreateTaskUseCase } from "@/application/use-cases/tasks/CreatingTaskUseCase";
+import { DeleteTaskUseCase } from "@/application/use-cases/tasks/DeletingTaskUseCase";
+import { GetProjectTasksUseCase } from "@/application/use-cases/tasks/GetProjectTasksUseCase";
+import { UpdateTaskStatusUseCase } from "@/application/use-cases/tasks/UpdateTaskStatusUseCase";
+import { GetAttachmentUploadUrlUseCase } from "@/application/use-cases/tasks/GetAttachmentUploadUrlUseCase";
+import { SearchProjectMembersUseCase } from "@/application/use-cases/tasks/SearchProjectMembersUseCase";
 
 export const useCaseModule = new ContainerModule((options) => {
   // Regular Auth Use Cases
@@ -244,7 +258,28 @@ export const useCaseModule = new ContainerModule((options) => {
     .to(GenerateUploadUrlUseCase);
   options
     .bind<IGetAttachmentDownloadUrlUseCase>(
-      TYPES.GetAttachmentDownloadUrlUseCase
+      TYPES.GetAttachmentDownloadUrlUseCase,
     )
     .to(GetAttachmentDownloadUrlUseCase);
+
+  //Tasks
+  options
+    .bind<ICreateTaskUseCase>(TYPES.CreateTaskUseCase)
+    .to(CreateTaskUseCase);
+  options
+    .bind<IDeleteTaskUseCase>(TYPES.DeleteTaskUseCase)
+    .to(DeleteTaskUseCase);
+  options
+    .bind<IGetProjectTasksUseCase>(TYPES.GetProjectTasksUseCase)
+    .to(GetProjectTasksUseCase);
+  options
+    .bind<IUpdateTaskStatusUseCase>(TYPES.UpdateTaskStatusUseCase)
+    .to(UpdateTaskStatusUseCase);
+  options
+    .bind<IGetAttachmentUploadUrlUseCase>(TYPES.GetAttachmentUploadUrlUseCase)
+    .to(GetAttachmentUploadUrlUseCase);
+  //search
+  options
+    .bind<ISearchProjectMembersUseCase>(TYPES.SearchProjectMembersUseCase)
+    .to(SearchProjectMembersUseCase);
 });

@@ -1,28 +1,34 @@
 import { TaskPriority, TaskStatus } from "@/domain/entities/task/Task";
 
 /** Create */
-export interface CreateTaskDTO {
+export interface CreateTaskRequestDTO {
   projectId: string;
-  assignedBy: string;
   assignedTo: string;
   title: string;
-  description?: string | null;
-  dueDate?: Date | null;
-  priority?: TaskPriority;
+  description?: string;
+  priority: TaskPriority;
+  dueDate?: string; // ISO String
+  attachments?: {
+    fileName: string;
+    fileType: string;
+    fileSize: number;
+  }[];
 }
 
 /** Update */
-export interface UpdateTaskDTO {
+export interface UpdateTaskRequestDTO {
   title?: string;
-  description?: string | null;
-  dueDate?: Date | null;
+  description?: string;
   priority?: TaskPriority;
+  dueDate?: string;
+  assignedTo?: string; // Reassignment
 }
-
-/** Change Status */
-export interface ChangeTaskStatusDTO {
-  taskId: string;
+export interface UpdateTaskStatusRequestDTO {
   status: TaskStatus;
+}
+export interface SearchMembersRequestDTO {
+  projectId: string;
+  query: string; // Name or email
 }
 
 /** Assign Task */
@@ -31,18 +37,43 @@ export interface AssignTaskDTO {
   assignedTo: string;
 }
 
-/** Response / Read */
-export interface TaskDTO {
+/**
+ * OUTPUT DTOs (Response Payloads)
+ */
+
+export interface TaskResponseDTO {
   id: string;
   projectId: string;
-  assignedBy: string;
-  assignedTo: string;
+  assignedTo?: {
+    id: string;
+    name: string;
+    avatarUrl?: string;
+  } | null;
   title: string;
   description: string | null;
-  hasAttachments: boolean;
   status: TaskStatus;
-  dueDate: Date | null;
   priority: TaskPriority;
-  createdAt: Date;
-  updatedAt: Date;
+  dueDate: string | null;
+  hasAttachments: boolean;
+  createdAt: string;
+}
+
+export interface PresignedUrlResponseDTO {
+  uploadUrl: string;
+  fileKey: string; // To be saved in DB after upload
+}
+
+export interface MemberSearchResponseDTO {
+  members: {
+    id: string;
+    name: string;
+    email: string;
+    avatarUrl?: string | null;
+  }[];
+}
+export interface AssignableMemberDTO {
+  id: string;
+  name: string;
+  email: string;
+  avatarUrl?: string;
 }
