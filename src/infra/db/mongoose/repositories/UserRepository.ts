@@ -23,7 +23,7 @@ export class UserRepository implements IUserRepository {
       resetPasswordToken: doc.resetPasswordToken ?? null,
       resetPasswordExpires: doc.resetPasswordExpires ?? null,
       securityStamp: doc.securityStamp ?? "",
-      imageUrl: doc.avatar_url ?? undefined,
+      imageUrl: doc.avatarUrl ?? undefined,
       about: doc.about ?? undefined,
       phone: doc.phone ?? undefined,
       link: doc.link ?? undefined,
@@ -105,7 +105,7 @@ export class UserRepository implements IUserRepository {
   }
 
   async findUsersWithPagination(
-    query: ListUsersQuery
+    query: ListUsersQuery,
   ): Promise<PaginationResult> {
     const { page = 1, limit = 10, search } = query;
     const skip = (page - 1) * limit;
@@ -160,7 +160,7 @@ export class UserRepository implements IUserRepository {
   async updateSecurityStamp(userId: string, stamp: string): Promise<void> {
     await UserModel.updateOne(
       { _id: userId },
-      { $set: { securityStamp: stamp } }
+      { $set: { securityStamp: stamp } },
     ).exec();
   }
 

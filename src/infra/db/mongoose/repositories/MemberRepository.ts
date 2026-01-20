@@ -4,7 +4,7 @@ import { Types } from "mongoose";
 import { ProjectMembershipModel } from "../models/ProjectMembershipModal";
 
 export interface UserDoc {
-  id: string;
+  _id: string;
   name: string;
   email: string;
   avatarUrl?: string;
@@ -23,13 +23,13 @@ export class MemberRepository implements IMemberRepository {
 
     const memberships = await ProjectMembershipModel.find({
       projectId,
-      isDeleted: false,
+      // isDeleted: false,
     }).populate<MembershipWithUser>({
       path: "userId",
       match: {
         $or: [{ name: regex }, { email: regex }],
       },
-      select: "id name email avatarUrl",
+      select: "_id name email avatarUrl",
     });
 
     return memberships
@@ -38,7 +38,7 @@ export class MemberRepository implements IMemberRepository {
           m.userId !== null && !(m.userId instanceof Types.ObjectId),
       )
       .map((m) => ({
-        id: m.userId.id, // ✅ string domain id
+        id: m.userId._id,
         name: m.userId.name,
         email: m.userId.email,
         avatarUrl: m.userId.avatarUrl,

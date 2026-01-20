@@ -10,7 +10,6 @@ import mongoose, { Document, Schema, Types } from "mongoose";
 
 export interface TaskDoc extends Document {
   _id: Types.ObjectId;
-  id: string;
   projectId: string;
   title: string;
   description?: string | null;
@@ -28,7 +27,6 @@ export interface TaskDoc extends Document {
 
 const taskScheme = new Schema<TaskDoc>(
   {
-    id: { type: String, required: true, unique: true },
     projectId: { type: String, required: true, index: true },
     title: { type: String, required: true, trim: true },
     description: { type: String, default: null },
@@ -56,7 +54,7 @@ export const TaskModel = mongoose.model<TaskDoc>("Task", taskScheme);
 
 export const toTaskEntity = (doc: TaskDoc): Task => {
   const props: TaskProps = {
-    id: doc.id,
+    id: doc._id.toString(),
     projectId: doc.projectId,
     title: doc.title,
     description: doc.description ?? null,

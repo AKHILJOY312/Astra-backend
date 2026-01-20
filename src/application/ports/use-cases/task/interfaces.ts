@@ -30,9 +30,16 @@ export interface IUpdateTaskUseCase {
 export interface IDeleteTaskUseCase {
   execute(taskId: string, managerId: string): Promise<void>;
 }
-
+// Define this in your interfaces or taskDto.ts
+export interface ProjectTasksResponse {
+  tasks: TaskResponseDTO[];
+  isManager: boolean;
+}
 export interface IGetProjectTasksUseCase {
-  execute(projectId: string, requesterId: string): Promise<TaskResponseDTO[]>;
+  execute(
+    projectId: string,
+    requesterId: string,
+  ): Promise<ProjectTasksResponse>;
 }
 
 /* ─────────────────────────────
@@ -48,7 +55,7 @@ export interface IUpdateTaskStatusUseCase {
     taskId: string,
     input: UpdateTaskStatusRequestDTO,
     userId: string,
-  ): Promise<TaskResponseDTO>;
+  ): Promise<void>;
 }
 
 /* ─────────────────────────────

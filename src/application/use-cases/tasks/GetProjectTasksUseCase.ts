@@ -4,9 +4,13 @@ import { UnauthorizedError } from "@/application/error/AppError";
 
 import { TaskResponseDTO } from "@/application/dto/task/taskDto";
 import { Task } from "@/domain/entities/task/Task";
-import { IGetProjectTasksUseCase } from "@/application/ports/use-cases/task/interfaces";
+import {
+  IGetProjectTasksUseCase,
+  ProjectTasksResponse,
+} from "@/application/ports/use-cases/task/interfaces";
 import { ITaskRepository } from "@/application/ports/repositories/ITaskRepository";
 import { IProjectMembershipRepository } from "@/application/ports/repositories/IProjectMembershipRepository";
+import { IUserRepository } from "@/application/ports/repositories/IUserRepository";
 
 @injectable()
 export class GetProjectTasksUseCase implements IGetProjectTasksUseCase {
@@ -16,12 +20,13 @@ export class GetProjectTasksUseCase implements IGetProjectTasksUseCase {
 
     @inject(TYPES.ProjectMembershipRepository)
     private membershipRepo: IProjectMembershipRepository,
+    @inject(TYPES.UserRepository) private userRepo: IUserRepository,
   ) {}
 
   async execute(
     projectId: string,
     requesterId: string,
-  ): Promise<TaskResponseDTO[]> {
+  ): Promise<ProjectTasksResponse> {
     // 1. Must be project member
     const membership = await this.membershipRepo.findByProjectAndUser(
       projectId,
@@ -31,7 +36,7 @@ export class GetProjectTasksUseCase implements IGetProjectTasksUseCase {
     if (!membership) {
       throw new UnauthorizedError("You are not a project member");
     }
-
+    const isManger = membership.role === "manager";
     // 2. Load tasks
     const tasks =
       membership.role === "manager"
@@ -39,16 +44,22 @@ export class GetProjectTasksUseCase implements IGetProjectTasksUseCase {
         : await this.taskRepo.findByAssignedTo(requesterId);
 
     // 3. Map to response DTO
-    return tasks.map(this.mapToResponse);
+    const dtos = await Promise.all(
+      tasks.map((task) => this.mapToResponse(task)),
+    );
+    return { tasks: dtos, isManager: isManger };
   }
 
-  private mapToResponse(task: Task): TaskResponseDTO {
+  private async mapToResponse(task: Task): Promise<TaskResponseDTO> {
+    const user = await this.userRepo.findById(task.assignedTo);
     return {
       id: task.id!,
       projectId: task.projectId,
       assignedTo: {
-        id: task.assignedTo,
-        name: "",
+        id: task.assignedTo.toString(),
+        name: user?.name || user?.name || "Unknown User",
+        email: user?.email,
+        avatarUrl: user?.ImageUrl,
       },
       title: task.title,
       description: task.description ?? null,

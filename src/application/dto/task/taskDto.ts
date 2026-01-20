@@ -47,6 +47,7 @@ export interface TaskResponseDTO {
   assignedTo?: {
     id: string;
     name: string;
+    email?: string;
     avatarUrl?: string;
   } | null;
   title: string;

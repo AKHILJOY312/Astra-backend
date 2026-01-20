@@ -8,6 +8,7 @@ import {
 } from "@/application/error/AppError";
 import { IProjectMembershipRepository } from "@/application/ports/repositories/IProjectMembershipRepository";
 import { ITaskRepository } from "@/application/ports/repositories/ITaskRepository";
+import { IUserRepository } from "@/application/ports/repositories/IUserRepository";
 import { ICreateTaskUseCase } from "@/application/ports/use-cases/task/interfaces";
 import { TYPES } from "@/config/di/types";
 import { Task } from "@/domain/entities/task/Task";
@@ -20,6 +21,7 @@ export class CreateTaskUseCase implements ICreateTaskUseCase {
 
     @inject(TYPES.ProjectMembershipRepository)
     private membershipRepo: IProjectMembershipRepository,
+    @inject(TYPES.UserRepository) private userRepo: IUserRepository,
   ) {}
   async execute(
     input: CreateTaskRequestDTO,
@@ -62,13 +64,16 @@ export class CreateTaskUseCase implements ICreateTaskUseCase {
 
     return this.mapToResponse(saved);
   }
-  private mapToResponse(task: Task): TaskResponseDTO {
+  private async mapToResponse(task: Task): Promise<TaskResponseDTO> {
+    const user = await this.userRepo.findById(task.assignedTo);
     return {
       id: task.id!,
       projectId: task.projectId,
       assignedTo: {
-        id: task.assignedTo,
-        name: "", // resolved via read model later
+        id: task.assignedTo.toString(),
+        name: user?.name || user?.name || "Unknown User",
+        email: user?.email,
+        avatarUrl: user?.ImageUrl,
       },
       title: task.title,
       description: task.description ?? null,

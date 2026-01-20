@@ -20,7 +20,7 @@ export function getProjectRoutes(container: Container): Router {
   );
   const taskController = container.get<TaskController>(TYPES.TaskController);
   const searchController = container.get<MemberSearchController>(
-    TYPES.SearchProjectMembersUseCase,
+    TYPES.MemberSearchController,
   );
 
   const protect = container.get<ReturnType<typeof createProtectMiddleware>>(
@@ -71,7 +71,7 @@ export function getProjectRoutes(container: Container): Router {
 
   router
     .route(API_ROUTES.PROJECTS.TASKS.MEMBERS_SEARCH)
-    .post(asyncHandler(searchController.searchMembers));
+    .get(asyncHandler(searchController.searchMembers));
 
   router
     .route(API_ROUTES.PROJECTS.TASKS.BY_ID)

@@ -32,7 +32,7 @@ export class TaskRepository implements ITaskRepository {
 
   async update(task: Task): Promise<void> {
     await TaskModel.updateOne(
-      { id: task.id, isDeleted: false },
+      { _id: task.id, isDeleted: false },
       { $set: this.toPersistence(task) },
     );
   }
@@ -55,7 +55,7 @@ export class TaskRepository implements ITaskRepository {
   }
 
   async findById(id: string): Promise<Task | null> {
-    const doc = await TaskModel.findOne({ id, isDeleted: false });
+    const doc = await TaskModel.findOne({ _id: id, isDeleted: false });
     return doc ? this.toDomain(doc) : null;
   }
 
