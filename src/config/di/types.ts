@@ -119,6 +119,8 @@ const TYPES = {
   GetTaskAttachmentDownloadUrlUseCase: Symbol.for(
     "GetTaskAttachmentDownloadUrlUseCase",
   ),
+  UpdateTaskUseCase: Symbol.for("UpdateTaskUseCase"),
+
   //Search the user with the project
   SearchProjectMembersUseCase: Symbol.for("SearchProjectMembersUseCase"),
 };

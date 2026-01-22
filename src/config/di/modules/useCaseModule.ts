@@ -120,6 +120,7 @@ import {
   IGetTaskAttachmentDownloadUrlUseCase,
   ISearchProjectMembersUseCase,
   IUpdateTaskStatusUseCase,
+  IUpdateTaskUseCase,
 } from "@/application/ports/use-cases/task/interfaces";
 import { CreateTaskUseCase } from "@/application/use-cases/tasks/CreatingTaskUseCase";
 import { DeleteTaskUseCase } from "@/application/use-cases/tasks/DeletingTaskUseCase";
@@ -128,6 +129,7 @@ import { UpdateTaskStatusUseCase } from "@/application/use-cases/tasks/UpdateTas
 import { GetAttachmentUploadUrlUseCase } from "@/application/use-cases/tasks/GetAttachmentUploadUrlUseCase";
 import { SearchProjectMembersUseCase } from "@/application/use-cases/tasks/SearchProjectMembersUseCase";
 import { GetTaskAttachmentDownloadUrlUseCase } from "@/application/use-cases/tasks/GetTaskAttachmentsDownloadUrlInput";
+import { UpdateTaskUseCase } from "@/application/use-cases/tasks/UpdatingTaskUseCase";
 
 export const useCaseModule = new ContainerModule((options) => {
   // Regular Auth Use Cases
@@ -285,6 +287,10 @@ export const useCaseModule = new ContainerModule((options) => {
       TYPES.GetTaskAttachmentDownloadUrlUseCase,
     )
     .to(GetTaskAttachmentDownloadUrlUseCase);
+  options
+    .bind<IUpdateTaskUseCase>(TYPES.UpdateTaskUseCase)
+    .to(UpdateTaskUseCase);
+
   //search
   options
     .bind<ISearchProjectMembersUseCase>(TYPES.SearchProjectMembersUseCase)

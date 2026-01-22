@@ -9,12 +9,14 @@ import {
   IGetAttachmentUploadUrlUseCase,
   IGetProjectTasksUseCase,
   IUpdateTaskStatusUseCase,
+  IUpdateTaskUseCase,
 } from "@/application/ports/use-cases/task/interfaces";
 import {
   CreateTaskSchema,
   UpdateTaskStatusSchema,
   ListTasksQuerySchema,
   AttachmentUploadSchema,
+  UpdateTaskSchema,
 } from "@/interface-adapters/http/validators/taskValidators";
 
 @injectable()
@@ -34,6 +36,8 @@ export class TaskController {
 
     @inject(TYPES.GetAttachmentUploadUrlUseCase)
     private attachmentUploadUC: IGetAttachmentUploadUrlUseCase,
+
+    @inject(TYPES.UpdateTaskUseCase) private updateTaskUC: IUpdateTaskUseCase,
   ) {}
 
   // POST /projects/:projectId/tasks
@@ -57,6 +61,26 @@ export class TaskController {
     return res.status(HTTP_STATUS.CREATED).json({
       success: true,
       data: task,
+    });
+  };
+
+  updateTask = async (req: Request, res: Response) => {
+    const parsedBody = UpdateTaskSchema.safeParse(req.body);
+    console.log(parsedBody.error);
+    if (!parsedBody.success) {
+      throw new ValidationError("Invalid request body parameters");
+    }
+    const { taskId } = req.params;
+    const managerId = req.user!.id;
+    const result = await this.updateTaskUC.execute(
+      taskId,
+      parsedBody.data,
+      managerId,
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: result,
     });
   };
 

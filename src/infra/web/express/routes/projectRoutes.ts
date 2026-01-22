@@ -75,6 +75,7 @@ export function getProjectRoutes(container: Container): Router {
 
   router
     .route(API_ROUTES.PROJECTS.TASKS.BY_ID)
+    .patch(asyncHandler(taskController.updateTask))
     .delete(asyncHandler(taskController.deleteTask));
   router
     .route(API_ROUTES.PROJECTS.TASKS.STATUS)

@@ -29,6 +29,13 @@ export const CreateTaskSchema = z.object({
     .optional(),
 });
 
+export const UpdateTaskSchema = z.object({
+  title: z.string().min(1, "Task title is required").optional(),
+  description: z.string().optional(),
+  assignedTo: z.string().min(1, "Assigned user is required").optional(),
+  priority: z.enum(TaskPriorityEnum).optional(),
+  dueDate: z.string().optional(),
+});
 /**
  * UPDATE TASK STATUS
  * PATCH /tasks/:taskId/status

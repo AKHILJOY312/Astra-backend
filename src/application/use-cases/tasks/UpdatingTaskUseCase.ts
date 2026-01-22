@@ -33,6 +33,7 @@ export class UpdateTaskUseCase implements IUpdateTaskUseCase {
     input: UpdateTaskRequestDTO,
     managerId: string,
   ): Promise<TaskResponseDTO> {
+    console.log("Update task use case inout: ", input);
     const task = await this.taskRepo.findById(taskId);
     if (!task) throw new NotFoundError("Task");
     //1.Manger authorization
@@ -65,8 +66,8 @@ export class UpdateTaskUseCase implements IUpdateTaskUseCase {
       task.setDueDate(input.dueDate ? new Date(input.dueDate) : null);
     task.setUpdatedAt(new Date());
 
-    const update = await this.taskRepo.update(task);
-    return this.mapToResponse(update!);
+    await this.taskRepo.update(task);
+    return this.mapToResponse(task!);
   }
   private async mapToResponse(task: Task): Promise<TaskResponseDTO> {
     const [user, attachments] = await Promise.all([
