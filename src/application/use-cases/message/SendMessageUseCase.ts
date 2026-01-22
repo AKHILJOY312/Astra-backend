@@ -1,12 +1,14 @@
+import { SendMessageInput } from "@/application/dto/message/messageDtos";
 import { BadRequestError } from "@/application/error/AppError";
+import { IAttachmentRepository } from "@/application/ports/repositories/IAttachmentRepository";
 import { IMessageRepository } from "@/application/ports/repositories/IMessageRepository";
 import { IProjectMembershipRepository } from "@/application/ports/repositories/IProjectMembershipRepository";
 import { IUserRepository } from "@/application/ports/repositories/IUserRepository";
 import { ISendMessageUseCase } from "@/application/ports/use-cases/message/ISendMessageUseCase";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
+import { Attachment } from "@/domain/entities/message/Attachment";
 import { Message } from "@/domain/entities/message/Message";
 import { inject, injectable } from "inversify";
-import { v4 as uuidv4 } from "uuid";
 
 @injectable()
 export class SendMessageUseCase implements ISendMessageUseCase {
@@ -14,19 +16,15 @@ export class SendMessageUseCase implements ISendMessageUseCase {
     @inject(TYPES.MessageRepository) private messageRepo: IMessageRepository,
     @inject(TYPES.ProjectMembershipRepository)
     private membershipRepo: IProjectMembershipRepository,
-    @inject(TYPES.UserRepository) private userRepo: IUserRepository
+    @inject(TYPES.UserRepository) private userRepo: IUserRepository,
+    @inject(TYPES.AttachmentRepository)
+    private attachmentRepo: IAttachmentRepository,
   ) {}
 
-  async execute(input: {
-    projectId: string;
-    channelId: string;
-    senderId: string;
-    text: string;
-    attachments?: boolean;
-  }): Promise<Message> {
+  async execute(input: SendMessageInput): Promise<Message> {
     const isMember = await this.membershipRepo.findByProjectAndUser(
       input.projectId,
-      input.senderId
+      input.senderId,
     );
     if (!isMember) {
       throw new BadRequestError("User is not a member of the project");
@@ -38,7 +36,7 @@ export class SendMessageUseCase implements ISendMessageUseCase {
     }
     const now = new Date().toISOString();
     const messageProps = {
-      id: uuidv4(),
+      id: "",
       channelId: input.channelId,
       senderId: input.senderId,
       text: input.text,
@@ -49,7 +47,31 @@ export class SendMessageUseCase implements ISendMessageUseCase {
       updatedAt: now,
     };
     const message = new Message(messageProps);
-    await this.messageRepo.create(message);
-    return message;
+    const savedMessage = await this.messageRepo.create(message);
+    let finalMessage = message;
+
+    if (input.attachments?.length) {
+      const attachmentEntities = input.attachments.map(
+        (att) =>
+          new Attachment({
+            id: "",
+            messageId: savedMessage.id,
+            uploadedBy: input.senderId,
+            fileName: att.fileName,
+            fileType: att.fileType,
+            fileSize: att.fileSize,
+            fileUrl: att.fileUrl,
+            thumbnailUrl: att.thumbnailUrl,
+            uploadedAt: now,
+          }),
+      );
+
+      const savedAttachments =
+        await this.attachmentRepo.createMany(attachmentEntities);
+
+      finalMessage = message.withAttachments(savedAttachments);
+    }
+
+    return finalMessage;
   }
 }

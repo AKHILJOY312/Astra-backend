@@ -4,7 +4,7 @@ import { inject, injectable } from "inversify";
 import { Channel } from "../../../domain/entities/channel/Channel";
 import { IChannelRepository } from "../../ports/repositories/IChannelRepository";
 import { IProjectMembershipRepository } from "../../ports/repositories/IProjectMembershipRepository";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import {
   BadRequestError,
   UnauthorizedError,

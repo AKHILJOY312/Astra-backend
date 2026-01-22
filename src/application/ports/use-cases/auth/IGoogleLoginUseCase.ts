@@ -1,17 +1,9 @@
 // src/application/ports/useCases/IGoogleLogin.ts
-import { User } from "@/domain/entities/user/User";
-export interface GoogleProfile {
-  id?: string;
-  name?: string;
-  displayName?: string;
-  emails?: Array<{ value: string }>;
-  isAdmin?: boolean;
-}
+import {
+  GoogleLoginResponseDTO,
+  GoogleProfile,
+} from "@/application/dto/auth/authDtos";
 
 export interface IGoogleLogin {
-  execute(profile: GoogleProfile): Promise<{
-    user: User; // or you can use a DTO instead of domain entity
-    accessToken: string;
-    refreshToken: string;
-  }>;
+  execute(profile: GoogleProfile): Promise<GoogleLoginResponseDTO>;
 }

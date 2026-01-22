@@ -5,7 +5,10 @@ export interface IUserDocument extends Document {
   name: string;
   email: string;
   password: string;
-  avatar_url?: string;
+  avatarUrl?: string;
+  about?: string;
+  phone?: string;
+  link?: string;
   isAdmin: boolean;
   isBlocked: boolean;
   isVerified: boolean;
@@ -21,8 +24,11 @@ const userSchema = new Schema<IUserDocument>(
   {
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    avatar_url: { type: String },
+    password: { type: String, required: true, select: false },
+    avatarUrl: { type: String },
+    about: { type: String },
+    phone: { type: String },
+    link: { type: String },
     isAdmin: { type: Boolean, default: false },
     isBlocked: { type: Boolean, default: false },
     isVerified: { type: Boolean, default: false },
@@ -37,7 +43,7 @@ const userSchema = new Schema<IUserDocument>(
     securityStamp: { type: String },
   },
 
-  { timestamps: true }
+  { timestamps: true },
 );
 
 userSchema.index({ name: 1 });
@@ -47,6 +53,6 @@ userSchema.index({ name: 1, email: 1 });
 
 const UserModel: Model<IUserDocument> = mongoose.model<IUserDocument>(
   "User",
-  userSchema
+  userSchema,
 );
 export default UserModel;

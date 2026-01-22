@@ -3,22 +3,20 @@
 import { inject, injectable } from "inversify";
 import { IChannelRepository } from "../../ports/repositories/IChannelRepository";
 import { IProjectMembershipRepository } from "../../ports/repositories/IProjectMembershipRepository";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import {
   BadRequestError,
   UnauthorizedError,
 } from "@/application/error/AppError";
-import {
-  EditChannelDTO,
-  IEditChannelUseCase,
-} from "@/application/ports/use-cases/channel/IEditChannelUseCase";
+import { IEditChannelUseCase } from "@/application/ports/use-cases/channel/IEditChannelUseCase";
+import { EditChannelDTO } from "@/application/dto/channel/channelDtos";
 
 @injectable()
 export class EditChannelUseCase implements IEditChannelUseCase {
   constructor(
     @inject(TYPES.ChannelRepository) private channelRepo: IChannelRepository,
     @inject(TYPES.ProjectMembershipRepository)
-    private membershipRepo: IProjectMembershipRepository
+    private membershipRepo: IProjectMembershipRepository,
   ) {}
 
   async execute(input: EditChannelDTO) {
@@ -36,11 +34,23 @@ export class EditChannelUseCase implements IEditChannelUseCase {
 
     const membership = await this.membershipRepo.findByProjectAndUser(
       channel.projectId,
-      userId
+      userId,
     );
 
     if (!membership || membership.role !== "manager") {
       throw new UnauthorizedError("Only project admins can edit channels");
+    }
+
+    if (channelName && channel.channelName !== channelName) {
+      const sameNameExist = await this.channelRepo.findByProjectAndName(
+        channel.projectId,
+        channelName!,
+      );
+      if (sameNameExist) {
+        throw new BadRequestError(
+          "Channel with this same name exists. Try a another name.",
+        );
+      }
     }
 
     if (channelName) channel.rename(channelName);

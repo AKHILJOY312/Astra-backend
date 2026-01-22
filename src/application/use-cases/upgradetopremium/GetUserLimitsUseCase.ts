@@ -4,7 +4,7 @@ import { IProjectMembershipRepository } from "../../ports/repositories/IProjectM
 import { IUserSubscriptionRepository } from "../../ports/repositories/IUserSubscriptionRepository";
 import { IPlanRepository } from "../../ports/repositories/IPlanRepository";
 import { inject, injectable } from "inversify";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import {
   IGetUserLimitsUseCase,
   UserLimitsDTO,

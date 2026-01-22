@@ -8,6 +8,9 @@ export interface UserProps {
   isAdmin: boolean;
   isBlocked: boolean;
   imageUrl?: string;
+  about?: string;
+  phone?: string;
+  link?: string;
   verificationToken?: string | null;
   verificationTokenExpires?: Date | null;
   resetPasswordToken?: string | null;
@@ -48,6 +51,15 @@ export class User {
   get ImageUrl(): string | undefined {
     return this._props.imageUrl;
   }
+  get about(): string | undefined {
+    return this._props.about;
+  }
+  get phone(): string | undefined {
+    return this._props.phone;
+  }
+  get link(): string | undefined {
+    return this._props.link;
+  }
   get securityStamp(): string | undefined {
     return this._props.securityStamp;
   }
@@ -82,6 +94,15 @@ export class User {
   }
   setSecurityStamp(stamp: string): void {
     this._props.securityStamp = stamp;
+  }
+  setAbout(about: string): void {
+    this._props.about = about;
+  }
+  setPhone(phone: string): void {
+    this._props.phone = phone;
+  }
+  setLink(link: string): void {
+    this._props.link = link;
   }
   // ---- BUSINESS METHODS ----
   verify(): void {

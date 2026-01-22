@@ -15,6 +15,9 @@ export interface UserProfileResponseDTO {
   name: string;
   email: string;
   imageUrl?: string;
+  about?: string;
+  phone?: string;
+  link?: string;
   isVerified: boolean;
   createdAt: Date | undefined;
   plan: SubscriptionInfoDTO | null;

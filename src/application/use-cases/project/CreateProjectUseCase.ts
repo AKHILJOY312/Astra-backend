@@ -6,7 +6,7 @@ import { IUserSubscriptionRepository } from "../../ports/repositories/IUserSubsc
 import { ProjectMembership } from "../../../domain/entities/project/ProjectMembership";
 import { IProjectMembershipRepository } from "../../ports/repositories/IProjectMembershipRepository";
 import { inject, injectable } from "inversify";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import {
   BadRequestError,
   NotFoundError,

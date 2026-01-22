@@ -1,7 +1,7 @@
 // src/core/use-cases/project/GetUserProjectsUseCase.ts
 import { inject, injectable } from "inversify";
 import { IProjectRepository } from "../../ports/repositories/IProjectRepository";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import {
   GetUserProjectsDTO,
   GetUserProjectsResultDTO,

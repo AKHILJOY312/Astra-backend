@@ -3,9 +3,8 @@ import { Request, Response } from "express";
 import { HTTP_STATUS } from "../../http/constants/httpStatus";
 // import { ERROR_MESSAGES } from "@/interface-adapters/http/constants/messages";
 import { inject, injectable } from "inversify";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { ValidationError } from "@/application/error/AppError";
-import { asyncHandler } from "@/infra/web/express/handler/asyncHandler";
 import { PROJECT_MESSAGE } from "@/interface-adapters/http/constants/messages";
 import {
   CreateProjectSchema,
@@ -27,7 +26,7 @@ export class ProjectController {
     private updateProjectUseCase: IUpdateProjectUseCase
   ) {}
 
-  createProject = asyncHandler(async (req: Request, res: Response) => {
+  createProject = async (req: Request, res: Response) => {
     const result = CreateProjectSchema.safeParse(req.body);
 
     if (!result.success) {
@@ -46,10 +45,10 @@ export class ProjectController {
 
     return res.status(HTTP_STATUS.CREATED).json({
       success: true,
-      data: project.toJSON(),
+      project: project.toJSON(),
     });
-  });
-  updateProject = asyncHandler(async (req: Request, res: Response) => {
+  };
+  updateProject = async (req: Request, res: Response) => {
     const result = UpdateProjectSchema.safeParse(req.body);
     if (!result.success) {
       throw new ValidationError(PROJECT_MESSAGE.INVALID_DATA);
@@ -68,10 +67,10 @@ export class ProjectController {
       success: true,
       data: project.toJSON(),
     });
-  });
+  };
 
-  getUserProjects = asyncHandler(async (req: Request, res: Response) => {
-    const queryParsed = PaginationQuerySchema.safeParse(req.params);
+  getUserProjects = async (req: Request, res: Response) => {
+    const queryParsed = PaginationQuerySchema.safeParse(req.query);
     if (!queryParsed.success) {
       throw new ValidationError(PROJECT_MESSAGE.INVALID_DATA);
     }
@@ -93,5 +92,5 @@ export class ProjectController {
       totalPages: result.totalPages,
       totalCount: result.totalCount,
     });
-  });
+  };
 }

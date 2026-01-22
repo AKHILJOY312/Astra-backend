@@ -1,5 +1,3 @@
-// src/common/types.ts (Create this file)
-
 const TYPES = {
   // Repositories
   UserRepository: Symbol.for("UserRepository"),
@@ -9,13 +7,23 @@ const TYPES = {
   ChannelRepository: Symbol.for("ChannelRepository"),
   UserSubscriptionRepository: Symbol.for("UserSubscriptionRepository"),
   MessageRepository: Symbol.for("MessageRepository"),
-
+  EmailChangeOtpRepository: Symbol.for("EmailChangeOtpRepository"),
+  InvitationRepository: Symbol.for("InvitationRepository"),
+  PaymentRepository: Symbol.for("PaymentRepository"),
+  CounterRepository: Symbol.for("CounterRepository"),
+  AttachmentRepository: Symbol.for("AttachmentRepository"),
+  TaskRepository: Symbol.for("TaskRepository"),
+  MemberRepository: Symbol.for("MemberRepository"),
+  TaskAttachmentRepository: Symbol.for("TaskAttachmentRepository"),
   // Services
   UserService: Symbol.for("UserService"),
   AuthService: Symbol.for("AuthService"), // For JwtAuthService
   EmailService: Symbol.for("EmailService"), // For NodemailerEmailService
   PaymentService: Symbol.for("PaymentService"), // For RazorpayService
   TokenBlacklistService: Symbol.for("TokenBlacklistService"),
+  FileUploadService: Symbol.for("FileUploadService"),
+  PdfInvoiceService: Symbol.for("PdfInvoiceService"),
+
   // Middleware
   ProtectMiddleware: Symbol.for("ProtectMiddleware"),
 
@@ -30,6 +38,8 @@ const TYPES = {
   SubscriptionController: Symbol.for("SubscriptionController"),
   MessageController: Symbol.for("MessageController"),
   UserController: Symbol.for("UserController"),
+  TaskController: Symbol.for("TaskController"),
+  MemberSearchController: Symbol.for("MemberSearchController"),
 
   // Use Cases (User/Auth)
   RegisterUser: Symbol.for("RegisterUser"),
@@ -55,8 +65,12 @@ const TYPES = {
 
   // Use Cases ( User)
   GetUserProfileUseCase: Symbol.for("GetUserProfileUseCase"),
-  UpdateUserProfileUseCase: Symbol.for("UpdateUserProfileUseCase"),
+  UpdateUserNameUseCase: Symbol.for("UpdateUserNameUseCase"),
   DeleteUserAccountUseCase: Symbol.for("DeleteUserAccountUseCase"),
+  UploadProfileImageUseCase: Symbol.for("UploadProfileImageUseCase"),
+  ChangePasswordUseCase: Symbol.for("ChangePasswordUseCase"),
+  RequestEmailChangeUseCase: Symbol.for("RequestEmailChangeUseCase"),
+  VerifyEmailChangeUseCase: Symbol.for("VerifyEmailChangeUseCase"),
 
   // Use Cases (Plan Admin)
   CreatePlan: Symbol.for("CreatePlan"),
@@ -69,7 +83,8 @@ const TYPES = {
   CreateProjectUseCase: Symbol.for("CreateProjectUseCase"),
   UpdateProjectUseCase: Symbol.for("UpdateProjectUseCase"),
   GetUserProjectsUseCase: Symbol.for("GetUserProjectsUseCase"),
-  AddMemberToProjectUseCase: Symbol.for("AddMemberToProjectUseCase"),
+  InviteMemberToProjectUseCase: Symbol.for("InviteMemberToProjectUseCase"),
+  AcceptInvitationUseCase: Symbol.for("AcceptInvitationUseCase"),
   RemoveMemberFromProjectUseCase: Symbol.for("RemoveMemberFromProjectUseCase"),
   ChangeMemberRoleUseCase: Symbol.for("ChangeMemberRoleUseCase"),
   ListProjectMembers: Symbol.for("ListProjectMembers"),
@@ -84,10 +99,30 @@ const TYPES = {
   GetUserLimitsUseCase: Symbol.for("GetUserLimitsUseCase"),
   UpgradeToPlanUseCase: Symbol.for("UpgradeToPlanUseCase"),
   CapturePaymentUseCase: Symbol.for("CapturePaymentUseCase"),
+  GetUserBillingUseCase: Symbol.for("GetUserBillingUseCase"),
+  DownloadInvoiceOutput: Symbol.for("DownloadInvoiceOutput"),
 
   // Use Cases (Message)
   SendMessageUseCase: Symbol.for("SendMessageUseCase"),
   ListMessagesUseCase: Symbol.for("ListMessagesUseCase"),
+  GenerateUploadUrlUseCase: Symbol.for("GenerateUploadUrlUseCase"),
+  GetAttachmentDownloadUrlUseCase: Symbol.for(
+    "GetAttachmentDownloadUrlUseCase",
+  ),
+
+  //Tasks
+  CreateTaskUseCase: Symbol.for("CreateTaskUseCase"),
+  DeleteTaskUseCase: Symbol.for("DeleteTaskUseCase"),
+  GetProjectTasksUseCase: Symbol.for("GetProjectTasksUseCase"),
+  UpdateTaskStatusUseCase: Symbol.for("UpdateTaskStatusUseCase"),
+  GetAttachmentUploadUrlUseCase: Symbol.for("GetAttachmentUploadUrlUseCase"),
+  GetTaskAttachmentDownloadUrlUseCase: Symbol.for(
+    "GetTaskAttachmentDownloadUrlUseCase",
+  ),
+  UpdateTaskUseCase: Symbol.for("UpdateTaskUseCase"),
+
+  //Search the user with the project
+  SearchProjectMembersUseCase: Symbol.for("SearchProjectMembersUseCase"),
 };
 
 export { TYPES };

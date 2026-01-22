@@ -3,7 +3,7 @@ import { IPlanRepository } from "../../../ports/repositories/IPlanRepository";
 import { UpdatePlanDto } from "../../../dto/plan/UpdatePlanDto";
 import { Plan } from "../../../../domain/entities/billing/Plan";
 import { inject, injectable } from "inversify";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { NotFoundError } from "@/application/error/AppError";
 import { IUpdatePlan } from "@/application/ports/use-cases/plan/admin/IUpdatePlanUseCase";
 

@@ -1,0 +1,162 @@
+import { Request, Response } from "express";
+import { inject, injectable } from "inversify";
+import { TYPES } from "@/config/di/types";
+import { HTTP_STATUS } from "@/interface-adapters/http/constants/httpStatus";
+import { ValidationError } from "@/application/error/AppError";
+import {
+  ICreateTaskUseCase,
+  IDeleteTaskUseCase,
+  IGetAttachmentUploadUrlUseCase,
+  IGetProjectTasksUseCase,
+  IUpdateTaskStatusUseCase,
+  IUpdateTaskUseCase,
+} from "@/application/ports/use-cases/task/interfaces";
+import {
+  CreateTaskSchema,
+  UpdateTaskStatusSchema,
+  ListTasksQuerySchema,
+  AttachmentUploadSchema,
+  UpdateTaskSchema,
+} from "@/interface-adapters/http/validators/taskValidators";
+
+@injectable()
+export class TaskController {
+  constructor(
+    @inject(TYPES.CreateTaskUseCase)
+    private createTaskUC: ICreateTaskUseCase,
+
+    @inject(TYPES.DeleteTaskUseCase)
+    private deleteTaskUC: IDeleteTaskUseCase,
+
+    @inject(TYPES.GetProjectTasksUseCase)
+    private listTasksUC: IGetProjectTasksUseCase,
+
+    @inject(TYPES.UpdateTaskStatusUseCase)
+    private updateStatusUC: IUpdateTaskStatusUseCase,
+
+    @inject(TYPES.GetAttachmentUploadUrlUseCase)
+    private attachmentUploadUC: IGetAttachmentUploadUrlUseCase,
+
+    @inject(TYPES.UpdateTaskUseCase) private updateTaskUC: IUpdateTaskUseCase,
+  ) {}
+
+  // POST /projects/:projectId/tasks
+  createTask = async (req: Request, res: Response) => {
+    const parsed = CreateTaskSchema.safeParse(req.body);
+    if (!parsed.success) {
+      throw new ValidationError("Invalid task data");
+    }
+
+    const { projectId } = req.params;
+    const managerId = req.user!.id;
+
+    const task = await this.createTaskUC.execute(
+      {
+        projectId,
+        ...parsed.data,
+      },
+      managerId,
+    );
+
+    return res.status(HTTP_STATUS.CREATED).json({
+      success: true,
+      data: task,
+    });
+  };
+
+  updateTask = async (req: Request, res: Response) => {
+    const parsedBody = UpdateTaskSchema.safeParse(req.body);
+    console.log(parsedBody.error);
+    if (!parsedBody.success) {
+      throw new ValidationError("Invalid request body parameters");
+    }
+    const { taskId } = req.params;
+    const managerId = req.user!.id;
+    const result = await this.updateTaskUC.execute(
+      taskId,
+      parsedBody.data,
+      managerId,
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: result,
+    });
+  };
+
+  // GET /projects/:projectId/tasks
+  listTasks = async (req: Request, res: Response) => {
+    const parsedQuery = ListTasksQuerySchema.safeParse(req.query);
+    if (!parsedQuery.success) {
+      throw new ValidationError("Invalid query parameters");
+    }
+
+    const { projectId } = req.params;
+    const requesterId = req.user!.id;
+
+    const result = await this.listTasksUC.execute(projectId, requesterId);
+
+    return res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: result,
+    });
+  };
+
+  // DELETE /tasks/:taskId
+  deleteTask = async (req: Request, res: Response) => {
+    const { taskId } = req.params;
+    const requestedBy = req.user!.id;
+
+    await this.deleteTaskUC.execute(taskId, requestedBy);
+
+    return res.status(HTTP_STATUS.OK).json({
+      success: true,
+      message: "Task deleted successfully",
+    });
+  };
+
+  // PATCH /tasks/:taskId/status
+  updateTaskStatus = async (req: Request, res: Response) => {
+    const parsed = UpdateTaskStatusSchema.safeParse(req.body);
+    if (!parsed.success) {
+      throw new ValidationError("Invalid status");
+    }
+
+    const { taskId } = req.params;
+    const requestedBy = req.user!.id;
+
+    const task = await this.updateStatusUC.execute(
+      taskId,
+      parsed.data,
+      requestedBy,
+    );
+
+    return res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: task,
+    });
+  };
+
+  // POST /projects/:projectId/tasks/attachments/upload-url
+  getAttachmentUploadUrl = async (req: Request, res: Response) => {
+    const parsed = AttachmentUploadSchema.safeParse(req.body);
+    if (!parsed.success) {
+      throw new ValidationError("Invalid attachment data");
+    }
+
+    const { projectId } = req.params;
+    const requesterId = req.user!.id;
+
+    const result = await this.attachmentUploadUC.execute(
+      projectId,
+      parsed.data.fileName,
+      parsed.data.fileType,
+      requesterId,
+    );
+
+    return res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: result,
+    });
+  };
+}

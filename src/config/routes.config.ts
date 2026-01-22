@@ -30,9 +30,13 @@ export const API_ROUTES = {
     ROLE: "/:id/role",
   },
 
-  USERS: {
-    ROOT: "/users",
+  USER: {
+    ROOT: "/user",
     ME: "/me",
+    PROFILE_IMAGE_URL: "/profile-image",
+    CHANGE_PASSWORD: "/change-password",
+    REQUEST_EMAIL_OTP: "/change-email/request",
+    VERIFY_EMAIL_OTP: "/change-email/verify",
   },
 
   PROJECTS: {
@@ -43,12 +47,25 @@ export const API_ROUTES = {
     BY_MEMBER_ID: "/:projectId/members/:memberId",
     MEMBER_ROLE: "/:projectId/members/:memberId/role",
     CHANNELS: "/projects/:projectId/channels",
+    INVITATION_ACCEPT: "/invitations/accept",
+    TASKS: {
+      ROOT: "/:projectId/tasks",
+      BY_ID: "/tasks/:taskId",
+      STATUS: "/tasks/:taskId/status",
+      ATTACHMENT_UPLOAD: "/:projectId/tasks/attachments/upload-url",
+      MEMBERS_SEARCH: "/:projectId/tasks/members/search",
+    },
   },
 
   CHANNELS: {
     ROOT: "/",
     BY_ID: "/:channelId",
     MESSAGES: "/:channelId/messages",
+    ATTACHMENT_UPLOAD_URL: "/:channelId/upload-url",
+  },
+  ATTACHMENT: {
+    ROOT: "/attachments",
+    ATTACHMENT_ACCESS_URL: "/:attachmentId",
   },
 
   SUBSCRIPTION: {
@@ -59,5 +76,7 @@ export const API_ROUTES = {
       ORDER: "/razorpay/order",
       CAPTURE: "/razorpay/capture",
     },
+    PAYMENT_HISTORY: "/history",
+    INVOICES: "/invoice/:paymentId",
   },
 } as const;

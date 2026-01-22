@@ -1,7 +1,7 @@
 // src/core/use-cases/project/RemoveMemberFromProjectUseCase.ts
 import { inject, injectable } from "inversify";
 import { IProjectMembershipRepository } from "../../ports/repositories/IProjectMembershipRepository";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import {
   BadRequestError,
   UnauthorizedError,
@@ -46,16 +46,13 @@ export class RemoveMemberFromProjectUseCase
     }
 
     // 3. Target must actually be a member
-    const target = await this.membershipRepo.findByProjectAndUser(
-      projectId,
-      memberId
-    );
+    const target = await this.membershipRepo.findById(memberId);
     if (!target) {
       throw new BadRequestError("User is not a member of this project");
     }
 
     // 4. Delete membership
-    await this.membershipRepo.deleteByProjectAndUser(projectId, memberId);
+    await this.membershipRepo.delete(memberId);
 
     return { message: "Member removed successfully" };
   }

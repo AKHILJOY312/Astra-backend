@@ -23,7 +23,10 @@ export class UserRepository implements IUserRepository {
       resetPasswordToken: doc.resetPasswordToken ?? null,
       resetPasswordExpires: doc.resetPasswordExpires ?? null,
       securityStamp: doc.securityStamp ?? "",
-      imageUrl: doc.avatar_url ?? undefined,
+      imageUrl: doc.avatarUrl ?? undefined,
+      about: doc.about ?? undefined,
+      phone: doc.phone ?? undefined,
+      link: doc.link ?? undefined,
       createdAt: doc.createdAt,
     };
 
@@ -76,9 +79,14 @@ export class UserRepository implements IUserRepository {
     if (!user.id) throw new Error("Cannot save user without id");
 
     const $set: UpdateQuery<IUserDocument>["$set"] = {
+      email: user.email,
       isVerified: user.isVerified,
       password: user.password,
       name: user.name,
+      avatar_url: user.ImageUrl ?? null,
+      about: user.about ?? null,
+      phone: user.phone ?? null,
+      link: user.link ?? null,
       isAdmin: user.isAdmin,
       isBlocked: user.isBlocked,
       securityStamp: user.securityStamp,
@@ -97,7 +105,7 @@ export class UserRepository implements IUserRepository {
   }
 
   async findUsersWithPagination(
-    query: ListUsersQuery
+    query: ListUsersQuery,
   ): Promise<PaginationResult> {
     const { page = 1, limit = 10, search } = query;
     const skip = (page - 1) * limit;
@@ -128,7 +136,10 @@ export class UserRepository implements IUserRepository {
       totalPages: Math.ceil(total / limit),
     };
   }
-
+  async findByIdWithPassword(id: string): Promise<User | null> {
+    const doc = await UserModel.findById(id).select("+password").exec();
+    return doc ? this.toDomain(doc) : null;
+  }
   async updateStatus(userId: string): Promise<void> {
     // Mongoose update pipelines require cast as any or specific casting
     await UserModel.updateOne({ _id: userId }, [
@@ -149,7 +160,7 @@ export class UserRepository implements IUserRepository {
   async updateSecurityStamp(userId: string, stamp: string): Promise<void> {
     await UserModel.updateOne(
       { _id: userId },
-      { $set: { securityStamp: stamp } }
+      { $set: { securityStamp: stamp } },
     ).exec();
   }
 

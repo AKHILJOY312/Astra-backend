@@ -1,15 +1,5 @@
-// src/application/ports/useCases/IAdminLogin.ts
+import { AdminLoginResponseDTO } from "@/application/dto/auth/authDtos";
+
 export interface IAdminLogin {
-  execute(
-    email: string,
-    password: string
-  ): Promise<{
-    accessToken: string;
-    user: {
-      id: string;
-      email: string;
-      name: string;
-      isAdmin: boolean;
-    };
-  }>;
+  execute(email: string, password: string): Promise<AdminLoginResponseDTO>;
 }

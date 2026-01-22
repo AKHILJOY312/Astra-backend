@@ -7,21 +7,18 @@ import {
   ERROR_MESSAGES,
 } from "@/interface-adapters/http/constants/messages";
 import { inject, injectable } from "inversify";
-import { TYPES } from "@/config/types";
-import { asyncHandler } from "@/infra/web/express/handler/asyncHandler";
+import { TYPES } from "@/config/di/types";
 import {
   BadRequestError,
   UnauthorizedError,
+  ValidationError,
 } from "@/application/error/AppError";
 import {
   clearRefreshTokenCookie,
   setRefreshTokenCookie,
 } from "@/infra/web/express/utils/cookieUtils";
 import { ENV } from "@/config/env.config";
-import {
-  GoogleProfile,
-  IGoogleLogin,
-} from "@/application/ports/use-cases/auth/IGoogleLoginUseCase";
+import { IGoogleLogin } from "@/application/ports/use-cases/auth/IGoogleLoginUseCase";
 import { IRegisterUser } from "@/application/ports/use-cases/auth/IRegisterUserUseCase";
 import { IVerifyEmail } from "@/application/ports/use-cases/auth/IVerifyEmailUseCase";
 import { ILoginUser } from "@/application/ports/use-cases/auth/ILoginUserUseCase";
@@ -31,6 +28,8 @@ import { IGetMe } from "@/application/ports/use-cases/auth/IGetMeUseCase";
 import { IForgotPassword } from "@/application/ports/use-cases/auth/IForgotPasswordUseCase";
 import { IResetPassword } from "@/application/ports/use-cases/auth/IResetPasswordUseCase";
 import { IVerifyResetToken } from "@/application/ports/use-cases/auth/IVerifyResetTokenUseCase";
+import { GoogleProfile } from "@/application/dto/auth/authDtos";
+import { registerSchema } from "@/interface-adapters/http/validators/userAuthValidators";
 
 @injectable()
 export class AuthController {
@@ -78,20 +77,24 @@ export class AuthController {
     }
   };
 
-  register = asyncHandler(async (req: Request, res: Response) => {
+  register = async (req: Request, res: Response) => {
+    const validatedData = registerSchema.safeParse(req.body);
+    if (!validatedData.success) {
+      throw new ValidationError(ERROR_MESSAGES.VALIDATION_ERROR);
+    }
     const result = await this.registerUC.execute(req.body);
     res.status(HTTP_STATUS.CREATED).json(result);
-  });
+  };
 
-  verifyEmail = asyncHandler(async (req: Request, res: Response) => {
+  verifyEmail = async (req: Request, res: Response) => {
     const { token } = req.query;
     if (typeof token !== "string")
       throw new BadRequestError(ERROR_MESSAGES.INVALID_TOKEN);
     const msg = await this.verifyEmailUC.execute(token);
     res.json(msg);
-  });
+  };
 
-  login = asyncHandler(async (req: Request, res: Response) => {
+  login = async (req: Request, res: Response) => {
     const { email, password } = req.body;
     const { accessToken, refreshToken, user } = await this.loginUC.execute(
       email,
@@ -101,9 +104,9 @@ export class AuthController {
     setRefreshTokenCookie(res, refreshToken);
 
     res.json({ message: AUTH_MESSAGES.LOGIN_SUCCESS, accessToken, user });
-  });
+  };
 
-  refreshToken = asyncHandler(async (req: Request, res: Response) => {
+  refreshToken = async (req: Request, res: Response) => {
     const token = req.cookies.refreshToken;
     if (!token) {
       throw new UnauthorizedError(AUTH_MESSAGES.NO_REFRESH_TOKEN);
@@ -114,7 +117,7 @@ export class AuthController {
 
     const { accessToken } = await this.refreshUC.execute(token);
     res.json({ accessToken });
-  });
+  };
 
   // logout = (_: Request, res: Response) => {
   //   clearRefreshTokenCookie(res);
@@ -142,14 +145,14 @@ export class AuthController {
     res.json({ message: AUTH_MESSAGES.LOGOUT_SUCCESS });
   };
 
-  me = asyncHandler(async (req: Request, res: Response) => {
+  me = async (req: Request, res: Response) => {
     // @ts-expect-error – set by protect middleware
     const userId: string = req.user.id;
     const data = await this.meUC.execute(userId);
     res.json(data);
-  });
+  };
 
-  forgotPassword = asyncHandler(async (req: Request, res: Response) => {
+  forgotPassword = async (req: Request, res: Response) => {
     const { email } = req.body;
     if (!email) {
       throw new BadRequestError(AUTH_MESSAGES.EMAIL_REQUIRED);
@@ -160,18 +163,18 @@ export class AuthController {
 
     const msg = await this.forgotUC.execute(email);
     res.json(msg);
-  });
+  };
 
-  resetPassword = asyncHandler(async (req: Request, res: Response) => {
+  resetPassword = async (req: Request, res: Response) => {
     const { token } = req.query as { token: string };
     const { password, confirmPassword } = req.body;
     const msg = await this.resetUC.execute(token, password, confirmPassword);
     res.json(msg);
-  });
+  };
 
-  verifyResetToken = asyncHandler(async (req: Request, res: Response) => {
+  verifyResetToken = async (req: Request, res: Response) => {
     const { token } = req.query as { token: string };
     const { valid } = await this.verifyResetUC.execute(token);
     res.json({ message: AUTH_MESSAGES.RESET_TOKEN_VALID, valid });
-  });
+  };
 }

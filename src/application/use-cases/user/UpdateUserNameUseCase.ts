@@ -1,5 +1,5 @@
 import { inject, injectable } from "inversify";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { IUserRepository } from "@/application/ports/repositories/IUserRepository";
 import { NotFoundError } from "@/application/error/AppError";
 import {
@@ -19,14 +19,9 @@ export class UpdateUserProfileUseCase implements IUpdateUserProfileUseCase {
     if (!user) throw new NotFoundError("User");
 
     if (dto.name) user.setName(dto.name);
-
-    if (dto.email && dto.email !== user.email) {
-      const existing = await this.userRepo.findByEmail(dto.email);
-      if (existing) throw new Error("Email already in use");
-
-      user.setEmail(dto.email);
-      // (user as any)._props.isVerified = true;
-    }
+    if (dto.about) user.setAbout(dto.about);
+    if (dto.phone) user.setPhone(dto.phone);
+    if (dto.link) user.setLink(dto.link);
 
     await this.userRepo.update(user);
 
@@ -34,6 +29,9 @@ export class UpdateUserProfileUseCase implements IUpdateUserProfileUseCase {
       id: user.id,
       name: user.name,
       email: user.email,
+      about: user.about,
+      phone: user.phone,
+      link: user.link,
       isVerified: user.isVerified,
     };
   }

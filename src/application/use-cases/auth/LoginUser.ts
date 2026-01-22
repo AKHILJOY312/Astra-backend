@@ -1,13 +1,14 @@
 import { inject, injectable } from "inversify";
 import { IUserRepository } from "../../ports/repositories/IUserRepository";
 import { IAuthService } from "../../ports/services/IAuthService";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import {
   BadRequestError,
   ForbiddenError,
   UnauthorizedError,
 } from "@/application/error/AppError";
 import { ILoginUser } from "@/application/ports/use-cases/auth/ILoginUserUseCase";
+import { LoginUserResponseDTO } from "@/application/dto/auth/authDtos";
 
 @injectable()
 export class LoginUser implements ILoginUser {
@@ -19,11 +20,7 @@ export class LoginUser implements ILoginUser {
   async execute(
     email: string,
     password: string
-  ): Promise<{
-    accessToken: string;
-    refreshToken: string;
-    user: { id: string; name: string; email: string };
-  }> {
+  ): Promise<LoginUserResponseDTO> {
     if (!email || !password)
       throw new BadRequestError("Email and password are required");
 

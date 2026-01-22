@@ -27,7 +27,7 @@ const membershipSchema = new Schema<MembershipDoc>(
     },
     joinedAt: { type: Date, default: Date.now },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 membershipSchema.index({ projectId: 1, userId: 1 }, { unique: true });
@@ -35,12 +35,12 @@ membershipSchema.index({ userId: 1 });
 
 export const ProjectMembershipModel = mongoose.model<MembershipDoc>(
   "ProjectMembership",
-  membershipSchema
+  membershipSchema,
 );
 
 // Mapper: DB → Domain Entity
 export const toProjectMembershipEntity = (
-  doc: MembershipDoc
+  doc: MembershipDoc,
 ): ProjectMembership => {
   const props: ProjectMembershipProps = {
     id: doc._id.toString(),

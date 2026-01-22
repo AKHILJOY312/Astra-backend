@@ -1,8 +1,7 @@
-// src/core/use-cases/project/AddMemberToProjectUseCase.ts
 import { inject, injectable } from "inversify";
 
 import { IProjectMembershipRepository } from "../../ports/repositories/IProjectMembershipRepository";
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { NotFoundError, UnauthorizedError } from "@/application/error/AppError";
 import {
   ChangeMemberRoleDTO,
@@ -14,42 +13,38 @@ import {
 export class ChangeMemberRoleUseCase implements IChangeMemberRoleUseCase {
   constructor(
     @inject(TYPES.ProjectMembershipRepository)
-    private membershipRepo: IProjectMembershipRepository
+    private membershipRepo: IProjectMembershipRepository,
   ) {}
 
   async execute(
-    input: ChangeMemberRoleDTO
+    input: ChangeMemberRoleDTO,
   ): Promise<ChangeMemberRoleResultDTO> {
     const { projectId, memberId, newRole, requestedBy } = input;
 
     // 1. Requester must be manager
     const requester = await this.membershipRepo.findByProjectAndUser(
       projectId,
-      requestedBy
+      requestedBy,
     );
     if (!requester || requester.role !== "manager") {
       throw new UnauthorizedError(
-        "Only project managers can change member roles"
+        "Only project managers can change member roles",
       );
     }
 
     // 2. Target must be a member
-    const target = await this.membershipRepo.findByProjectAndUser(
-      projectId,
-      memberId
-    );
+    const target = await this.membershipRepo.findById(memberId);
     if (!target) {
-      throw new NotFoundError("User");
+      throw new NotFoundError("Member");
     }
 
     // 3. Prevent removing last manager
     if (target.role === "manager" && newRole !== "manager") {
-      const managerCount = await this.membershipRepo.countManagersInProject(
-        projectId
-      );
+      const managerCount =
+        await this.membershipRepo.countManagersInProject(projectId);
       if (managerCount <= 1) {
         throw new UnauthorizedError(
-          "Cannot demote the last manager — transfer ownership first"
+          "Cannot demote the last manager — transfer ownership first",
         );
       }
     }

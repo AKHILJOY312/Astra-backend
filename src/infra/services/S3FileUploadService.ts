@@ -1,0 +1,102 @@
+import { ValidationError } from "@/application/error/AppError";
+import { IFileUploadService } from "@/application/ports/services/IFileUploadService";
+import { ENV } from "@/config/env.config";
+import {
+  GetObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { v4 as uuidv4 } from "uuid";
+
+export class S3FileUploadService implements IFileUploadService {
+  private _s3Client: S3Client;
+
+  constructor() {
+    this._s3Client = new S3Client({
+      region: ENV.AWS.REGION!,
+      credentials: {
+        accessKeyId: ENV.AWS.ACCESS_KEY_ID!,
+        secretAccessKey: ENV.AWS.SECRET_KEY!,
+      },
+    });
+  }
+  async generateProfileImageUpload(
+    userId: string,
+    fileType: string,
+  ): Promise<{ uploadUrl: string; fileKey: string }> {
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(fileType)) {
+      throw new ValidationError("Unsupported Image type");
+    }
+
+    const extension = fileType.split("/")[1]; // jpeg | png | webp
+    const fileKey = `profiles/${userId}/${uuidv4()}.${extension}`;
+
+    const command = new PutObjectCommand({
+      Bucket: ENV.AWS.S3_BUCKET!,
+      Key: fileKey,
+      ContentType: fileType,
+    });
+    const uploadUrl = await getSignedUrl(this._s3Client, command, {
+      expiresIn: 60 * 10,
+    });
+    return { uploadUrl, fileKey };
+  }
+  async generateProfileImageViewUrl(fileKey: string) {
+    const command = new GetObjectCommand({
+      Bucket: ENV.AWS.S3_BUCKET,
+      Key: fileKey,
+    });
+
+    return getSignedUrl(this._s3Client, command, {
+      expiresIn: 60 * 5, // 5 minutes
+    });
+  }
+  // infrastructure/services/S3FileUploadService.ts
+  async generateFileUploadUrl({
+    key,
+    contentType,
+    metadata,
+  }: {
+    key: string;
+    contentType: string;
+    metadata?: Record<string, string>;
+  }): Promise<{ uploadUrl: string }> {
+    const command = new PutObjectCommand({
+      Bucket: ENV.AWS.S3_BUCKET!,
+      Key: key,
+      ContentType: contentType,
+      Metadata: metadata,
+      // ACL: 'private' // recommended
+    });
+
+    const uploadUrl = await getSignedUrl(this._s3Client, command, {
+      expiresIn: 15 * 60, // 15 minutes
+    });
+
+    return { uploadUrl };
+  }
+  async generateChatFileAccessUrl(input: {
+    key: string;
+    contentType: string;
+    disposition?: "view" | "download";
+  }): Promise<{ url: string; expiresAt: string }> {
+    const responseDisposition =
+      input.disposition === "download" ? "attachment" : "inline";
+
+    const command = new GetObjectCommand({
+      Bucket: ENV.AWS.S3_BUCKET!,
+      Key: input.key,
+      ResponseContentType: input.contentType,
+      ResponseContentDisposition: responseDisposition,
+    });
+
+    const expiresIn = 60 * 5;
+    const url = await getSignedUrl(this._s3Client, command, { expiresIn });
+    return {
+      url,
+      expiresAt: new Date(Date.now() + expiresIn * 1000).toISOString(),
+    };
+  }
+}

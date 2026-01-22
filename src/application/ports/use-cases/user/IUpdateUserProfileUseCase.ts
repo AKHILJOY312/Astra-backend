@@ -3,6 +3,9 @@
 export interface UpdateProfileDTO {
   name?: string;
   email?: string;
+  about?: string;
+  phone?: string;
+  link?: string;
 }
 
 export interface UpdateProfileResponseDTO {

@@ -1,4 +1,4 @@
-import { Plan } from "@/domain/entities/billing/Plan";
+// import { Plan } from "@/domain/entities/billing/Plan";
 
 // src/application/dto/plan/PlanResponseDTO.ts
 
@@ -19,6 +19,18 @@ export interface PlanResponseDTO {
   updatedAt: Date;
 }
 
+export type AvailablePlanDTO = {
+  id: string | undefined;
+  name: string;
+  description?: string;
+  price: number;
+  finalAmount: number;
+  features: string[];
+  maxProjects: number;
+  maxMembersPerProject: number;
+  isCurrent: boolean;
+};
+
 export interface IGetAvailablePlansUseCase {
-  execute(): Promise<Plan[]>;
+  execute(userId: string): Promise<AvailablePlanDTO[]>;
 }

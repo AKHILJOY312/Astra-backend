@@ -11,4 +11,6 @@ export interface IAuthService {
 
   generateRandomPassword(): string;
   invalidateUserSessions(userId: string): Promise<void>;
+
+  generateOtp(lengthOfOtp: number): number;
 }

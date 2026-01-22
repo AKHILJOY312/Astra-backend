@@ -13,7 +13,7 @@ import { setupGoogleStrategy } from "../passport/googleStrategy";
 import passport from "passport";
 import { HTTP_STATUS } from "@/interface-adapters/http/constants/httpStatus";
 import { createSocketServer } from "../websocket/SocketServer";
-import { container } from "@/config/container";
+import { container } from "@/config/di/container";
 import { globalErrorHandler } from "./express/middleware/globalErrorHandler";
 import { logger, morganMiddleware } from "../logger/logger";
 import { ENV } from "@/config/env.config";
@@ -36,8 +36,8 @@ app.use(
 app.use(helmet());
 
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests
+  windowMs: 15 * 60 * 1000,
+  max: 200,
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -56,6 +56,8 @@ app.use("/api", routes);
 
 createSocketServer(server, container);
 
+app.use(globalErrorHandler);
+
 //  Catch-all route for undefined endpoints
 app.all("*", (req, res) => {
   res.status(HTTP_STATUS.BAD_REQUEST).json({
@@ -63,8 +65,6 @@ app.all("*", (req, res) => {
     message: `Route not found: ${req.originalUrl}`,
   });
 });
-
-app.use(globalErrorHandler);
 
 const PORT = ENV.PORT;
 server.listen(PORT, () => {

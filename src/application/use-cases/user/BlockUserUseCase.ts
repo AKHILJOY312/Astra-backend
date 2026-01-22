@@ -2,7 +2,7 @@
 import { inject, injectable } from "inversify";
 import { IUserRepository } from "../../ports/repositories/IUserRepository";
 import { IAuthService } from "../../ports/services/IAuthService"; // Assuming an AuthService exists
-import { TYPES } from "@/config/types";
+import { TYPES } from "@/config/di/types";
 import { NotFoundError } from "@/application/error/AppError";
 import {
   BlockUserResponseDTO,
