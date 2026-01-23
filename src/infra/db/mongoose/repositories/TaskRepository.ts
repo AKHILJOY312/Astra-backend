@@ -2,7 +2,11 @@ import { HydratedDocument } from "mongoose";
 import { Task } from "@/domain/entities/task/Task";
 import { TaskStatus } from "@/domain/entities/task/Task";
 import { ITaskRepository } from "@/application/ports/repositories/ITaskRepository";
-import { TaskDoc, TaskModel, toTaskEntity } from "../models/TaskModel";
+import {
+  TaskDoc,
+  TaskModel,
+  toTaskEntity,
+} from "@/infra/db/mongoose/models/TaskModel";
 
 export class TaskRepository implements ITaskRepository {
   // Mongo → Domain
