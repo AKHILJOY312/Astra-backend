@@ -130,6 +130,14 @@ import { GetAttachmentUploadUrlUseCase } from "@/application/use-cases/tasks/Get
 import { SearchProjectMembersUseCase } from "@/application/use-cases/tasks/SearchProjectMembersUseCase";
 import { GetTaskAttachmentDownloadUrlUseCase } from "@/application/use-cases/tasks/GetTaskAttachmentsDownloadUrlInput";
 import { UpdateTaskUseCase } from "@/application/use-cases/tasks/UpdatingTaskUseCase";
+import {
+  ICreateMeetingUseCase,
+  IJoinMeetingUseCase,
+  ILeaveMeetingUseCase,
+} from "@/application/ports/use-cases/meeting";
+import { CreateMeetingUseCase } from "@/application/use-cases/meeting/CreateMeetingUseCase";
+import { JoinMeetingUseCase } from "@/application/use-cases/meeting/JoinMeetingUseCase";
+import { LeaveMeetingUseCase } from "@/application/use-cases/meeting/LeaveMeetingUseCase";
 
 export const useCaseModule = new ContainerModule((options) => {
   // Regular Auth Use Cases
@@ -295,4 +303,15 @@ export const useCaseModule = new ContainerModule((options) => {
   options
     .bind<ISearchProjectMembersUseCase>(TYPES.SearchProjectMembersUseCase)
     .to(SearchProjectMembersUseCase);
+
+  //Meeting
+  options
+    .bind<ICreateMeetingUseCase>(TYPES.CreateMeetingUseCase)
+    .to(CreateMeetingUseCase);
+  options
+    .bind<IJoinMeetingUseCase>(TYPES.JoinMeetingUseCase)
+    .to(JoinMeetingUseCase);
+  options
+    .bind<ILeaveMeetingUseCase>(TYPES.LeaveMeetingUseCase)
+    .to(LeaveMeetingUseCase);
 });

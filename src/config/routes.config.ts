@@ -1,6 +1,7 @@
 // src/config/routes.ts
 
 export const API_ROUTES = {
+  BASE: "/",
   AUTH: {
     ROOT: "/auth",
     REGISTER: "/register",
@@ -78,5 +79,10 @@ export const API_ROUTES = {
     },
     PAYMENT_HISTORY: "/history",
     INVOICES: "/invoice/:paymentId",
+  },
+  MEETING: {
+    ROOT: "/meetings",
+    CODE: "/:code",
+    LEAVE: "/leave",
   },
 } as const;

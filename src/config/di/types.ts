@@ -15,6 +15,8 @@ const TYPES = {
   TaskRepository: Symbol.for("TaskRepository"),
   MemberRepository: Symbol.for("MemberRepository"),
   TaskAttachmentRepository: Symbol.for("TaskAttachmentRepository"),
+  MeetingRepository: Symbol.for("MeetingRepository"),
+
   // Services
   UserService: Symbol.for("UserService"),
   AuthService: Symbol.for("AuthService"), // For JwtAuthService
@@ -40,6 +42,7 @@ const TYPES = {
   UserController: Symbol.for("UserController"),
   TaskController: Symbol.for("TaskController"),
   MemberSearchController: Symbol.for("MemberSearchController"),
+  MeetingController: Symbol.for("MeetingController"),
 
   // Use Cases (User/Auth)
   RegisterUser: Symbol.for("RegisterUser"),
@@ -123,6 +126,11 @@ const TYPES = {
 
   //Search the user with the project
   SearchProjectMembersUseCase: Symbol.for("SearchProjectMembersUseCase"),
+
+  //Meetings
+  CreateMeetingUseCase: Symbol.for("CreateMeetingUseCase"),
+  JoinMeetingUseCase: Symbol.for("JoinMeetingUseCase"),
+  LeaveMeetingUseCase: Symbol.for("LeaveMeetingUseCase"),
 };
 
 export { TYPES };

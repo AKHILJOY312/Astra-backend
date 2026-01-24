@@ -1,0 +1,58 @@
+////=================================================
+//Create meeting
+//=================================================
+
+import { MeetingStatus } from "@/domain/entities/meeting/Meeting";
+
+export interface CreateMeetingDTO {
+  createdBy?: string | null;
+  maxParticipants?: number;
+}
+
+export interface CreateMeetingResultDTO {
+  meeting: {
+    id: string;
+    code: string;
+    status: MeetingStatus;
+    maxParticipants: number;
+    createAt?: Date;
+  };
+}
+
+//=================================================
+//joinMeetingUseCase
+//=================================================
+export interface JoinMeetingDTO {
+  code: string;
+  socketId: string;
+  userId?: string;
+}
+
+export interface JoinMeetingResultDTO {
+  meetingId: string;
+  participants: {
+    socketId?: string;
+    userId?: string;
+    joinedAt: Date;
+    leftAt?: Date;
+  }[];
+}
+
+//=================================================
+//Leave the meeting
+//=================================================
+
+export interface LeaveMeetingDTO {
+  code: string;
+  socketId: string;
+}
+
+export interface LeaveMeetingResultDTO {
+  meetingId: string;
+  participants: {
+    socketId?: string;
+    userId?: string;
+    joinedAt: Date;
+    leftAt?: Date;
+  }[];
+}
