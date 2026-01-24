@@ -1,16 +1,16 @@
 import { Router } from "express";
 import { container } from "@/config/di/container";
 
-import { getAuthRoutes } from "./authRoutes";
+import { getAuthRoutes } from "./auth.routes";
 import { getAdminAuthRoutes } from "./admin/adminAuthRoutes";
 import { getAdminPlanRoutes } from "./admin/planRoutes";
 import { getAdminUserRoutes } from "./admin/adminUsersRoutes";
-import { getProjectRoutes } from "./projectRoutes";
-import { getChannelRoutes } from "./channelRoutes";
-import { getSubscriptionRoutes } from "./subscriptionRoutes";
-import { getUserRoutes } from "./userRoutes";
+import { getProjectRoutes } from "./project.routes";
+import { getChannelRoutes } from "./channel.routes";
+import { getSubscriptionRoutes } from "./subscription.routes";
+import { getUserRoutes } from "./user.routes";
 import { API_ROUTES } from "@/config/routes.config";
-import { getAttachmentRoutes } from "./attachmentRoutes";
+import { getAttachmentRoutes } from "./attachment.routes";
 import { getMeetingRoutes } from "./meeting.routes";
 const router = Router();
 
