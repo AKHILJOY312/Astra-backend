@@ -81,16 +81,31 @@ export class TaskRepository implements ITaskRepository {
     return docs.map((d) => this.toDomain(d));
   }
 
-  async findByProjectAndStatus(
+  async findByProjectAndStatusPaginated(
     projectId: string,
+
+    limit: number,
     status: TaskStatus,
-  ): Promise<Task[]> {
-    const docs = await TaskModel.find({
+    cursor?: Date,
+    assignedTo?: string,
+  ): Promise<{ tasks: Task[]; hasMore: boolean }> {
+    const query: any = {
       projectId,
       status,
       isDeleted: false,
-    }).sort({ createdAt: 1 });
+    };
+    if (assignedTo) {
+      query.assignedTo = assignedTo;
+    }
+    if (cursor) {
+      query.createdAt = { $lt: cursor };
+    }
+    const docs = await TaskModel.find(query)
+      .sort({ createdAt: 1 })
+      .limit(limit + 1);
+    const hasMore = docs.length > limit;
+    const sliced = hasMore ? docs.slice(0, limit) : docs;
 
-    return docs.map((d) => this.toDomain(d));
+    return { tasks: sliced.map((d) => this.toDomain(d)), hasMore };
   }
 }

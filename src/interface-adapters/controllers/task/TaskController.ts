@@ -86,6 +86,7 @@ export class TaskController {
 
   // GET /projects/:projectId/tasks
   listTasks = async (req: Request, res: Response) => {
+    console.log("req. for the list task details ", req.query);
     const parsedQuery = ListTasksQuerySchema.safeParse(req.query);
     if (!parsedQuery.success) {
       throw new ValidationError("Invalid query parameters");
@@ -93,8 +94,14 @@ export class TaskController {
 
     const { projectId } = req.params;
     const requesterId = req.user!.id;
-
-    const result = await this.listTasksUC.execute(projectId, requesterId);
+    const { status, cursor, limit } = parsedQuery.data;
+    const result = await this.listTasksUC.execute({
+      projectId,
+      requesterId,
+      status,
+      cursor,
+      limit,
+    });
 
     return res.status(HTTP_STATUS.OK).json({
       success: true,

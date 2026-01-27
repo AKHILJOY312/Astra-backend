@@ -7,6 +7,7 @@ import {
   SearchMembersRequestDTO,
   MemberSearchResponseDTO,
   GetTaskAttachmentDownloadUrlOutput,
+  GetTaskRequestDTO,
 } from "@/application/dto/task/taskDto";
 
 /* ─────────────────────────────
@@ -35,12 +36,13 @@ export interface IDeleteTaskUseCase {
 export interface ProjectTasksResponse {
   tasks: TaskResponseDTO[];
   isManager: boolean;
+  pageInfo: {
+    hasMore: boolean;
+    nextCursor: string | null;
+  };
 }
 export interface IGetProjectTasksUseCase {
-  execute(
-    projectId: string,
-    requesterId: string,
-  ): Promise<ProjectTasksResponse>;
+  execute(input: GetTaskRequestDTO): Promise<ProjectTasksResponse>;
 }
 
 /* ─────────────────────────────

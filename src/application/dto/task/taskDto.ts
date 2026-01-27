@@ -16,6 +16,13 @@ export interface CreateTaskRequestDTO {
   }[];
 }
 
+export interface GetTaskRequestDTO {
+  projectId: string;
+  requesterId: string;
+  status: TaskStatus;
+  cursor?: string;
+  limit: number;
+}
 /** Update */
 export interface UpdateTaskRequestDTO {
   title?: string;

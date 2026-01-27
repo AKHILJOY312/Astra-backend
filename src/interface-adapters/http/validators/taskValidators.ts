@@ -49,11 +49,10 @@ export const UpdateTaskStatusSchema = z.object({
  * GET /projects/:projectId/tasks
  */
 export const ListTasksQuerySchema = z.object({
-  status: z.enum(TaskStatusEnum).optional(),
-  assignedTo: z.string().optional(),
-  priority: z.enum(TaskPriorityEnum).optional(),
-  dueBefore: z.string().datetime().optional(),
-  dueAfter: z.string().datetime().optional(),
+  status: z.enum(TaskStatusEnum),
+  cursor: z.string().optional(),
+  // Use coerce to transform the string "10" into the number 10
+  limit: z.coerce.number().default(10),
 });
 
 /**

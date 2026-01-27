@@ -2,7 +2,10 @@ import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/di/types";
 import { UnauthorizedError } from "@/application/error/AppError";
 
-import { TaskResponseDTO } from "@/application/dto/task/taskDto";
+import {
+  GetTaskRequestDTO,
+  TaskResponseDTO,
+} from "@/application/dto/task/taskDto";
 import { Task } from "@/domain/entities/task/Task";
 import {
   IGetProjectTasksUseCase,
@@ -27,10 +30,13 @@ export class GetProjectTasksUseCase implements IGetProjectTasksUseCase {
     private taskAttachmentRepo: ITaskAttachmentRepository,
   ) {}
 
-  async execute(
-    projectId: string,
-    requesterId: string,
-  ): Promise<ProjectTasksResponse> {
+  async execute({
+    projectId,
+    requesterId,
+    status,
+    cursor,
+    limit = 10,
+  }: GetTaskRequestDTO): Promise<ProjectTasksResponse> {
     // 1. Must be project member
     const membership = await this.membershipRepo.findByProjectAndUser(
       projectId,
@@ -40,18 +46,30 @@ export class GetProjectTasksUseCase implements IGetProjectTasksUseCase {
     if (!membership) {
       throw new UnauthorizedError("You are not a project member");
     }
-    const isManger = membership.role === "manager";
+    const isManager = membership.role === "manager";
     // 2. Load tasks
-    const tasks =
-      membership.role === "manager"
-        ? await this.taskRepo.findByProjectId(projectId)
-        : await this.taskRepo.findByAssignedTo(requesterId);
+    const { tasks, hasMore } =
+      await this.taskRepo.findByProjectAndStatusPaginated(
+        projectId,
+        limit,
+        status,
+
+        cursor ? new Date(cursor) : undefined,
+        isManager ? undefined : requesterId,
+      );
 
     // 3. Map to response DTO
     const dtos = await Promise.all(
       tasks.map((task) => this.mapToResponse(task)),
     );
-    return { tasks: dtos, isManager: isManger };
+    return {
+      tasks: dtos,
+      isManager,
+      pageInfo: {
+        hasMore,
+        nextCursor: dtos.length > 0 ? dtos[dtos.length - 1].createdAt : null,
+      },
+    };
   }
 
   private async mapToResponse(task: Task): Promise<TaskResponseDTO> {
