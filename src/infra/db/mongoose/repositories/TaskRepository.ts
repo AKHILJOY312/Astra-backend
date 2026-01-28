@@ -1,4 +1,4 @@
-import { HydratedDocument } from "mongoose";
+import { FilterQuery, HydratedDocument } from "mongoose";
 import { Task } from "@/domain/entities/task/Task";
 import { TaskStatus } from "@/domain/entities/task/Task";
 import { ITaskRepository } from "@/application/ports/repositories/ITaskRepository";
@@ -90,7 +90,7 @@ export class TaskRepository implements ITaskRepository {
     cursor?: Date,
     assignedTo?: string,
   ): Promise<{ tasks: Task[]; hasMore: boolean }> {
-    const query: any = {
+    const query: FilterQuery<TaskDoc> = {
       projectId,
       status,
       isDeleted: false,
