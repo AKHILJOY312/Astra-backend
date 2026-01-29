@@ -54,6 +54,8 @@ import { IMeetingRepository } from "@/application/ports/repositories/IMeetingRep
 import { MeetingRepository } from "@/infra/db/mongoose/repositories/MeetingRepository";
 import { ICommentRepository } from "@/application/ports/repositories/ICommentRepository";
 import { CommentRepository } from "@/infra/db/mongoose/repositories/CommandRepository";
+import { IMeetingService } from "@/application/ports/services/IMeetingService";
+import { LiveKitMeetingService } from "@/infra/services/LiveKitMeetingService";
 
 export const coreModule = new ContainerModule((options) => {
   //=================================================
@@ -158,5 +160,9 @@ export const coreModule = new ContainerModule((options) => {
   options
     .bind<IPdfInvoiceService>(TYPES.PdfInvoiceService)
     .to(PdfKitInvoiceGenerator)
+    .inSingletonScope();
+  options
+    .bind<IMeetingService>(TYPES.MeetingService)
+    .to(LiveKitMeetingService)
     .inSingletonScope();
 });

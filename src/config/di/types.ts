@@ -26,6 +26,7 @@ const TYPES = {
   TokenBlacklistService: Symbol.for("TokenBlacklistService"),
   FileUploadService: Symbol.for("FileUploadService"),
   PdfInvoiceService: Symbol.for("PdfInvoiceService"),
+  MeetingService: Symbol.for("MeetingService"),
 
   // Middleware
   ProtectMiddleware: Symbol.for("ProtectMiddleware"),
@@ -133,6 +134,7 @@ const TYPES = {
   CreateMeetingUseCase: Symbol.for("CreateMeetingUseCase"),
   JoinMeetingUseCase: Symbol.for("JoinMeetingUseCase"),
   LeaveMeetingUseCase: Symbol.for("LeaveMeetingUseCase"),
+  GetMeetingTokenUseCase: Symbol.for("GetMeetingTokenUseCase"),
 };
 
 export { TYPES };

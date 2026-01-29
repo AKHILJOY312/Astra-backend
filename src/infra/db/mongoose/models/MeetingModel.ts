@@ -16,7 +16,7 @@ import {
 
 export interface MeetingDoc extends Document {
   _id: Types.ObjectId;
-  id: string;
+
   code: string;
   createdBy?: string | null;
   status: "active" | "ended";
@@ -38,7 +38,6 @@ const participantSchema = new Schema<MeetingParticipantDoc>(
 
 const meetingSchema = new Schema<MeetingDoc>(
   {
-    id: { type: String, required: true, unique: true },
     code: {
       type: String,
       required: true,
@@ -74,7 +73,7 @@ export const MeetingModel = mongoose.model<MeetingDoc>(
 
 export const toMeetingEntity = (doc: MeetingDoc): Meeting => {
   const props: MeetingProps = {
-    id: doc.id,
+    id: doc._id.toString(),
     code: doc.code,
     createdBy: doc.createdBy ?? null,
     status: doc.status,

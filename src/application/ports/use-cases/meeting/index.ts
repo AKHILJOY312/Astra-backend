@@ -1,6 +1,8 @@
 import {
   CreateMeetingDTO,
   CreateMeetingResultDTO,
+  GetMeetingTokenRequestDTO,
+  GetMeetingTokenResponseDTO,
   JoinMeetingDTO,
   JoinMeetingResultDTO,
   LeaveMeetingDTO,
@@ -17,4 +19,10 @@ export interface IJoinMeetingUseCase {
 
 export interface ILeaveMeetingUseCase {
   execute(input: LeaveMeetingDTO): Promise<LeaveMeetingResultDTO>;
+}
+
+export interface IGetMeetingTokenUseCase {
+  execute(
+    request: GetMeetingTokenRequestDTO,
+  ): Promise<GetMeetingTokenResponseDTO>;
 }

@@ -16,33 +16,69 @@ export class MeetingHandler extends BaseSocketHandler {
   }
 
   handle(): void {
-    this.socket.on("meeting:join", async (code: string) => {
+    console.log(
+      "🧠 MeetingHandler (LiveKit Mode) initialized:",
+      this.socket.id,
+    );
+
+    this.socket.on("meeting:join", async ({ code }) => {
       const userId = this.socket.data.user.id;
 
-      const result = await this.joinMeetingUC.execute({
-        code,
-        socketId: this.socket.id,
-        userId,
-      });
-      const meetingId = result.meetingId;
-      this.socket.join(meetingId);
-      this.io.to(meetingId).emit("meeting:user-joined", {
-        userId,
-        meetingId: meetingId,
-      });
+      try {
+        const result = await this.joinMeetingUC.execute({
+          code,
+          socketId: this.socket.id,
+          userId,
+        });
+
+        const meetingId = result.meetingId;
+
+        // Join the Socket.io room for presence/chat
+        await this.socket.join(meetingId);
+
+        // Notify OTHERS in the room that a new participant is here
+        // Note: LiveKit also has an 'onParticipantConnected' event,
+        // but keeping this allows you to sync non-video state.
+        this.socket.to(meetingId).emit("meeting:user-joined", {
+          userId,
+
+          socketId: this.socket.id,
+          meetingId,
+        });
+
+        console.log(`✅ User ${userId} joined room ${meetingId}`);
+      } catch (error) {
+        console.error("❌ Failed to join meeting room:", error);
+      }
     });
 
-    this.socket.on("meeting:leave", async (meetingId: string) => {
-      await this.leaveMeetingUC.execute({
-        meetingId,
-        socketId: this.socket.id,
-      });
+    // --- SIGNALING REMOVED ---
+    // The "meeting:signal" listener is deleted.
+    // LiveKit handles this via its own internal signaling server.
 
-      this.socket.leave(meetingId);
-      this.io.to(meetingId).emit("meeting:user-left", {
-        socketId: this.socket.id,
-        meetingId,
-      });
+    this.socket.on("meeting:leave", async (data: any) => {
+      const meetingId = typeof data === "string" ? data : data.meetingId;
+      if (!meetingId) return;
+
+      try {
+        await this.leaveMeetingUC.execute({
+          meetingId,
+          socketId: this.socket.id,
+        });
+
+        this.socket.leave(meetingId);
+
+        // Notify others that the user left
+        this.io.to(meetingId).emit("meeting:user-left", {
+          userId: this.socket.data.user.id,
+          socketId: this.socket.id,
+          meetingId,
+        });
+
+        console.log(`🚪 User left room: ${meetingId}`);
+      } catch (error) {
+        console.error("❌ Error during meeting:leave:", error);
+      }
     });
   }
 }

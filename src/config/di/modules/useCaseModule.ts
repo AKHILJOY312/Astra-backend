@@ -133,6 +133,7 @@ import { GetTaskAttachmentDownloadUrlUseCase } from "@/application/use-cases/tas
 import { UpdateTaskUseCase } from "@/application/use-cases/tasks/UpdatingTaskUseCase";
 import {
   ICreateMeetingUseCase,
+  IGetMeetingTokenUseCase,
   IJoinMeetingUseCase,
   ILeaveMeetingUseCase,
 } from "@/application/ports/use-cases/meeting";
@@ -140,6 +141,7 @@ import { CreateMeetingUseCase } from "@/application/use-cases/meeting/CreateMeet
 import { JoinMeetingUseCase } from "@/application/use-cases/meeting/JoinMeetingUseCase";
 import { LeaveMeetingUseCase } from "@/application/use-cases/meeting/LeaveMeetingUseCase";
 import { AddCommentUseCase } from "@/application/use-cases/tasks/AddCommandUseCase";
+import { GetMeetingTokenUseCase } from "@/application/use-cases/meeting/GetMeetingTokenUseCase";
 
 export const useCaseModule = new ContainerModule((options) => {
   // Regular Auth Use Cases
@@ -319,4 +321,7 @@ export const useCaseModule = new ContainerModule((options) => {
   options
     .bind<ILeaveMeetingUseCase>(TYPES.LeaveMeetingUseCase)
     .to(LeaveMeetingUseCase);
+  options
+    .bind<IGetMeetingTokenUseCase>(TYPES.GetMeetingTokenUseCase)
+    .to(GetMeetingTokenUseCase);
 });

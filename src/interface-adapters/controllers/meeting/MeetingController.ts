@@ -5,13 +5,14 @@ import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/di/types";
 import { HTTP_STATUS } from "@/interface-adapters/http/constants/httpStatus";
 import {
-  CreateMeetingSchema,
+  // CreateMeetingSchema,
   // JoinMeetingSchema,
   LeaveMeetingSchema,
 } from "@/interface-adapters/http/validators/meetingValidators";
 import { BadRequestError, ValidationError } from "@/application/error/AppError";
 import {
   ICreateMeetingUseCase,
+  IGetMeetingTokenUseCase,
   IJoinMeetingUseCase,
   ILeaveMeetingUseCase,
 } from "@/application/ports/use-cases/meeting";
@@ -27,6 +28,9 @@ export class MeetingController {
 
     @inject(TYPES.LeaveMeetingUseCase)
     private leaveMeetingUC: ILeaveMeetingUseCase,
+
+    @inject(TYPES.GetMeetingTokenUseCase)
+    private getTokenUC: IGetMeetingTokenUseCase,
   ) {}
 
   // ---------------------------------------------------
@@ -34,13 +38,13 @@ export class MeetingController {
   // POST /api/meetings
   // ---------------------------------------------------
   createMeeting = async (req: Request, res: Response) => {
-    const result = CreateMeetingSchema.safeParse(req.body);
-    if (!result.success) {
-      throw new ValidationError("Invalid meeting data");
-    }
-
+    // const result = CreateMeetingSchema.safeParse(req.body);
+    // if (!result.success) {
+    //   throw new ValidationError("Invalid meeting data");
+    // }
+    const createdBy = req.user!.id;
     const { meeting } = await this.createMeetingUC.execute({
-      ...result.data,
+      createdBy,
     });
 
     return res.status(HTTP_STATUS.CREATED).json({
@@ -89,6 +93,26 @@ export class MeetingController {
     return res.json({
       success: true,
       data,
+    });
+  };
+  getToken = async (req: Request, res: Response) => {
+    const { code } = req.params;
+    const userId = req.user!.id;
+    const userName = req.user!.name || userId;
+
+    const result = await this.getTokenUC.execute({
+      code,
+      userId,
+      userName,
+    });
+
+    return res.json({
+      success: true,
+      data: {
+        token: result.token,
+        serverUrl: result.serviceUrl,
+        meetingId: result.meetingId,
+      },
     });
   };
 }

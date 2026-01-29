@@ -12,6 +12,11 @@ import { ChannelHandler } from "./handlers/ChannelHandler";
 import { JwtPayload } from "./types/type";
 import { ENV } from "@/config/env.config";
 import { ISendMessageUseCase } from "@/application/ports/use-cases/message/ISendMessageUseCase";
+import { MeetingHandler } from "./handlers/MeetingHandler";
+import {
+  IJoinMeetingUseCase,
+  ILeaveMeetingUseCase,
+} from "@/application/ports/use-cases/meeting";
 
 const authenticateSocket = (socket: Socket, next: (err?: Error) => void) => {
   const token = socket.handshake.auth?.token as string | undefined;
@@ -46,14 +51,25 @@ export function createSocketServer(
     const userId = socket.data.user.id;
     console.log(`User connected: ${userId} | Socket: ${socket.id}`);
 
+    socket.onAny((event, payload) => {
+      console.log("📥 EVENT", event, payload, "from", socket.id);
+    });
+
     // Resolve use cases once per connection
     const sendMessageUC = container.get<ISendMessageUseCase>(
       TYPES.SendMessageUseCase,
     );
+    const joinMeetingUC = container.get<IJoinMeetingUseCase>(
+      TYPES.JoinMeetingUseCase,
+    );
 
+    const leaveMeetingUC = container.get<ILeaveMeetingUseCase>(
+      TYPES.LeaveMeetingUseCase,
+    );
     // Initialize handlers
     new ChannelHandler(socket).handle();
     new MessageHandler(socket, sendMessageUC, io).handle();
+    new MeetingHandler(socket, joinMeetingUC, leaveMeetingUC, io).handle();
 
     socket.on("disconnect", (reason) => {
       console.log(`User disconnected: ${userId} | Reason: ${reason}`);

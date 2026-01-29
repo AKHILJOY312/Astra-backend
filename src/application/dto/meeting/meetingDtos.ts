@@ -6,7 +6,6 @@ import { MeetingStatus } from "@/domain/entities/meeting/Meeting";
 
 export interface CreateMeetingDTO {
   createdBy?: string | null;
-  maxParticipants?: number;
 }
 
 export interface CreateMeetingResultDTO {
@@ -55,4 +54,16 @@ export interface LeaveMeetingResultDTO {
     joinedAt: Date;
     leftAt?: Date;
   }[];
+}
+
+export interface GetMeetingTokenRequestDTO {
+  code: string;
+  userId: string;
+  userName: string;
+}
+
+export interface GetMeetingTokenResponseDTO {
+  meetingId: string;
+  token: string;
+  serviceUrl: string;
 }

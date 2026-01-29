@@ -85,5 +85,6 @@ export const API_ROUTES = {
     ROOT: "/meetings",
     CODE: "/:code",
     LEAVE: "/leave",
+    TOKEN: "/:code/token",
   },
 } as const;

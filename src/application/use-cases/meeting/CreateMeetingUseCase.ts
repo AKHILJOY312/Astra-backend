@@ -32,7 +32,7 @@ export class CreateMeetingUseCase implements ICreateMeetingUseCase {
       code,
       createdBy: input.createdBy ?? null,
       status: "active",
-      maxParticipants: input.maxParticipants ?? 6,
+      maxParticipants: 6,
       participants: [],
     });
 
