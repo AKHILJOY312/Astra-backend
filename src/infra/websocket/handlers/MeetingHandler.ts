@@ -5,6 +5,12 @@ import {
 import { AuthenticatedSocket, BaseSocketHandler } from "./BaseSocketHandler";
 import { Server } from "socket.io";
 
+type MeetingLeavePayload =
+  | string
+  | {
+      meetingId: string;
+    };
+
 export class MeetingHandler extends BaseSocketHandler {
   constructor(
     socket: AuthenticatedSocket,
@@ -56,7 +62,7 @@ export class MeetingHandler extends BaseSocketHandler {
     // The "meeting:signal" listener is deleted.
     // LiveKit handles this via its own internal signaling server.
 
-    this.socket.on("meeting:leave", async (data: any) => {
+    this.socket.on("meeting:leave", async (data: MeetingLeavePayload) => {
       const meetingId = typeof data === "string" ? data : data.meetingId;
       if (!meetingId) return;
 
