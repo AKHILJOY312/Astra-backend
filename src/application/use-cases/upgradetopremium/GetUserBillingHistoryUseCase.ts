@@ -11,25 +11,25 @@ import { inject, injectable } from "inversify";
 @injectable()
 export class GetUserBillingUseCase implements IGetUserBillingHistoryUseCase {
   constructor(
-    @inject(TYPES.PaymentRepository) private paymentRepo: IPaymentRepository,
+    @inject(TYPES.PaymentRepository) private _paymentRepo: IPaymentRepository,
     @inject(TYPES.UserSubscriptionRepository)
-    private subscriptionRepo: IUserSubscriptionRepository
+    private _subscriptionRepo: IUserSubscriptionRepository,
   ) {}
 
   async execute(
     userId: string,
     page = 1,
     limit = 5,
-    search?: string
+    search?: string,
   ): Promise<UserBillingHistoryOutput> {
-    const { data, total } = await this.paymentRepo.findByUserIdPaginated(
+    const { data, total } = await this._paymentRepo.findByUserIdPaginated(
       userId,
       page,
       limit,
-      search
+      search,
     );
 
-    const subscription = await this.subscriptionRepo.findByUserId(userId);
+    const subscription = await this._subscriptionRepo.findByUserId(userId);
 
     return {
       subscription: subscription
