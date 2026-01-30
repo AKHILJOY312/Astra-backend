@@ -11,14 +11,14 @@ import {
 @injectable()
 export class GetUserProjectsUseCase implements IGetUserProjectsUseCase {
   constructor(
-    @inject(TYPES.ProjectRepository) private projectRepo: IProjectRepository
+    @inject(TYPES.ProjectRepository) private _projectRepo: IProjectRepository,
   ) {}
 
   async execute(input: GetUserProjectsDTO): Promise<GetUserProjectsResultDTO> {
     const { userId, page, limit, search } = input;
 
     // Fetch projects where user is owner or member
-    const result = await this.projectRepo.findPaginatedByUserId({
+    const result = await this._projectRepo.findPaginatedByUserId({
       userId,
       page,
       limit,

@@ -20,9 +20,9 @@ import { inject, injectable } from "inversify";
 @injectable()
 export class UpdateTaskStatusUseCase implements IUpdateTaskStatusUseCase {
   constructor(
-    @inject(TYPES.TaskRepository) private taskRepo: ITaskRepository,
+    @inject(TYPES.TaskRepository) private _taskRepo: ITaskRepository,
     @inject(TYPES.ProjectMembershipRepository)
-    private membershipRepo: IProjectMembershipRepository,
+    private _membershipRepo: IProjectMembershipRepository,
   ) {}
 
   async execute(
@@ -30,11 +30,11 @@ export class UpdateTaskStatusUseCase implements IUpdateTaskStatusUseCase {
     input: UpdateTaskStatusRequestDTO,
     userId: string,
   ): Promise<void> {
-    const task = await this.taskRepo.findById(taskId);
+    const task = await this._taskRepo.findById(taskId);
 
     if (!task) throw new NotFoundError("Task");
 
-    const membership = await this.membershipRepo.findByProjectAndUser(
+    const membership = await this._membershipRepo.findByProjectAndUser(
       task.projectId,
       userId,
     );
@@ -60,7 +60,7 @@ export class UpdateTaskStatusUseCase implements IUpdateTaskStatusUseCase {
     task.changeStatus(input.status);
     task.setUpdatedAt(new Date());
 
-    await this.taskRepo.update(task);
+    await this._taskRepo.update(task);
     // const updated = await this.taskRepo.update(task);
     // return this.mapToResponse(updated);
   }

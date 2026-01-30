@@ -18,34 +18,34 @@ import {
 export class UpdateProjectUseCase implements IUpdateProjectUseCase {
   constructor(
     @inject(TYPES.ProjectRepository)
-    private projectRepo: IProjectRepository,
+    private _projectRepo: IProjectRepository,
 
     @inject(TYPES.ProjectMembershipRepository)
-    private membershipRepo: IProjectMembershipRepository
+    private _membershipRepo: IProjectMembershipRepository,
   ) {}
 
   async execute(input: UpdateProjectDTO): Promise<UpdateProjectResultDTO> {
     const { projectId, userId, projectName, description, imageUrl } = input;
 
     // 1️ Fetch project
-    const project = await this.projectRepo.findById(projectId);
+    const project = await this._projectRepo.findById(projectId);
     if (!project) {
       throw new NotFoundError("Project");
     }
-    const sameNameExist = await this.projectRepo.existsByNameAndOwnerId(
+    const sameNameExist = await this._projectRepo.existsByNameAndOwnerId(
       projectName!,
-      userId
+      userId,
     );
     if (sameNameExist) {
       throw new BadRequestError(
-        "Project with this same name exists. Try a another name."
+        "Project with this same name exists. Try a another name.",
       );
     }
     // 2️ Authorization
     if (project.ownerId !== userId) {
-      const membership = await this.membershipRepo.findByProjectAndUser(
+      const membership = await this._membershipRepo.findByProjectAndUser(
         projectId,
-        userId
+        userId,
       );
 
       if (!membership || membership.role !== "manager") {
@@ -67,7 +67,7 @@ export class UpdateProjectUseCase implements IUpdateProjectUseCase {
     }
 
     // 4️ Persist changes
-    await this.projectRepo.update(project);
+    await this._projectRepo.update(project);
 
     return { project };
   }

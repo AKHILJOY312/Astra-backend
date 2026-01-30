@@ -13,15 +13,15 @@ import { IUserSubscriptionRepository } from "@/application/ports/repositories/IU
 @injectable()
 export class GetAvailablePlansUseCase implements IGetAvailablePlansUseCase {
   constructor(
-    @inject(TYPES.PlanRepository) private planRepo: IPlanRepository,
+    @inject(TYPES.PlanRepository) private _planRepo: IPlanRepository,
     @inject(TYPES.UserSubscriptionRepository)
-    private subscriptRepo: IUserSubscriptionRepository,
+    private _subscriptRepo: IUserSubscriptionRepository,
   ) {}
 
   async execute(userId: string): Promise<AvailablePlanDTO[]> {
     const [plans, activeSub] = await Promise.all([
-      this.planRepo.findAllActive(),
-      this.subscriptRepo.findActiveByUserId(userId),
+      this._planRepo.findAllActive(),
+      this._subscriptRepo.findActiveByUserId(userId),
     ]);
 
     const isPaidUser = activeSub !== null && activeSub.planType !== "free";

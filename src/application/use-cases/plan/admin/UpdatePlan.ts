@@ -10,11 +10,11 @@ import { IUpdatePlan } from "@/application/ports/use-cases/plan/admin/IUpdatePla
 @injectable()
 export class UpdatePlan implements IUpdatePlan {
   constructor(
-    @inject(TYPES.PlanRepository) private planRepo: IPlanRepository
+    @inject(TYPES.PlanRepository) private _planRepo: IPlanRepository,
   ) {}
 
   async execute(dto: UpdatePlanDto): Promise<Plan | null> {
-    const plan = await this.planRepo.findById(dto.id);
+    const plan = await this._planRepo.findById(dto.id);
     if (!plan) throw new NotFoundError("Plan");
 
     // apply updates only when provided
@@ -32,7 +32,7 @@ export class UpdatePlan implements IUpdatePlan {
 
     plan.setUpdatedAt(new Date());
 
-    await this.planRepo.update(plan);
+    await this._planRepo.update(plan);
 
     return plan;
   }

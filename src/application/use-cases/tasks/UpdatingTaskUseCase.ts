@@ -20,12 +20,12 @@ import { inject, injectable } from "inversify";
 @injectable()
 export class UpdateTaskUseCase implements IUpdateTaskUseCase {
   constructor(
-    @inject(TYPES.TaskRepository) private taskRepo: ITaskRepository,
+    @inject(TYPES.TaskRepository) private _taskRepo: ITaskRepository,
     @inject(TYPES.ProjectMembershipRepository)
-    private membershipRepo: IProjectMembershipRepository,
-    @inject(TYPES.UserRepository) private userRepo: IUserRepository,
+    private _membershipRepo: IProjectMembershipRepository,
+    @inject(TYPES.UserRepository) private _userRepo: IUserRepository,
     @inject(TYPES.TaskAttachmentRepository)
-    private taskAttachmentRepo: ITaskAttachmentRepository,
+    private _taskAttachmentRepo: ITaskAttachmentRepository,
   ) {}
 
   async execute(
@@ -33,10 +33,10 @@ export class UpdateTaskUseCase implements IUpdateTaskUseCase {
     input: UpdateTaskRequestDTO,
     managerId: string,
   ): Promise<TaskResponseDTO> {
-    const task = await this.taskRepo.findById(taskId);
+    const task = await this._taskRepo.findById(taskId);
     if (!task) throw new NotFoundError("Task");
     //1.Manger authorization
-    const membership = await this.membershipRepo.findByProjectAndUser(
+    const membership = await this._membershipRepo.findByProjectAndUser(
       task.projectId,
       managerId,
     );
@@ -46,7 +46,7 @@ export class UpdateTaskUseCase implements IUpdateTaskUseCase {
 
     //2. Reassignment validation
     if (input.assignedTo) {
-      const assignee = await this.membershipRepo.findByProjectAndUser(
+      const assignee = await this._membershipRepo.findByProjectAndUser(
         task.projectId,
         input.assignedTo,
       );
@@ -65,14 +65,14 @@ export class UpdateTaskUseCase implements IUpdateTaskUseCase {
       task.setDueDate(input.dueDate ? new Date(input.dueDate) : null);
     task.setUpdatedAt(new Date());
 
-    await this.taskRepo.update(task);
+    await this._taskRepo.update(task);
     return this.mapToResponse(task!);
   }
   private async mapToResponse(task: Task): Promise<TaskResponseDTO> {
     const [user, attachments] = await Promise.all([
-      this.userRepo.findById(task.assignedTo),
+      this._userRepo.findById(task.assignedTo),
       task.hasAttachments
-        ? this.taskAttachmentRepo.findByTaskId(task.id!)
+        ? this._taskAttachmentRepo.findByTaskId(task.id!)
         : Promise.resolve([] as TasksAttachment[]),
     ]);
 

@@ -16,14 +16,14 @@ import {
 export class DownloadInvoiceUseCase implements IDownloadInvoiceUseCase {
   constructor(
     @inject(TYPES.PaymentRepository)
-    private paymentRepository: IPaymentRepository,
+    private _paymentRepo: IPaymentRepository,
 
     @inject(TYPES.PdfInvoiceService)
-    private invoicePdfGenerator: IPdfInvoiceService,
+    private _invoicePdfGeneratorSvc: IPdfInvoiceService,
   ) {}
 
   async execute(input: DownloadInvoiceInput): Promise<DownloadInvoiceOutput> {
-    const payment = await this.paymentRepository.findById(input.paymentId);
+    const payment = await this._paymentRepo.findById(input.paymentId);
 
     if (!payment) {
       throw new BadRequestError("Payment not found");
@@ -39,7 +39,7 @@ export class DownloadInvoiceUseCase implements IDownloadInvoiceUseCase {
       throw new Error("Invoice number missing for this payment");
     }
 
-    const pdfBuffer = await this.invoicePdfGenerator.generate(payment);
+    const pdfBuffer = await this._invoicePdfGeneratorSvc.generate(payment);
 
     return {
       fileName: `invoice-${payment.invoiceNumber}.pdf`,

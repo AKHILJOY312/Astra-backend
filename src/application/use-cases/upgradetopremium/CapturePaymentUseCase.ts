@@ -20,11 +20,11 @@ import { ICounterRepository } from "@/application/ports/repositories/ICounterRep
 export class CapturePaymentUseCase implements ICapturePaymentUseCase {
   constructor(
     @inject(TYPES.UserSubscriptionRepository)
-    private subscriptionRepo: IUserSubscriptionRepository,
-    @inject(TYPES.PaymentRepository) private paymentRepo: IPaymentRepository,
-    @inject(TYPES.UserRepository) private userRepo: IUserRepository,
-    @inject(TYPES.PlanRepository) private planRepo: IPlanRepository,
-    @inject(TYPES.CounterRepository) private counterRepo: ICounterRepository
+    private _subscriptionRepo: IUserSubscriptionRepository,
+    @inject(TYPES.PaymentRepository) private _paymentRepo: IPaymentRepository,
+    @inject(TYPES.UserRepository) private _userRepo: IUserRepository,
+    @inject(TYPES.PlanRepository) private _planRepo: IPlanRepository,
+    @inject(TYPES.CounterRepository) private _counterRepo: ICounterRepository,
   ) {}
 
   async execute(input: CapturePaymentInput): Promise<CapturePaymentOutput> {
@@ -44,9 +44,8 @@ export class CapturePaymentUseCase implements ICapturePaymentUseCase {
     }
 
     // Find subscription by razorPayOrderId
-    const payment = await this.paymentRepo.findByRazorpayOrderId(
-      razorpayOrderId
-    );
+    const payment =
+      await this._paymentRepo.findByRazorpayOrderId(razorpayOrderId);
     if (!payment) {
       throw new NotFoundError("Payment");
     }
@@ -64,16 +63,16 @@ export class CapturePaymentUseCase implements ICapturePaymentUseCase {
     payment.setRazorpayPaymentId(razorpayPaymentId);
     payment.capture(invoiceNumber);
 
-    await this.paymentRepo.update(payment);
+    await this._paymentRepo.update(payment);
     //Getting the user for snapshot
-    const user = await this.userRepo.findById(payment.userId);
+    const user = await this._userRepo.findById(payment.userId);
     if (!user) throw new NotFoundError("User");
-    const plan = await this.planRepo.findById(payment.planId);
+    const plan = await this._planRepo.findById(payment.planId);
     if (!plan) {
       throw new NotFoundError("Plan");
     }
-    let existingSubscription = await this.subscriptionRepo.findByUserId(
-      payment.userId
+    let existingSubscription = await this._subscriptionRepo.findByUserId(
+      payment.userId,
     );
 
     const now = new Date();
@@ -83,7 +82,7 @@ export class CapturePaymentUseCase implements ICapturePaymentUseCase {
       existingSubscription.setPlan(
         payment.planId,
         payment.amount,
-        payment.currency
+        payment.currency,
       );
       existingSubscription.setStatus("active");
       existingSubscription.setOrderId(payment.razorpayOrderId);
@@ -91,7 +90,7 @@ export class CapturePaymentUseCase implements ICapturePaymentUseCase {
       existingSubscription.setEndDate(endDate);
       existingSubscription.setUpdatedAt(now);
 
-      await this.subscriptionRepo.update(existingSubscription);
+      await this._subscriptionRepo.update(existingSubscription);
     } else {
       existingSubscription = new UserSubscription({
         userId: payment.userId,
@@ -103,7 +102,7 @@ export class CapturePaymentUseCase implements ICapturePaymentUseCase {
         status: "active",
         razorPayOrderId: payment.razorpayOrderId,
       });
-      await this.subscriptionRepo.create(existingSubscription);
+      await this._subscriptionRepo.create(existingSubscription);
     }
 
     return {
@@ -113,7 +112,7 @@ export class CapturePaymentUseCase implements ICapturePaymentUseCase {
   }
   private async generateInvoiceNumber(): Promise<string> {
     const year = new Date().getFullYear();
-    const sequence = await this.counterRepo.getNext(`invoice-${year}`);
+    const sequence = await this._counterRepo.getNext(`invoice-${year}`);
 
     return `INV-${year}-${sequence}`;
   }

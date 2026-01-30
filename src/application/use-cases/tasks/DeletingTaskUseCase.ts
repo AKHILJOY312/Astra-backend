@@ -10,19 +10,19 @@ import { IProjectMembershipRepository } from "@/application/ports/repositories/I
 export class DeleteTaskUseCase implements IDeleteTaskUseCase {
   constructor(
     @inject(TYPES.TaskRepository)
-    private taskRepo: ITaskRepository,
+    private _taskRepo: ITaskRepository,
 
     @inject(TYPES.ProjectMembershipRepository)
-    private membershipRepo: IProjectMembershipRepository,
+    private _membershipRepo: IProjectMembershipRepository,
   ) {}
 
   async execute(taskId: string, managerId: string): Promise<void> {
     // 1. Load task
-    const task = await this.taskRepo.findById(taskId);
+    const task = await this._taskRepo.findById(taskId);
     if (!task) throw new NotFoundError("Task not found");
 
     // 2. Manager authorization
-    const membership = await this.membershipRepo.findByProjectAndUser(
+    const membership = await this._membershipRepo.findByProjectAndUser(
       task.projectId,
       managerId,
     );
@@ -32,6 +32,6 @@ export class DeleteTaskUseCase implements IDeleteTaskUseCase {
     }
 
     // 3. Soft delete
-    await this.taskRepo.softDelete(taskId);
+    await this._taskRepo.softDelete(taskId);
   }
 }

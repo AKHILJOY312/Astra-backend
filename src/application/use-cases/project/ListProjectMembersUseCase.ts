@@ -14,25 +14,25 @@ import {
 export class ListProjectMembersUseCase implements IListProjectMembersUseCase {
   constructor(
     @inject(TYPES.ProjectMembershipRepository)
-    private readonly membershipRepo: IProjectMembershipRepository,
+    private readonly _membershipRepo: IProjectMembershipRepository,
 
     @inject(TYPES.ProjectRepository)
-    private readonly projectRepo: IProjectRepository
+    private readonly _projectRepo: IProjectRepository,
   ) {}
 
   async execute(input: ListProjectMembersDTO): Promise<ProjectMemberView[]> {
     const { projectId, requestedBy } = input;
 
     // 1 Validate project exists
-    const project = await this.projectRepo.findById(projectId);
+    const project = await this._projectRepo.findById(projectId);
     if (!project) {
       throw new NotFoundError("Project");
     }
 
     // 2 Ensure requester is a member
-    const requesterMembership = await this.membershipRepo.findByProjectAndUser(
+    const requesterMembership = await this._membershipRepo.findByProjectAndUser(
       projectId,
-      requestedBy
+      requestedBy,
     );
 
     if (!requesterMembership) {
@@ -40,9 +40,8 @@ export class ListProjectMembersUseCase implements IListProjectMembersUseCase {
     }
 
     // Fetch all members
-    const members = await this.membershipRepo.findMembersWithUserDetails(
-      projectId
-    );
+    const members =
+      await this._membershipRepo.findMembersWithUserDetails(projectId);
 
     return members;
   }

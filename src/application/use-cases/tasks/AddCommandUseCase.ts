@@ -16,11 +16,11 @@ import { IAddCommentUseCase } from "@/application/ports/use-cases/task/interface
 @injectable()
 export class AddCommentUseCase implements IAddCommentUseCase {
   constructor(
-    @inject(TYPES.CommentRepository) private commentRepo: ICommentRepository,
-    @inject(TYPES.TaskRepository) private taskRepo: ITaskRepository,
+    @inject(TYPES.CommentRepository) private _commentRepo: ICommentRepository,
+    @inject(TYPES.TaskRepository) private _taskRepo: ITaskRepository,
     @inject(TYPES.ProjectMembershipRepository)
-    private membershipRepo: IProjectMembershipRepository,
-    @inject(TYPES.UserRepository) private userRepo: IUserRepository,
+    private _membershipRepo: IProjectMembershipRepository,
+    @inject(TYPES.UserRepository) private _userRepo: IUserRepository,
   ) {}
 
   async execute(
@@ -30,13 +30,13 @@ export class AddCommentUseCase implements IAddCommentUseCase {
     const { taskId, projectId, message } = input;
 
     // 1. Verify Task exists
-    const task = await this.taskRepo.findById(taskId);
+    const task = await this._taskRepo.findById(taskId);
     if (!task) {
       throw new NotFoundError("Task not found");
     }
 
     // 2. Permission Check: User must be a member of the project to comment/comment
-    const membership = await this.membershipRepo.findByProjectAndUser(
+    const membership = await this._membershipRepo.findByProjectAndUser(
       projectId,
       userId,
     );
@@ -58,14 +58,14 @@ export class AddCommentUseCase implements IAddCommentUseCase {
     });
 
     // 4. Persist to Repository
-    const savedComment = await this.commentRepo.create(comment);
+    const savedComment = await this._commentRepo.create(comment);
 
     // 5. Return mapped response
     return this.mapToResponse(savedComment);
   }
 
   private async mapToResponse(comment: Comment): Promise<CommentResponseDTO> {
-    const author = await this.userRepo.findById(comment.authorId);
+    const author = await this._userRepo.findById(comment.authorId);
 
     return {
       id: comment.id!,

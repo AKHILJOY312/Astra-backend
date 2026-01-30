@@ -21,17 +21,17 @@ import { User } from "@/domain/entities/user/User";
 export class UpgradeToPlanUseCase implements IUpgradeToPlanUseCase {
   constructor(
     @inject(TYPES.UserSubscriptionRepository)
-    private subscriptionRepo: IUserSubscriptionRepository,
-    @inject(TYPES.PlanRepository) private planRepo: IPlanRepository,
-    @inject(TYPES.PaymentRepository) private paymentRepo: IPaymentRepository,
-    @inject(TYPES.UserRepository) private userRepo: IUserRepository,
-    @inject(TYPES.PaymentService) private razorpayService: IRazorpayService
+    private _subscriptionRepo: IUserSubscriptionRepository,
+    @inject(TYPES.PlanRepository) private _planRepo: IPlanRepository,
+    @inject(TYPES.PaymentRepository) private _paymentRepo: IPaymentRepository,
+    @inject(TYPES.UserRepository) private _userRepo: IUserRepository,
+    @inject(TYPES.PaymentService) private _razorpaySvc: IRazorpayService,
   ) {}
 
   async execute(input: UpgradeToPlanInput): Promise<UpgradeToPlanOutput> {
     const { userId, planId } = input;
 
-    const plan = await this.planRepo.findById(planId);
+    const plan = await this._planRepo.findById(planId);
     if (!plan || !plan.isActive) {
       throw new BadRequestError("Invalid or inactive plan");
     }
@@ -40,12 +40,11 @@ export class UpgradeToPlanUseCase implements IUpgradeToPlanUseCase {
       throw new BadRequestError("Free plan cannot be purchased");
     }
 
-    const user = await this.userRepo.findById(userId);
+    const user = await this._userRepo.findById(userId);
     if (!user) throw new BadRequestError("User not found");
 
-    const existingSubscription = await this.subscriptionRepo.findByUserId(
-      userId
-    );
+    const existingSubscription =
+      await this._subscriptionRepo.findByUserId(userId);
 
     // =========================
     //  ACTIVE SUBSCRIPTION → UPGRADE
@@ -56,8 +55,8 @@ export class UpgradeToPlanUseCase implements IUpgradeToPlanUseCase {
       existingSubscription.endDate &&
       existingSubscription.endDate > new Date()
     ) {
-      const currentPlan = await this.planRepo.findById(
-        existingSubscription.planType
+      const currentPlan = await this._planRepo.findById(
+        existingSubscription.planType,
       );
       if (!currentPlan) {
         throw new BadRequestError("Current plan not found");
@@ -71,7 +70,7 @@ export class UpgradeToPlanUseCase implements IUpgradeToPlanUseCase {
         existingSubscription,
         currentPlan,
         plan,
-        user
+        user,
       );
     }
 
@@ -86,12 +85,12 @@ export class UpgradeToPlanUseCase implements IUpgradeToPlanUseCase {
   // =========================
   private async createNewSubscriptionPayment(
     plan: Plan,
-    user: User
+    user: User,
   ): Promise<UpgradeToPlanOutput> {
     if (!user) {
       throw new NotFoundError("User");
     }
-    const order = await this.razorpayService.createOrder({
+    const order = await this._razorpaySvc.createOrder({
       amount: plan.finalAmount * 100,
       currency: plan.currency,
       receipt: `sub_${user.id!.slice(0, 6)}`,
@@ -113,7 +112,7 @@ export class UpgradeToPlanUseCase implements IUpgradeToPlanUseCase {
       },
     });
 
-    await this.paymentRepo.create(payment);
+    await this._paymentRepo.create(payment);
 
     return {
       razorpayOrderId: order.id,
@@ -130,7 +129,7 @@ export class UpgradeToPlanUseCase implements IUpgradeToPlanUseCase {
     subscription: UserSubscription,
     currentPlan: Plan,
     newPlan: Plan,
-    user: User
+    user: User,
   ): Promise<UpgradeToPlanOutput> {
     if (!subscription.startDate || !subscription.endDate) {
       throw new BadRequestError("Invalid subscription period");
@@ -149,7 +148,7 @@ export class UpgradeToPlanUseCase implements IUpgradeToPlanUseCase {
       throw new BadRequestError("Upgrade not required");
     }
 
-    const order = await this.razorpayService.createOrder({
+    const order = await this._razorpaySvc.createOrder({
       amount: Math.round(payableAmount * 100),
       currency: newPlan.currency,
       receipt: `upgrade_${subscription.userId.slice(0, 6)}`,
@@ -176,7 +175,7 @@ export class UpgradeToPlanUseCase implements IUpgradeToPlanUseCase {
       },
     });
 
-    await this.paymentRepo.create(payment);
+    await this._paymentRepo.create(payment);
 
     return {
       razorpayOrderId: order.id,

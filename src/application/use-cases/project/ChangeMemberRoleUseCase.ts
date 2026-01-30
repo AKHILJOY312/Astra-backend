@@ -13,7 +13,7 @@ import {
 export class ChangeMemberRoleUseCase implements IChangeMemberRoleUseCase {
   constructor(
     @inject(TYPES.ProjectMembershipRepository)
-    private membershipRepo: IProjectMembershipRepository,
+    private _membershipRepo: IProjectMembershipRepository,
   ) {}
 
   async execute(
@@ -22,7 +22,7 @@ export class ChangeMemberRoleUseCase implements IChangeMemberRoleUseCase {
     const { projectId, memberId, newRole, requestedBy } = input;
 
     // 1. Requester must be manager
-    const requester = await this.membershipRepo.findByProjectAndUser(
+    const requester = await this._membershipRepo.findByProjectAndUser(
       projectId,
       requestedBy,
     );
@@ -33,7 +33,7 @@ export class ChangeMemberRoleUseCase implements IChangeMemberRoleUseCase {
     }
 
     // 2. Target must be a member
-    const target = await this.membershipRepo.findById(memberId);
+    const target = await this._membershipRepo.findById(memberId);
     if (!target) {
       throw new NotFoundError("Member");
     }
@@ -41,7 +41,7 @@ export class ChangeMemberRoleUseCase implements IChangeMemberRoleUseCase {
     // 3. Prevent removing last manager
     if (target.role === "manager" && newRole !== "manager") {
       const managerCount =
-        await this.membershipRepo.countManagersInProject(projectId);
+        await this._membershipRepo.countManagersInProject(projectId);
       if (managerCount <= 1) {
         throw new UnauthorizedError(
           "Cannot demote the last manager — transfer ownership first",
@@ -51,7 +51,7 @@ export class ChangeMemberRoleUseCase implements IChangeMemberRoleUseCase {
 
     // 4. Update role
     target.changeRole(newRole);
-    await this.membershipRepo.update(target);
+    await this._membershipRepo.update(target);
 
     return { membership: target };
   }

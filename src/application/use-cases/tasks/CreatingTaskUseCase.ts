@@ -19,13 +19,13 @@ import { inject, injectable } from "inversify";
 @injectable()
 export class CreateTaskUseCase implements ICreateTaskUseCase {
   constructor(
-    @inject(TYPES.TaskRepository) private taskRepo: ITaskRepository,
+    @inject(TYPES.TaskRepository) private _taskRepo: ITaskRepository,
 
     @inject(TYPES.ProjectMembershipRepository)
-    private membershipRepo: IProjectMembershipRepository,
-    @inject(TYPES.UserRepository) private userRepo: IUserRepository,
+    private _membershipRepo: IProjectMembershipRepository,
+    @inject(TYPES.UserRepository) private _userRepo: IUserRepository,
     @inject(TYPES.TaskAttachmentRepository)
-    private TaskAttachmentRepo: ITaskAttachmentRepository,
+    private _TaskAttachmentRepo: ITaskAttachmentRepository,
   ) {}
   async execute(
     input: CreateTaskRequestDTO,
@@ -42,7 +42,7 @@ export class CreateTaskUseCase implements ICreateTaskUseCase {
     } = input;
 
     //1.Manger check
-    const managerMembership = await this.membershipRepo.findByProjectAndUser(
+    const managerMembership = await this._membershipRepo.findByProjectAndUser(
       projectId,
       managerId,
     );
@@ -50,7 +50,7 @@ export class CreateTaskUseCase implements ICreateTaskUseCase {
       throw new UnauthorizedError("Only mangers and lead can create task");
     }
     //2. assigned user must be project member
-    const assigneeMembership = await this.membershipRepo.findByProjectAndUser(
+    const assigneeMembership = await this._membershipRepo.findByProjectAndUser(
       projectId,
       assignedTo,
     );
@@ -74,7 +74,7 @@ export class CreateTaskUseCase implements ICreateTaskUseCase {
       updatedAt: new Date(),
     });
 
-    const savedTask = await this.taskRepo.create(task);
+    const savedTask = await this._taskRepo.create(task);
 
     if (attachments && attachments.length > 0) {
       const attachmentPromise = attachments.map((att) => {
@@ -85,7 +85,7 @@ export class CreateTaskUseCase implements ICreateTaskUseCase {
           fileSize: att.fileSize,
           fileUrl: att.fileUrl,
         });
-        return this.TaskAttachmentRepo.create(taskAttachment);
+        return this._TaskAttachmentRepo.create(taskAttachment);
       });
       await Promise.all(attachmentPromise);
     }
@@ -95,9 +95,9 @@ export class CreateTaskUseCase implements ICreateTaskUseCase {
   private async mapToResponse(task: Task): Promise<TaskResponseDTO> {
     // Fetch user and attachments concurrently
     const [user, attachments] = await Promise.all([
-      this.userRepo.findById(task.assignedTo),
+      this._userRepo.findById(task.assignedTo),
       task.hasAttachments
-        ? this.TaskAttachmentRepo.findByTaskId(task.id!)
+        ? this._TaskAttachmentRepo.findByTaskId(task.id!)
         : Promise.resolve([]),
     ]);
 

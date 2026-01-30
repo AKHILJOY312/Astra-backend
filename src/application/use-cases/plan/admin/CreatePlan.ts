@@ -10,11 +10,11 @@ import { ICreatePlan } from "@/application/ports/use-cases/plan/admin/ICreatePla
 @injectable()
 export class CreatePlan implements ICreatePlan {
   constructor(
-    @inject(TYPES.PlanRepository) private planRepo: IPlanRepository
+    @inject(TYPES.PlanRepository) private _planRepo: IPlanRepository,
   ) {}
 
   async execute(dto: CreatePlanDto): Promise<Plan> {
-    const existing = await this.planRepo.findByName(dto.name);
+    const existing = await this._planRepo.findByName(dto.name);
     if (existing) {
       throw new BadRequestError("A plan with this name already exists.");
     }
@@ -36,6 +36,6 @@ export class CreatePlan implements ICreatePlan {
       updatedAt: new Date(),
     });
 
-    return this.planRepo.create(plan);
+    return this._planRepo.create(plan);
   }
 }

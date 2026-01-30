@@ -13,18 +13,21 @@ import {
 @injectable()
 export class GetUserLimitsUseCase implements IGetUserLimitsUseCase {
   constructor(
-    @inject(TYPES.ProjectRepository) private projectRepo: IProjectRepository,
+    @inject(TYPES.ProjectRepository) private _projectRepo: IProjectRepository,
     @inject(TYPES.ProjectMembershipRepository)
-    private membershipRepo: IProjectMembershipRepository,
+    private _membershipRepo: IProjectMembershipRepository,
     @inject(TYPES.UserSubscriptionRepository)
-    private subscriptionRepo: IUserSubscriptionRepository,
-    @inject(TYPES.PlanRepository) private planRepo: IPlanRepository
+    private _subscriptionRepo: IUserSubscriptionRepository,
+    @inject(TYPES.PlanRepository) private _planRepo: IPlanRepository,
   ) {}
 
   async execute(userId: string, projectId?: string): Promise<UserLimitsDTO> {
-    const projectCount = await this.projectRepo.countByOwnerId(userId);
-    const subscription = await this.subscriptionRepo.findActiveByUserId(userId);
-    const plan = await this.planRepo.findById(subscription?.planType || "free");
+    const projectCount = await this._projectRepo.countByOwnerId(userId);
+    const subscription =
+      await this._subscriptionRepo.findActiveByUserId(userId);
+    const plan = await this._planRepo.findById(
+      subscription?.planType || "free",
+    );
 
     const limits = {
       currentProjects: projectCount,
@@ -32,12 +35,12 @@ export class GetUserLimitsUseCase implements IGetUserLimitsUseCase {
       maxMembersPerProject: plan?.maxMembersPerProject || 5,
       planType: subscription?.planType || "free",
       currentMembersInProject: projectId
-        ? await this.membershipRepo.countMembersInProject(projectId)
+        ? await this._membershipRepo.countMembersInProject(projectId)
         : undefined,
       canCreateProject: projectCount < (plan?.maxProjects || 5),
       canAddMember:
         !projectId ||
-        (await this.membershipRepo.countMembersInProject(projectId)) <
+        (await this._membershipRepo.countMembersInProject(projectId)) <
           (plan?.maxMembersPerProject || 5),
     };
 
