@@ -14,17 +14,17 @@ import { IProjectMembershipRepository } from "@/application/ports/repositories/I
 export class SearchProjectMembersUseCase implements ISearchProjectMembersUseCase {
   constructor(
     @inject(TYPES.MemberRepository)
-    private memberRepo: IMemberRepository,
+    private _memberRepo: IMemberRepository,
 
     @inject(TYPES.ProjectMembershipRepository)
-    private membershipRepo: IProjectMembershipRepository,
+    private _membershipRepo: IProjectMembershipRepository,
   ) {}
 
   async execute(
     input: SearchMembersRequestDTO,
     managerId: string,
   ): Promise<MemberSearchResponseDTO> {
-    const membership = await this.membershipRepo.findByProjectAndUser(
+    const membership = await this._membershipRepo.findByProjectAndUser(
       input.projectId,
       managerId,
     );
@@ -33,7 +33,7 @@ export class SearchProjectMembersUseCase implements ISearchProjectMembersUseCase
       throw new UnauthorizedError("Only managers can search members");
     }
 
-    const members = await this.memberRepo.searchMembersByProject(
+    const members = await this._memberRepo.searchMembersByProject(
       input.projectId,
       input.query,
     );

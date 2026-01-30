@@ -13,10 +13,10 @@ import { ENV } from "@/config/env.config";
 export class GetAttachmentUploadUrlUseCase implements IGetAttachmentUploadUrlUseCase {
   constructor(
     @inject(TYPES.ProjectMembershipRepository)
-    private membershipRepo: IProjectMembershipRepository,
+    private _membershipRepo: IProjectMembershipRepository,
 
     @inject(TYPES.FileUploadService)
-    private fileUploadService: IFileUploadService,
+    private _fileUploadSvc: IFileUploadService,
   ) {}
 
   async execute(
@@ -26,7 +26,7 @@ export class GetAttachmentUploadUrlUseCase implements IGetAttachmentUploadUrlUse
     requesterId: string,
   ): Promise<PresignedUrlResponseDTO> {
     // 1. Must be project manager
-    const membership = await this.membershipRepo.findByProjectAndUser(
+    const membership = await this._membershipRepo.findByProjectAndUser(
       projectId,
       requesterId,
     );
@@ -39,7 +39,7 @@ export class GetAttachmentUploadUrlUseCase implements IGetAttachmentUploadUrlUse
     const fileKey = `projects/${projectId}/tasks/${randomUUID()}-${fileName}`;
 
     // 3. Generate upload URL via shared upload service
-    const { uploadUrl } = await this.fileUploadService.generateFileUploadUrl({
+    const { uploadUrl } = await this._fileUploadSvc.generateFileUploadUrl({
       key: fileKey,
       contentType: fileType,
       metadata: {

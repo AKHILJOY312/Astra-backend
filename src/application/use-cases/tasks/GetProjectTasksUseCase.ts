@@ -22,14 +22,14 @@ import { ICommentRepository } from "@/application/ports/repositories/ICommentRep
 export class GetProjectTasksUseCase implements IGetProjectTasksUseCase {
   constructor(
     @inject(TYPES.TaskRepository)
-    private taskRepo: ITaskRepository,
+    private _taskRepo: ITaskRepository,
 
     @inject(TYPES.ProjectMembershipRepository)
-    private membershipRepo: IProjectMembershipRepository,
-    @inject(TYPES.UserRepository) private userRepo: IUserRepository,
+    private _membershipRepo: IProjectMembershipRepository,
+    @inject(TYPES.UserRepository) private _userRepo: IUserRepository,
     @inject(TYPES.TaskAttachmentRepository)
-    private taskAttachmentRepo: ITaskAttachmentRepository,
-    @inject(TYPES.CommentRepository) private commentRepo: ICommentRepository,
+    private _taskAttachmentRepo: ITaskAttachmentRepository,
+    @inject(TYPES.CommentRepository) private _commentRepo: ICommentRepository,
   ) {}
 
   async execute({
@@ -40,7 +40,7 @@ export class GetProjectTasksUseCase implements IGetProjectTasksUseCase {
     limit = 10,
   }: GetTaskRequestDTO): Promise<ProjectTasksResponse> {
     // 1. Must be project member
-    const membership = await this.membershipRepo.findByProjectAndUser(
+    const membership = await this._membershipRepo.findByProjectAndUser(
       projectId,
       requesterId,
     );
@@ -51,7 +51,7 @@ export class GetProjectTasksUseCase implements IGetProjectTasksUseCase {
     const isManager = membership.role === "manager";
     // 2. Load tasks
     const { tasks, hasMore } =
-      await this.taskRepo.findByProjectAndStatusPaginated(
+      await this._taskRepo.findByProjectAndStatusPaginated(
         projectId,
         limit,
         status,
@@ -76,16 +76,16 @@ export class GetProjectTasksUseCase implements IGetProjectTasksUseCase {
 
   private async mapToResponse(task: Task): Promise<TaskResponseDTO> {
     const [user, attachments, rawComments] = await Promise.all([
-      this.userRepo.findById(task.assignedTo),
+      this._userRepo.findById(task.assignedTo),
       task.hasAttachments
-        ? this.taskAttachmentRepo.findByTaskId(task.id!)
+        ? this._taskAttachmentRepo.findByTaskId(task.id!)
         : Promise.resolve([] as TasksAttachment[]),
-      this.commentRepo.listByTask(task.id!),
+      this._commentRepo.listByTask(task.id!),
     ]);
 
     const commentsWithAuthors = await Promise.all(
       rawComments.map(async (cmd) => {
-        const author = await this.userRepo.findById(cmd.authorId);
+        const author = await this._userRepo.findById(cmd.authorId);
         return {
           id: cmd.id!,
           taskId: cmd.taskId,

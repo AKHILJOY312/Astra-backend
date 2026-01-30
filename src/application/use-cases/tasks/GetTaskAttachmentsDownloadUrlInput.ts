@@ -11,12 +11,12 @@ import { inject, injectable } from "inversify";
 export class GetTaskAttachmentDownloadUrlUseCase implements IGetTaskAttachmentDownloadUrlUseCase {
   constructor(
     @inject(TYPES.TaskAttachmentRepository)
-    private attachmentRepo: ITaskAttachmentRepository,
-    @inject(TYPES.FileUploadService) private fileUploadSrv: IFileUploadService,
+    private _attachmentRepo: ITaskAttachmentRepository,
+    @inject(TYPES.FileUploadService) private _fileUploadSvc: IFileUploadService,
   ) {}
 
   async execute(attachmentId: string): Promise<GetAttachmentDownloadUrlOutput> {
-    const attachment = await this.attachmentRepo.findById(attachmentId);
+    const attachment = await this._attachmentRepo.findById(attachmentId);
     if (!attachment) {
       throw new BadRequestError("Attachment not found");
     }
@@ -26,7 +26,7 @@ export class GetTaskAttachmentDownloadUrlUseCase implements IGetTaskAttachmentDo
       throw new BadRequestError("Invalid attachment storage key");
     }
 
-    return this.fileUploadSrv.generateChatFileAccessUrl({
+    return this._fileUploadSvc.generateChatFileAccessUrl({
       key,
       contentType: attachment.fileType,
     });
