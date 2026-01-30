@@ -10,16 +10,16 @@ import {
 @injectable()
 export class GetPlansPaginated implements IGetPlansPaginated {
   constructor(
-    @inject(TYPES.PlanRepository) private planRepo: IPlanRepository
+    @inject(TYPES.PlanRepository) private _planRepo: IPlanRepository,
   ) {}
 
   async execute(
     page: number = 1,
-    limit: number = 10
+    limit: number = 10,
   ): Promise<PaginatedResponseDTO> {
     const [plans, total] = await Promise.all([
-      this.planRepo.findAllPaginated(page, limit),
-      this.planRepo.count(),
+      this._planRepo.findAllPaginated(page, limit),
+      this._planRepo.count(),
     ]);
 
     return {

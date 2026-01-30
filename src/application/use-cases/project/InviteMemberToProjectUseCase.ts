@@ -22,20 +22,18 @@ import { Invitation } from "@/domain/entities/project/Invitation";
 import { ENV } from "@/config/env.config";
 
 @injectable()
-export class InviteMemberToProjectUseCase
-  implements IInviteMemberToProjectUseCase
-{
+export class InviteMemberToProjectUseCase implements IInviteMemberToProjectUseCase {
   constructor(
     @inject(TYPES.ProjectMembershipRepository)
-    private membershipRepo: IProjectMembershipRepository,
-    @inject(TYPES.ProjectRepository) private projectRepo: IProjectRepository,
+    private _membershipRepo: IProjectMembershipRepository,
+    @inject(TYPES.ProjectRepository) private _projectRepo: IProjectRepository,
     @inject(TYPES.UserSubscriptionRepository)
-    private subscriptionRepo: IUserSubscriptionRepository,
-    @inject(TYPES.PlanRepository) private planRepo: IPlanRepository,
+    private _subscriptionRepo: IUserSubscriptionRepository,
+    @inject(TYPES.PlanRepository) private _planRepo: IPlanRepository,
     @inject(TYPES.InvitationRepository)
-    private invitationRepo: IInvitationRepository,
-    @inject(TYPES.UserRepository) private userRepo: IUserRepository,
-    @inject(TYPES.EmailService) private emailSvc: IEmailService
+    private _invitationRepo: IInvitationRepository,
+    @inject(TYPES.UserRepository) private _userRepo: IUserRepository,
+    @inject(TYPES.EmailService) private _emailSvc: IEmailService,
   ) {}
 
   async execute(input: InviteMemberDTO): Promise<InviteMemberResultDTO> {
@@ -48,50 +46,48 @@ export class InviteMemberToProjectUseCase
     const email = rawEmail.trim().toLocaleLowerCase();
 
     //Validate the requester is Manager
-    const requesterMembership = await this.membershipRepo.findByProjectAndUser(
+    const requesterMembership = await this._membershipRepo.findByProjectAndUser(
       projectId,
-      requestedBy
+      requestedBy,
     );
     if (!requesterMembership || requesterMembership.role !== "manager") {
       throw new UnauthorizedError("Only project managers can add members");
     }
 
     //Load project and owner plan
-    const project = await this.projectRepo.findById(projectId);
+    const project = await this._projectRepo.findById(projectId);
     if (!project) throw new NotFoundError("Project");
 
-    const ownerSub = await this.subscriptionRepo.findActiveByUserId(
-      project.ownerId
+    const ownerSub = await this._subscriptionRepo.findActiveByUserId(
+      project.ownerId,
     );
 
-    const plan = await this.planRepo.findById(ownerSub?.planType || "free");
+    const plan = await this._planRepo.findById(ownerSub?.planType || "free");
     if (!plan) throw new NotFoundError("Plan");
 
     // Check seat availability  (current members + pending invites).
-    const currentMemberCount = await this.membershipRepo.countMembersInProject(
-      projectId
-    );
-    const pendingInvitesCount = await this.invitationRepo.countPendingByProject(
-      projectId
-    );
+    const currentMemberCount =
+      await this._membershipRepo.countMembersInProject(projectId);
+    const pendingInvitesCount =
+      await this._invitationRepo.countPendingByProject(projectId);
 
     if (currentMemberCount + pendingInvitesCount >= plan.maxMembersPerProject) {
       throw new BadRequestError(
-        `Maximum ${plan.maxMembersPerProject} members allowed. Upgrade plan to add more.`
+        `Maximum ${plan.maxMembersPerProject} members allowed. Upgrade plan to add more.`,
       );
     }
 
     //Check if user already exits
-    const existingUser = await this.userRepo.findByEmail(email);
+    const existingUser = await this._userRepo.findByEmail(email);
 
     if (existingUser) {
-      const alreadyMember = await this.membershipRepo.findByProjectAndUser(
+      const alreadyMember = await this._membershipRepo.findByProjectAndUser(
         projectId,
-        existingUser.id as string
+        existingUser.id as string,
       );
       if (alreadyMember) {
         throw new BadRequestError(
-          "This user is already a member of this project"
+          "This user is already a member of this project",
         );
       }
       const membership = new ProjectMembership({
@@ -99,15 +95,15 @@ export class InviteMemberToProjectUseCase
         userId: existingUser.id as string,
         role,
       });
-      const savedMembership = await this.membershipRepo.create(membership);
+      const savedMembership = await this._membershipRepo.create(membership);
       return { type: "added", membership: savedMembership };
     }
 
     const existingPendingInvite =
-      await this.invitationRepo.findPendingByEmailAndProject(email, projectId);
+      await this._invitationRepo.findPendingByEmailAndProject(email, projectId);
     if (existingPendingInvite) {
       throw new BadRequestError(
-        "An invitation has already been sen to this email"
+        "An invitation has already been sen to this email",
       );
     }
     const expiriesAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
@@ -118,15 +114,15 @@ export class InviteMemberToProjectUseCase
       inviterId: requestedBy,
       expiresAt: expiriesAt,
     });
-    await this.invitationRepo.create(invitation);
+    await this._invitationRepo.create(invitation);
     const invitationLink = `${ENV.CLIENT_URL}/invite?token=${invitation.token}`;
     const registrationLink = `${ENV.CLIENT_URL}/register`;
-    await this.emailSvc.sendProjectInvitation(
+    await this._emailSvc.sendProjectInvitation(
       email,
       project.projectName,
       "A team Member",
       invitationLink,
-      registrationLink
+      registrationLink,
     );
     return {
       type: "invited",

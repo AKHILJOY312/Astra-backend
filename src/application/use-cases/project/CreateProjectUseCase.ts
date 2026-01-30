@@ -22,35 +22,34 @@ import {
 @injectable()
 export class CreateProjectUseCase implements ICreateProjectUseCase {
   constructor(
-    @inject(TYPES.ProjectRepository) private projectRepo: IProjectRepository,
+    @inject(TYPES.ProjectRepository) private _projectRepo: IProjectRepository,
     @inject(TYPES.UserSubscriptionRepository)
-    private subscriptionRepo: IUserSubscriptionRepository,
-    @inject(TYPES.PlanRepository) private planRepo: IPlanRepository,
+    private _subscriptionRepo: IUserSubscriptionRepository,
+    @inject(TYPES.PlanRepository) private _planRepo: IPlanRepository,
     @inject(TYPES.ProjectMembershipRepository)
-    private membershipRepo: IProjectMembershipRepository
+    private _membershipRepo: IProjectMembershipRepository,
   ) {}
 
   async execute(input: CreateProjectDTO): Promise<CreateProjectResultDTO> {
     const { ownerId, projectName, description, imageUrl } = input;
     // 1. Count current projects
-    const currentCount = await this.projectRepo.countByOwnerId(ownerId);
-    const sameNameExist = await this.projectRepo.existsByNameAndOwnerId(
+    const currentCount = await this._projectRepo.countByOwnerId(ownerId);
+    const sameNameExist = await this._projectRepo.existsByNameAndOwnerId(
       projectName,
-      ownerId
+      ownerId,
     );
     if (sameNameExist) {
       throw new BadRequestError(
-        "Project with this same name exists. Try a another name."
+        "Project with this same name exists. Try a another name.",
       );
     }
     // 2. Get user subscription + plan limits
-    const subscription = await this.subscriptionRepo.findActiveByUserId(
-      ownerId
-    );
+    const subscription =
+      await this._subscriptionRepo.findActiveByUserId(ownerId);
 
     const planId = subscription?.planType || "free";
 
-    const plan = await this.planRepo.findById(planId);
+    const plan = await this._planRepo.findById(planId);
 
     if (!plan) throw new NotFoundError("Plan");
 
@@ -67,7 +66,7 @@ export class CreateProjectUseCase implements ICreateProjectUseCase {
       ownerId,
     });
 
-    const savedProject = await this.projectRepo.create(project);
+    const savedProject = await this._projectRepo.create(project);
     const membership = new ProjectMembership({
       projectId: savedProject.id!,
       userId: ownerId,
@@ -75,7 +74,7 @@ export class CreateProjectUseCase implements ICreateProjectUseCase {
       joinedAt: new Date(),
     });
 
-    await this.membershipRepo.create(membership);
+    await this._membershipRepo.create(membership);
     return { project: savedProject };
   }
 }

@@ -9,11 +9,11 @@ import { ISoftDeletePlan } from "@/application/ports/use-cases/plan/admin/ISoftD
 @injectable()
 export class SoftDeletePlan implements ISoftDeletePlan {
   constructor(
-    @inject(TYPES.PlanRepository) private planRepo: IPlanRepository
+    @inject(TYPES.PlanRepository) private _planRepo: IPlanRepository,
   ) {}
 
   async execute(dto: DeletePlanDto): Promise<Plan | null> {
-    const deletedPlan = await this.planRepo.delete(dto.id);
+    const deletedPlan = await this._planRepo.delete(dto.id);
     return deletedPlan;
   }
 }

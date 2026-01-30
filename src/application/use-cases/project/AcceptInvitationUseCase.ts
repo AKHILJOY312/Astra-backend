@@ -17,18 +17,18 @@ import { inject, injectable } from "inversify";
 export class AcceptInvitationUseCase implements IAcceptInvitationUseCase {
   constructor(
     @inject(TYPES.InvitationRepository)
-    private invitationRepo: IInvitationRepository,
+    private _invitationRepo: IInvitationRepository,
     @inject(TYPES.ProjectMembershipRepository)
-    private membershipRepo: IProjectMembershipRepository,
+    private _membershipRepo: IProjectMembershipRepository,
     @inject(TYPES.UserRepository)
-    private userRepo: IUserRepository
+    private _userRepo: IUserRepository,
   ) {}
 
   async execute(dto: AcceptInvitationDTO): Promise<void> {
     const { token, currentUserId } = dto;
 
     // 1. Find invitation by token
-    const invitation = await this.invitationRepo.findByToken(token);
+    const invitation = await this._invitationRepo.findByToken(token);
     if (!invitation) {
       throw new BadRequestError("Invalid invitation token");
     }
@@ -36,30 +36,30 @@ export class AcceptInvitationUseCase implements IAcceptInvitationUseCase {
     // 2. Validate state and expiration
     if (!invitation.isValid()) {
       throw new BadRequestError(
-        "This invitation is no longer valid or has expired"
+        "This invitation is no longer valid or has expired",
       );
     }
 
     // 3. Verify email matches current authenticated user
-    const user = await this.userRepo.findById(currentUserId);
+    const user = await this._userRepo.findById(currentUserId);
     if (!user) {
       throw new BadRequestError("Authenticated user not found");
     }
     if (user.email.toLowerCase() !== invitation.email) {
       throw new UnauthorizedError(
-        "This invitation was sent to a different email address"
+        "This invitation was sent to a different email address",
       );
     }
 
     // 4. Prevent double-acceptance
-    const existingMembership = await this.membershipRepo.findByProjectAndUser(
+    const existingMembership = await this._membershipRepo.findByProjectAndUser(
       invitation.projectId,
-      currentUserId
+      currentUserId,
     );
     if (existingMembership) {
       // Still mark invitation as accepted to clean up
       invitation.accept();
-      await this.invitationRepo.update(invitation);
+      await this._invitationRepo.update(invitation);
 
       return;
     }
@@ -71,11 +71,11 @@ export class AcceptInvitationUseCase implements IAcceptInvitationUseCase {
       role: invitation.role,
     });
 
-    await this.membershipRepo.create(membership);
+    await this._membershipRepo.create(membership);
 
     // 6. Mark invitation as accepted
     invitation.accept();
-    await this.invitationRepo.update(invitation);
+    await this._invitationRepo.update(invitation);
 
     //   await this.uow.commit();
   }
