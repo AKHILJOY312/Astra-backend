@@ -33,6 +33,7 @@ export const API_ROUTES = {
     STATUS: "/:id/status",
     ROLE: "/:id/role",
     BILLING: "/admin/billings",
+    DETAILS: "/details",
   },
 
   USER: {

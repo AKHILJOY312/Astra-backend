@@ -34,4 +34,9 @@ export interface IPaymentRepository {
   findByRazorpayOrderId(orderId: string): Promise<Payment | null>;
   countAll(): Promise<number>; // Used for Invoice numbering
   getAdminSummary(userId: string): Promise<any>;
+  getPaymentsOverview(
+    page: number,
+    limit: number,
+    search?: string,
+  ): Promise<any>;
 }

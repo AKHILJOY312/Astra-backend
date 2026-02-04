@@ -196,4 +196,55 @@ export class PaymentRepository implements IPaymentRepository {
 
     return summary[0];
   }
+  async getPaymentsOverview(page: number, limit: number, search?: string) {
+    const skip = (page - 1) * limit;
+
+    // Build search filter
+    const matchFilter: any = {};
+    if (search) {
+      matchFilter.$or = [
+        { "billingSnapshot.userName": { $regex: search, $options: "i" } },
+        { "billingSnapshot.userEmail": { $regex: search, $options: "i" } },
+      ];
+    }
+
+    const result = await PaymentModel.aggregate([
+      { $match: matchFilter },
+      { $sort: { createdAt: -1 } },
+      {
+        $group: {
+          _id: "$userId",
+          userName: { $first: "$billingSnapshot.userName" },
+          userEmail: { $first: "$billingSnapshot.userEmail" },
+          planName: { $first: "$planName" },
+          status: { $first: "$status" }, // Captured from the last payment status
+          totalSpent: {
+            $sum: { $cond: [{ $eq: ["$status", "captured"] }, "$amount", 0] },
+          },
+          failedCount: {
+            $sum: { $cond: [{ $eq: ["$status", "failed"] }, 1, 0] },
+          },
+          lastPaymentDate: { $max: "$createdAt" },
+        },
+      },
+      {
+        $facet: {
+          metadata: [
+            { $count: "total" },
+            { $addFields: { totalRevenue: { $sum: "$totalSpent" } } },
+          ],
+          data: [{ $skip: skip }, { $limit: limit }],
+        },
+      },
+    ]);
+
+    const metadata = result[0].metadata[0] || { total: 0, totalRevenue: 0 };
+    const data = result[0].data;
+
+    return {
+      data,
+      total: metadata.total,
+      totalRevenue: metadata.totalRevenue,
+    };
+  }
 }

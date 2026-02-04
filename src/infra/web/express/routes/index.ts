@@ -13,7 +13,7 @@ import { getSubscriptionRoutes } from "./subscription.routes";
 import { getUserRoutes } from "./user.routes";
 import { getAttachmentRoutes } from "./attachment.routes";
 import { getMeetingRoutes } from "./meeting.routes";
-import { getAdminbillingsRoutes } from "./admin/adminPaymentRoutes";
+import { getAdminbillingsRoutes } from "./admin/adminBillingRoutes";
 
 const router = Router();
 

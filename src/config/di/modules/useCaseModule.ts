@@ -150,8 +150,12 @@ import {
 import { SendMessageReplyUseCase } from "@/application/use-cases/message-reply/SendMessageReplyUseCase";
 import { ListMessageRepliesUseCase } from "@/application/use-cases/message-reply/ListMessageRepliesUseCase";
 import { GetAllProjectTasksUseCase } from "@/application/use-cases/tasks/GetAllProjectTasksUseCase";
-import { IGetUserPaymentDetailsUseCase } from "@/application/ports/use-cases/upgradetopremium/admin";
+import {
+  IGetUserPaymentDetailsUseCase,
+  IPaymentOverviewUseCase,
+} from "@/application/ports/use-cases/upgradetopremium/admin";
 import { GetUserPaymentDetailsUseCase } from "@/application/use-cases/upgradetopremium/admin/GetUserPaymentDetailsUseCase";
+import { PaymentOverviewUseCase } from "@/application/use-cases/upgradetopremium/admin/PaymentOverviewUseCase";
 
 export const useCaseModule = new ContainerModule((options) => {
   // Regular Auth Use Cases
@@ -188,6 +192,9 @@ export const useCaseModule = new ContainerModule((options) => {
   options
     .bind<IGetUserPaymentDetailsUseCase>(TYPES.GetUserPaymentDetailsUseCase)
     .to(GetUserPaymentDetailsUseCase);
+  options
+    .bind<IPaymentOverviewUseCase>(TYPES.PaymentOverviewUseCase)
+    .to(PaymentOverviewUseCase);
 
   //User Use Case
   options

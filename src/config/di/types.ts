@@ -85,8 +85,9 @@ const TYPES = {
   GetPlansPaginated: Symbol.for("GetPlansPaginated"),
   GetAvailablePlansUseCase: Symbol.for("GetAvailablePlansUseCase"),
 
-  //Use Case ( Billing Admin)
+  //Use Case (Billing Admin)
   GetUserPaymentDetailsUseCase: Symbol.for("GetUserPaymentDetailsUseCase"),
+  PaymentOverviewUseCase: Symbol.for("PaymentOverviewUseCase"),
 
   // Use Cases (Project/Membership)
   CreateProjectUseCase: Symbol.for("CreateProjectUseCase"),
