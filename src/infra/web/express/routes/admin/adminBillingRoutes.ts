@@ -22,11 +22,12 @@ export function getAdminbillingsRoutes(container: Container): Router {
 
   router
     .route(API_ROUTES.ADMIN.BILLING)
-    .get(asyncHandler(adminBillingController.getPaymentOverview));
+    .get(asyncHandler(adminBillingController.getPaymentOverview))
+    .post(asyncHandler(adminBillingController.userPaymentDetails));
 
-  router
-    .route(API_ROUTES.ADMIN.DETAILS)
-    .get(asyncHandler(adminBillingController.userPaymentDetails));
+  // router
+  //   .route(API_ROUTES.ADMIN.DETAILS)
+  //   .get(asyncHandler(adminBillingController.userPaymentDetails));
 
   router
     .route(API_ROUTES.ADMIN.DASHBOARD)

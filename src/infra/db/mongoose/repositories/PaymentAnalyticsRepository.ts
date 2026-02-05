@@ -67,7 +67,7 @@ export class PaymentAnalyticsRepository implements IPaymentAnalyticsRepository {
     return summary[0];
   }
 
-  async getPaymentsOverview(page: number, limit: number, search?: string) {
+  async getPaymentsOverviews(page: number, limit: number, search?: string) {
     const skip = (page - 1) * limit;
 
     // Build search filter

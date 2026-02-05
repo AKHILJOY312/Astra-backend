@@ -23,7 +23,7 @@ export class AdminBillingController {
   ) {}
 
   userPaymentDetails = async (req: Request, res: Response) => {
-    const userId = req.user?.id;
+    const userId = req.body.userId;
     const result = await this._getPaymentDetailsUC.execute(userId!);
     res.json({ succuss: true, data: result });
   };

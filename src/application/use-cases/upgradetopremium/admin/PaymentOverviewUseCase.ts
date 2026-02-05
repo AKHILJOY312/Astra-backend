@@ -11,7 +11,7 @@ import { IPaymentAnalyticsRepository } from "@/application/ports/repositories/IP
 @injectable()
 export class PaymentOverviewUseCase implements IPaymentOverviewUseCase {
   constructor(
-    @inject(TYPES.PaymentRepository)
+    @inject(TYPES.PaymentAnalyticsRepository)
     private _analyticsRepo: IPaymentAnalyticsRepository,
   ) {}
 
@@ -22,7 +22,7 @@ export class PaymentOverviewUseCase implements IPaymentOverviewUseCase {
   ): Promise<PaymentOverviewOutput> {
     // 1. Fetch data through the repository's optimized overview method
     const { data, total, totalRevenue } =
-      await this._analyticsRepo.getPaymentsOverview(page, limit, search);
+      await this._analyticsRepo.getPaymentsOverviews(page, limit, search);
 
     // 2. Map raw database results to a clean Overview Item structure
     const users = data.map((item) => ({

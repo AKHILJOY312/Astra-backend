@@ -93,7 +93,7 @@ export interface PaymentOverviewRepoResult {
 export interface IPaymentAnalyticsRepository {
   // admin Dash board
   getAdminSummary(userId: string): Promise<AdminUserSummary | null>;
-  getPaymentsOverview(
+  getPaymentsOverviews(
     page: number,
     limit: number,
     search?: string,

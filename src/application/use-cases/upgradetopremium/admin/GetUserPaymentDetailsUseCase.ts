@@ -12,7 +12,7 @@ import { IPaymentAnalyticsRepository } from "@/application/ports/repositories/IP
 @injectable()
 export class GetUserPaymentDetailsUseCase implements IGetUserPaymentDetailsUseCase {
   constructor(
-    @inject(TYPES.PaymentRepository)
+    @inject(TYPES.PaymentAnalyticsRepository)
     private _analyticsRepo: IPaymentAnalyticsRepository,
   ) {}
 
