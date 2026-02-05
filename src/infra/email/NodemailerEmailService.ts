@@ -18,7 +18,7 @@ export class NodemailerEmailService implements IEmailService {
 
     if (!email || !pass) {
       throw new Error(
-        "NODEMAILER_EMAIL and NODEMAILER_PASS must be defined in .env",
+        "NODEMAILER_EMAIL and NODEMAILER_PASSWORD must be defined in .env",
       );
     }
 
