@@ -13,7 +13,7 @@ import { IPaymentAnalyticsRepository } from "@/application/ports/repositories/IP
 @injectable()
 export class GetAdminDashboardStatsUseCase implements IGetAdminDashboardStatsUseCase {
   constructor(
-    @inject(TYPES.PaymentRepository)
+    @inject(TYPES.PaymentAnalyticsRepository)
     private _analyticsRepo: IPaymentAnalyticsRepository,
     @inject(TYPES.UserSubscriptionRepository)
     private _subRepo: IUserSubscriptionRepository,
