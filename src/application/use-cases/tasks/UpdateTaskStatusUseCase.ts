@@ -58,7 +58,6 @@ export class UpdateTaskStatusUseCase implements IUpdateTaskStatusUseCase {
     }
 
     task.changeStatus(input.status);
-    task.setUpdatedAt(new Date());
 
     await this._taskRepo.update(task);
     // const updated = await this.taskRepo.update(task);

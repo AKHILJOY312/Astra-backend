@@ -63,7 +63,6 @@ export class UpdateTaskUseCase implements IUpdateTaskUseCase {
     if (input.priority) task.changePriority(input.priority);
     if (input.dueDate !== undefined)
       task.setDueDate(input.dueDate ? new Date(input.dueDate) : null);
-    task.setUpdatedAt(new Date());
 
     await this._taskRepo.update(task);
     return this.mapToResponse(task!);
