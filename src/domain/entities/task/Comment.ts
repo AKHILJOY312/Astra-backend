@@ -11,11 +11,21 @@ export interface CommentProps {
 export class Comment {
   private _props: CommentProps;
 
-  constructor(props: CommentProps) {
+  constructor(
+    props: Omit<CommentProps, "createdAt" | "updatedAt"> & {
+      createdAt?: Date;
+      updatedAt?: Date;
+    },
+  ) {
+    const trimmedMessage = props.message.trim();
+
+    if (!trimmedMessage) {
+      throw new Error("Comment message cannot be empty");
+    }
+
     this._props = {
       ...props,
-      // Ensure we have a clean message and default dates if necessary
-      message: props.message.trim(),
+      message: trimmedMessage,
       createdAt: props.createdAt ?? new Date(),
       updatedAt: props.updatedAt ?? new Date(),
     };
@@ -65,11 +75,11 @@ export class Comment {
    * Updates the command message and automatically refreshes the updatedAt timestamp.
    */
   editMessage(newMessage: string): void {
-    if (!newMessage.trim()) {
-      throw new Error("Message cannot be empty");
-    }
-    this._props.message = newMessage.trim();
-    this.setUpdatedAt(new Date());
+    const trimmed = newMessage.trim();
+    if (!trimmed) throw new Error("Message cannot be empty");
+
+    this._props.message = trimmed;
+    this._props.updatedAt = new Date();
   }
 
   /**
