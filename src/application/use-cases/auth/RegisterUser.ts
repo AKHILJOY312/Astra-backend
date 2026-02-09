@@ -3,7 +3,6 @@ import { IUserRepository } from "../../ports/repositories/IUserRepository";
 import { IAuthService } from "../../ports/services/IAuthService";
 import { IEmailService } from "../../ports/services/IEmailService";
 import { RegisterUserDto } from "../../dto/auth/RegisterUserDto";
-import crypto from "crypto";
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/di/types";
 import { BadRequestError } from "@/application/error/AppError";
@@ -29,23 +28,15 @@ export class RegisterUser implements IRegisterUser {
       throw new BadRequestError("User Already Existed Login Instead");
 
     const hashed = await this._authSvc.hashPassword(dto.password);
-    const token = crypto.randomBytes(32).toString("hex");
-    const expires = new Date(Date.now() + 3_600_000); // 1h
 
-    const user = new User({
+    const user = User.createNew({
       name: dto.name,
       email: dto.email,
       password: hashed,
-      isVerified: false,
-      isAdmin: false,
-      isBlocked: false,
-      verificationToken: token,
-      verificationTokenExpires: expires,
-      securityStamp: token,
     });
 
     await this._userRepo.create(user);
-    await this._emailSvc.sendVerification(dto.email, token);
+    await this._emailSvc.sendVerification(user.email, user.verificationToken!);
 
     return {
       message:

@@ -12,13 +12,13 @@ services:
     depends_on:
       - mongo
 
-  mongo:
-    image: mongo:7
-    container_name: astra-mongo
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
+  # mongo:
+  #   image: mongo:7
+  #   container_name: astra-mongo
+  #   ports:
+  #     - "27017:27017"
+  #   volumes:
+  #     - mongo_data:/data/db
 
 volumes:
   mongo_data:
