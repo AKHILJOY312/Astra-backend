@@ -28,8 +28,20 @@ export class ResetPassword implements IResetPassword {
     if (!user) throw new BadRequestError("Invalid or expired token");
     const hashed = await this._authSvc.hashPassword(password);
 
-    user.setPassword(hashed);
-    user.clearResetToken();
+    try {
+      user.resetPassword(hashed, token);
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        (error.message.includes("Invalid reset token") ||
+          error.message.includes("expired"))
+      ) {
+        throw new BadRequestError(error.message);
+      }
+      // Unexpected error → rethrow (will become 500)
+      throw error;
+    }
+
     await this._userRepo.update(user);
 
     return {

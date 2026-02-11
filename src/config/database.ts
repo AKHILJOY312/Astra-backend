@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { ENV } from "./env.config";
 import { logger } from "@/infra/logger/logger";
 
-const MONGO_URI = ENV.DATABASE.MONGO_URI || "mongodb://127.0.0.1:27017/astra";
+const MONGO_URI = ENV.DATABASE.MONGO_URI;
 
 export const connectDB = async (): Promise<void> => {
   logger.info("Connecting to MongoDB");

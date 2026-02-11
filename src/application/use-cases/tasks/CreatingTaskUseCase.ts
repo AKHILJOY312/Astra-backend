@@ -64,14 +64,11 @@ export class CreateTaskUseCase implements ICreateTaskUseCase {
       projectId,
       assignedBy: managerId,
       assignedTo,
-      title: title.trim(),
+      title: title,
       description,
-      status: "todo",
       hasAttachments: hasAttachments,
       priority,
       dueDate: dueDate ? new Date(dueDate) : null,
-      createdAt: new Date(),
-      updatedAt: new Date(),
     });
 
     const savedTask = await this._taskRepo.create(task);

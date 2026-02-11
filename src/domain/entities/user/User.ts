@@ -1,3 +1,5 @@
+import crypto from "crypto";
+
 // src/domain/entities/User.ts
 export interface UserProps {
   id?: string;
@@ -135,5 +137,50 @@ export class User {
   }
   setImageUrl(imageUrl: string): void {
     this._props.imageUrl = imageUrl;
+  }
+
+  static createNew(
+    props: Pick<UserProps, "name" | "email" | "password">,
+  ): User {
+    if (!props.email.includes("@")) throw new Error("Invalid email format");
+
+    const token = crypto.randomBytes(32).toString("hex");
+
+    return new User({
+      ...props,
+      isVerified: false,
+      isAdmin: false,
+      isBlocked: false,
+      verificationToken: token,
+      verificationTokenExpires: new Date(Date.now() + 3600000), // 1h rule
+      securityStamp: crypto.randomBytes(16).toString("hex"),
+      createdAt: new Date(),
+    });
+  }
+
+  // Inside src/domain/entities/User.ts
+
+  resetPassword(newHash: string, token: string): void {
+    // BUSINESS RULE: Token must match
+    if (this._props.resetPasswordToken !== token) {
+      throw new Error("Invalid reset token.");
+    }
+
+    // BUSINESS RULE: Token must not be expired
+    if (
+      this._props.resetPasswordExpires &&
+      this._props.resetPasswordExpires < new Date()
+    ) {
+      throw new Error("Reset token has expired.");
+    }
+
+    // State Transition
+    this._props.password = newHash;
+
+    // BUSINESS RULE: Clearing the token and updating security stamp
+    // This ensures old sessions are invalidated (if your auth logic uses the stamp)
+    this._props.resetPasswordToken = null;
+    this._props.resetPasswordExpires = null;
+    this._props.securityStamp = crypto.randomBytes(16).toString("hex");
   }
 }

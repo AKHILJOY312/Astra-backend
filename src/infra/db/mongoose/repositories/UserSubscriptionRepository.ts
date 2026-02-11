@@ -40,7 +40,7 @@ export class UserSubscriptionRepository implements IUserSubscriptionRepository {
       status: subscription.status,
       razorPayOrderId: subscription.razorPayOrderId,
     });
-    // console.log("create: ", subscription);
+
     const saved = await doc.save();
     return toUserSubscriptionEntity(saved);
   }

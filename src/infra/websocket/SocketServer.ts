@@ -50,11 +50,10 @@ export function createSocketServer(
 
   io.on("connection", (socket: AuthenticatedSocket) => {
     const userId = socket.data.user.id;
-    console.log(`User connected: ${userId} | Socket: ${socket.id}`);
 
-    socket.onAny((event, payload) => {
-      console.log(" EVENT", event, payload, "from", socket.id);
-    });
+    // socket.onAny((event, payload) => {
+    //   console.log(" EVENT", event, payload, "from", socket.id);
+    // });
 
     // Resolve use cases once per connection
     const sendMessageUC = container.get<ISendMessageUseCase>(

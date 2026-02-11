@@ -161,6 +161,20 @@ export class PaymentAnalyticsRepository implements IPaymentAnalyticsRepository {
                     ],
                   },
                 },
+                successCount: {
+                  $sum: {
+                    $cond: [
+                      {
+                        $and: [
+                          { $eq: ["$status", "captured"] },
+                          { $gte: ["$createdAt", today] },
+                        ],
+                      },
+                      1,
+                      0,
+                    ],
+                  },
+                },
                 failedCount: {
                   $sum: { $cond: [{ $eq: ["$status", "failed"] }, 1, 0] },
                 },
@@ -204,7 +218,7 @@ export class PaymentAnalyticsRepository implements IPaymentAnalyticsRepository {
       },
       paymentStatus: {
         today: {
-          success: 0,
+          success: m.successCount || 0,
           failed: m.failedCount || 0,
           pending: m.pendingCount || 0,
         },

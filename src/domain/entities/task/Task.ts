@@ -22,16 +22,32 @@ export interface TaskProps {
 export class Task {
   private _props: TaskProps;
 
-  constructor(props: TaskProps) {
+  constructor(
+    props: Partial<TaskProps> & { title: string; projectId: string },
+  ) {
     this._props = {
       ...props,
-      description: props.description ?? null,
-      assignedBy: props.assignedBy ?? null,
-      assignedTo: props.assignedTo ?? null,
-      dueDate: props.dueDate ?? null,
+      title: props.title.trim(),
+      status: props.status ?? "todo",
       priority: props.priority ?? "medium",
-    };
+      createdAt: props.createdAt ?? new Date(),
+      updatedAt: new Date(),
+    } as TaskProps;
+    if (this._props.title.length === 0) {
+      throw new Error("Task title cannot be empty");
+    }
   }
+
+  private ensureTaskIsEditable(): void {
+    if (this._props.status === "done") {
+      throw new Error("Cannot modify a completed task.");
+    }
+  }
+
+  private markAsUpdated(): void {
+    this._props.updatedAt = new Date();
+  }
+
   //getters
   get id(): string | undefined {
     return this._props.id;
@@ -82,18 +98,34 @@ export class Task {
     this._props.assignedTo = userId;
   }
   changeStatus(status: TaskStatus): void {
+    if (this._props.status === "todo" && status === "done") {
+      throw new Error(
+        "Cannot jump from Todo to Done. Task must be 'inprogress' first.",
+      );
+    }
     this._props.status = status;
+    this._props.updatedAt = new Date();
   }
   changePriority(priority: TaskPriority) {
+    this.ensureTaskIsEditable();
     this._props.priority = priority;
+    this.markAsUpdated();
   }
   updateTitle(title: string) {
-    this._props.title = title;
+    this.ensureTaskIsEditable();
+    this._props.title = title.trim();
+    this.markAsUpdated();
   }
   updateDescription(description: string | null): void {
     this._props.description = description;
   }
   setDueDate(dueDate: Date | null): void {
+    this.ensureTaskIsEditable();
+    // Rule: Due date cannot be in the past for active tasks
+    if (dueDate && dueDate < new Date() && this._props.status !== "done") {
+      throw new Error("Due date cannot be in the past.");
+    }
     this._props.dueDate = dueDate;
+    this.markAsUpdated();
   }
 }

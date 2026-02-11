@@ -72,7 +72,7 @@ export class TaskController {
 
   updateTask = async (req: Request, res: Response) => {
     const parsedBody = UpdateTaskSchema.safeParse(req.body);
-    console.log(parsedBody.error);
+
     if (!parsedBody.success) {
       throw new ValidationError("Invalid request body parameters");
     }
@@ -92,7 +92,6 @@ export class TaskController {
 
   // GET /projects/:projectId/tasks
   listTasks = async (req: Request, res: Response) => {
-    console.log("req. for the list task details ", req.query);
     const parsedQuery = ListTasksQuerySchema.safeParse(req.query);
     if (!parsedQuery.success) {
       throw new ValidationError("Invalid query parameters");

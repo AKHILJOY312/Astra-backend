@@ -72,7 +72,6 @@ export class JwtAuthService implements IAuthService {
     const min = Math.pow(10, lengthOfOtp - 1);
     const max = Math.pow(10, lengthOfOtp) - 1;
     const otp = Math.floor(Math.random() * (max - min + 1)) + min;
-    console.log("Email reset Password: ", otp);
     return otp;
   }
 }

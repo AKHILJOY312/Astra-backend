@@ -52,9 +52,7 @@ export class AddCommentUseCase implements IAddCommentUseCase {
       taskId,
       projectId,
       authorId: userId,
-      message: message.trim(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      message,
     });
 
     // 4. Persist to Repository
