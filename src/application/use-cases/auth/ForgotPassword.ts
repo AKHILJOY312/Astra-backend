@@ -29,7 +29,6 @@ export class ForgotPassword implements IForgotPassword {
 
     const resetUrl = `${ENV.CLIENT_URL}/verify-email?token=${token}&type=reset`;
     await this._emailSvc.sendPasswordReset(email, token, resetUrl);
-    console.log("resetUrl: ", resetUrl);
     return { message: "Password reset link sent to your email" };
   }
 }

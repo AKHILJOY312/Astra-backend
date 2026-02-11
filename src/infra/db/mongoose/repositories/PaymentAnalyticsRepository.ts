@@ -208,8 +208,6 @@ export class PaymentAnalyticsRepository implements IPaymentAnalyticsRepository {
     ]);
 
     const m = stats[0].metrics[0] || {};
-    console.log("stats from the db", stats);
-    console.log("computed metrics", m);
     return {
       revenue: {
         mrr: m.monthRev || 0,

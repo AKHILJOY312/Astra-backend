@@ -20,9 +20,8 @@ export class AssignAdminRoleUseCase implements IAssignAdminRoleUseCase {
     if (!user) throw new NotFoundError("User");
     const isAdmin = user.isAdmin;
     // 1. Update the role on the User entity
-    // console.log("user before setting the role : ", user);
+
     user.setAdminRole(!isAdmin);
-    // console.log("user after setting the role : ", user);
     // 2. Persist the change
     await this._userRepo.updateRole(user.id!); // Use existing save/updateRole (if created)
 

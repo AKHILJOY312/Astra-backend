@@ -120,7 +120,7 @@ export class UserController {
     const emailChangeOtp = req.body.emailChangeOtp;
 
     const result = await this._verifyEmailUC.execute(userId, emailChangeOtp);
-    console.log(result);
+
     return res.json(result);
   };
 }
